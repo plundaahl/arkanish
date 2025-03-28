@@ -1,0 +1,8 @@
+arkanish-app {
+    position: absolute;
+    inset: 0;
+}
+
+arkanish-app canvas {
+    inset: 0;
+}
