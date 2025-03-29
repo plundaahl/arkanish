@@ -25,6 +25,8 @@ export class ArkanishApp extends HTMLElement {
         this.handleKeyboardEvent = this.handleKeyboardEvent.bind(this)
         this.error = this.error.bind(this)
         this.update = this.update.bind(this)
+        this.makeGameScene = this.makeGameScene.bind(this)
+        this.makeMenuScene = this.makeMenuScene.bind(this)
     }
 
     connectedCallback() {
@@ -41,7 +43,7 @@ export class ArkanishApp extends HTMLElement {
 
         // Game-specific setup
         this.uiState = mkUiState()
-        this.scene = new MenuScene(() => this.scene = new GameScene())
+        this.scene = this.makeMenuScene()
         this.running = true;
 
         // Start the render loop 
@@ -52,6 +54,14 @@ export class ArkanishApp extends HTMLElement {
     disconnectedCallback() {
         this.running = false
         window.removeEventListener('resize', this.handleResize)
+    }
+
+    private makeMenuScene() {
+        return new MenuScene(() => this.scene = this.makeGameScene())
+    }
+
+    private makeGameScene() {
+        return new GameScene(() => this.scene = this.makeMenuScene())
     }
 
     handleResize() {
