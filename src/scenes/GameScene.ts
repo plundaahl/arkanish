@@ -1,7 +1,9 @@
-import { Scene, UiState } from './Scene'
+import { CURSOR_DOWN, Scene, UiState } from './Scene'
 import { World } from '../World'
-import { EntityFlags } from '../Entity'
+import { ColliderFlag, Entity, EntityFlags } from '../Entity'
 import { BoundingBox, BoundingBoxTypes } from '../BoundingBox'
+import { Flag } from '../Flag'
+import { Collisions, CollisionSystem } from '../CollisionDetectionSystem'
 
 const MS_PER_SEC = 1000
 
@@ -10,29 +12,27 @@ const PLAYER_SCALE = 2
 const PLAYER_HEIGHT_HALF = PLAYER_SCALE * 15
 const PLAYER_WIDTH_HALF = PLAYER_SCALE * 10
 const PLAYER_OFFSET = PLAYER_HEIGHT_HALF / 2
-
-const COLLIDER_FLAGS = EntityFlags.ALIVE | EntityFlags.COLLIDER
-
-const COLLIDER_GROUP_PLAYER = 1
-const COLLIDER_GROUP_ENEMY = 1 << 1
-const COLLIDER_GROUP_POWERUP = 1 << 2
+const PLAYER_RATE_OF_FIRE = 200
+const PLAYER_BULLET_SPEED = -500
+const MS_PER_SCORE_TICK = 800
+const MAX_HEALTH = 3
 
 type State = {
-    playerX: number,
-    playerY: number,
     playerId: number,
     world: World,
     lastSpawnTime: number,
     numEntities: number,
     health: number,
     quitTime: number,
+    playerNextShotTime: number,
+    score: number,
+    scoreTimeIncrementer: number,
 }
 
 export class GameScene implements Scene {
     private prevTime: number;
     private state: State;
-    private collidedEntities: Set<number> = new Set()
-    private collisions: number[] = [] // Pairs of entity IDs: the listener, and the one that was collided with
+    private collisions: Collisions = CollisionSystem.makeState()
 
     constructor(
         private readonly onDeath: () => void,
@@ -43,14 +43,20 @@ export class GameScene implements Scene {
             this.init(time, uiState)
         }
 
-        this.updatePlayerPos(uiState)
+        this.incrementScoreForTime(time)
+        this.handlePlayerInput(time, uiState)
         this.spawnEntities(time, uiState)
         this.updateMovement(time)
         this.updateBoundingBoxTransforms()
-        this.detectCollisions()
-        this.handlePlayerCollisions(time)
+        CollisionSystem.run(this.state.world, this.collisions)
+        this.handleCollisions(time)
+        this.removeDyingEntities()
+        this.removeOutOfBoundsEntities(uiState)
+
         this.renderBackground(time, canvas, uiState)
         this.renderGameObjects(time, canvas)
+        this.renderUi(canvas)
+
         this.prevTime = time
 
         if (this.state.quitTime > 0 && time >= this.state.quitTime) {
@@ -61,43 +67,50 @@ export class GameScene implements Scene {
     private init(time: number, ui: UiState) {
         this.prevTime = time
         this.state = {
-            playerX: ui.width / 2,
-            playerY: 9 * ui.height / 12,
             playerId: 0,
             world: World.create(),
             lastSpawnTime: time,
             numEntities: 0,
-            health: 3,
+            health: MAX_HEALTH,
             quitTime: -1,
+            playerNextShotTime: 0,
+            score: 0,
+            scoreTimeIncrementer: 0,
         }
 
-        const player = World.spawnEntity(this.state.world)
+        const player = spawnPlayer(this.state.world)
         this.state.playerId = player.id
-
-        player.flags |= EntityFlags.COLLIDER
-        player.colliderBbSrc = [
-            BoundingBox.createAabb(-20, -15, 40, 30),
-            BoundingBox.createAabb(-10, -45, 20, 30),
-        ]
-        player.colliderBbTransform = [
-            BoundingBox.createAabb(0, 0, 0, 0),
-            BoundingBox.createAabb(0, 0, 0, 0),
-        ]
-        player.colliderGroup = COLLIDER_GROUP_PLAYER
-        player.collidesWith = COLLIDER_GROUP_ENEMY
 
         console.log(this)
     }
 
-    private updatePlayerPos(uiState: UiState) {
-        if (uiState.cursorActive && this.state.health > 0) {
-            const player = World.getEntity(this.state.world, this.state.playerId)
-            if (player) {
-                player.posX = uiState.cursorX
-                player.posY = uiState.cursorY
-            }
-            this.state.playerX = uiState.cursorX
-            this.state.playerY = uiState.cursorY
+    private handlePlayerInput(time: number, uiState: UiState) {
+        if (!uiState.cursorActive) {
+            return
+        }
+        if (this.state.health <= 0) {
+            return
+        }
+
+        const player = World.getEntity(this.state.world, this.state.playerId)
+        if (!player) {
+            return
+        }
+
+        player.posX = uiState.cursorX
+        player.posY = uiState.cursorY
+
+        if (uiState.cursorState === CURSOR_DOWN && time > this.state.playerNextShotTime) {
+            this.state.playerNextShotTime = time + PLAYER_RATE_OF_FIRE
+            spawnPlayerBullet(this.state.world, player.posX, player.posY - PLAYER_HEIGHT_HALF)
+        }
+    }
+
+    private incrementScoreForTime(time: number) {
+        this.state.scoreTimeIncrementer += time - this.prevTime
+        if (this.state.scoreTimeIncrementer > MS_PER_SCORE_TICK) {
+            this.state.scoreTimeIncrementer -= MS_PER_SCORE_TICK
+            this.state.score += 1
         }
     }
 
@@ -126,46 +139,42 @@ export class GameScene implements Scene {
     }
 
     private renderGameObjects(time: number, ctx: CanvasRenderingContext2D): void {
-        ctx.save()
+        const player = World.getEntity(this.state.world, this.state.playerId)
+        if (player) {
+            ctx.save()
+            ctx.beginPath()
 
-        ctx.beginPath()
-        ctx.moveTo(this.state.playerX, this.state.playerY - PLAYER_HEIGHT_HALF - PLAYER_OFFSET)
-        ctx.lineTo(this.state.playerX - PLAYER_WIDTH_HALF, this.state.playerY + PLAYER_HEIGHT_HALF - PLAYER_OFFSET)
-        ctx.lineTo(this.state.playerX, this.state.playerY + (PLAYER_HEIGHT_HALF / 2) - PLAYER_OFFSET)
-        ctx.lineTo(this.state.playerX + PLAYER_WIDTH_HALF, this.state.playerY + PLAYER_HEIGHT_HALF - PLAYER_OFFSET)
-        ctx.closePath()
-        ctx.fillStyle = this.state.health === 3
-            ? '#FF0000'
-            : this.state.health === 2
-            ? '#990000'
-            : this.state.health === 1
-            ? '#550000'
-            : 'white'
+            ctx.moveTo(player.posX, player.posY - PLAYER_HEIGHT_HALF - PLAYER_OFFSET)
+            ctx.lineTo(player.posX - PLAYER_WIDTH_HALF, player.posY + PLAYER_HEIGHT_HALF - PLAYER_OFFSET)
+            ctx.lineTo(player.posX, player.posY + (PLAYER_HEIGHT_HALF / 2) - PLAYER_OFFSET)
+            ctx.lineTo(player.posX + PLAYER_WIDTH_HALF, player.posY + PLAYER_HEIGHT_HALF - PLAYER_OFFSET)
+            ctx.closePath()
+            ctx.fillStyle = this.state.health === 3
+                ? '#FF0000'
+                : this.state.health === 2
+                ? '#990000'
+                : this.state.health === 1
+                ? '#550000'
+                : 'white'
             
-        ctx.lineWidth = 5
-        ctx.fill()
-
-        ctx.restore()
+            ctx.lineWidth = 5
+            ctx.fill()
+            
+            ctx.restore()
+        }
 
         ctx.save()
         ctx.lineWidth = 2
         for (const entity of this.state.world.entities) {
-            if ((entity.flags & COLLIDER_FLAGS) === COLLIDER_FLAGS) {
-                const colour = entity.colliderGroup === COLLIDER_GROUP_PLAYER
-                    ? 'green'
-                    : entity.colliderGroup === COLLIDER_GROUP_ENEMY
-                    ? 'red'
-                    : entity.colliderGroup === COLLIDER_GROUP_POWERUP
-                    ? 'blue'
-                    : 'white'
-
+            const colourIfDying = entity.flags & EntityFlags.DYING ? 'yellow' : ''
+            if (Flag.hasBigintFlags(entity.flags, EntityFlags.ALIVE, EntityFlags.COLLIDER)) {
                 for (const box of entity.colliderBbTransform) {
                     if (box.type === BoundingBoxTypes.AABB) {
-                        if (this.collidedEntities.has(entity.id)) {
-                            ctx.fillStyle = colour
+                        if (this.collisions.collidedEntities.has(entity.id)) {
+                            ctx.fillStyle = colourIfDying || entity.colour || 'white'
                             ctx.fillRect(box.left, box.top, box.width, box.height)
                         } else {
-                            ctx.strokeStyle = colour
+                            ctx.strokeStyle = colourIfDying || entity.colour || 'white'
                             ctx.strokeRect(box.left, box.top, box.width, box.height)
                         }
                     }
@@ -175,30 +184,49 @@ export class GameScene implements Scene {
         ctx.restore()
     }
 
+    private renderUi(ctx: CanvasRenderingContext2D) {
+        ctx.save()
+
+        
+        ctx.font = '20px serif'
+        ctx.fillStyle = 'white'
+        
+        const hpText = `HP: ${this.state.health}`
+        const scoreText = `Score: ${this.state.score}`
+
+        const hpTextMetrics = ctx.measureText(hpText)
+
+        ctx.fillText(hpText, 50, 50)
+        ctx.fillText(scoreText, 50, 50 + hpTextMetrics.actualBoundingBoxAscent + hpTextMetrics.actualBoundingBoxDescent + 10)
+
+        ctx.restore()
+    }
+
     private spawnEntities(time: number, uiState: UiState) {
-        if (this.state.numEntities < 50 && time - this.state.lastSpawnTime > 1000) {
+        if (this.state.numEntities < 50 && time - this.state.lastSpawnTime > 150) {
             this.state.numEntities++;
             this.state.lastSpawnTime = time
 
-            const type = Math.random() < 0.5
-                ? COLLIDER_GROUP_ENEMY
-                : COLLIDER_GROUP_POWERUP
-
-            const entity = World.spawnEntity(this.state.world)
-            entity.posX = Math.ceil(Math.random() * uiState.width)
-            entity.posY = Math.ceil(0)
-            entity.velY = 350
-            entity.flags |= EntityFlags.COLLIDER
-            entity.colliderBbSrc = [BoundingBox.createAabb(-20, -20, 40, 40)]
-            entity.colliderBbTransform = [BoundingBox.clone(entity.colliderBbSrc[0])]
-            entity.colliderGroup = type
-            entity.collidesWith = COLLIDER_GROUP_PLAYER
+            const x = Math.ceil(Math.random() * uiState.width)
+            const y = -50
+            if (Math.random() < 0.9) {
+                spawnAsteroid(this.state.world, x, y)
+            } else {
+                spawnPowerup(this.state.world, x, y)
+            }
         }
 
+    }
+    
+    private removeOutOfBoundsEntities(uiState: UiState) {
         const world = this.state.world
         for (let i = 0; i < world.entities.length; i++) {
             const entity = world.entities[i]
-            if (entity.flags & EntityFlags.ALIVE && entity.posY > uiState.height + 40) {
+            if (!(entity.flags & EntityFlags.ALIVE)) {
+                continue
+            }
+            if ((entity.velY > 0 && entity.posY > uiState.height + 200)
+                || (entity.velY < 0 && entity.posY < -200)) {
                 World.releaseEntity(world, entity)
                 this.state.numEntities--
             }
@@ -229,67 +257,122 @@ export class GameScene implements Scene {
         }
     }
 
-    private detectCollisions() {
-        this.collidedEntities.clear()
-        this.collisions.length = 0
+    private handleCollisions(time: number) {
+        const { collisions } = this.collisions
+        for (let i = 0; i < collisions.length; i += 2) {
+            const selfId = collisions[i]
+            const otherId = collisions[i + 1]
+            const self = World.getEntity(this.state.world, selfId)
+            const other = World.getEntity(this.state.world, otherId)
 
-        const entities = this.state.world.entities
-
-        for (let i = 0; i < entities.length; i++) {
-            const entityI = entities[i]
-            if ((entityI.flags & COLLIDER_FLAGS) !== COLLIDER_FLAGS) {
+            if (!self || !other) {
                 continue
             }
-            for (let j = i + 1; j < entities.length; j++) {
-                const entityJ = entities[j]
-                if ((entityJ.flags & COLLIDER_FLAGS) !== COLLIDER_FLAGS) {
-                    continue
-                }
 
-                const entityIListens = (entityI.collidesWith & entityJ.colliderGroup) !== 0
-                const entityJListens = (entityJ.collidesWith & entityI.colliderGroup) !== 0
-
-                if (!(entityIListens || entityJListens)) {
-                    continue
-                }
-
-                for (const a of entityI.colliderBbTransform) {
-                    for (const b of entityJ.colliderBbTransform) {
-                        if (BoundingBox.intersects(a, b)) {
-                            if (entityIListens) {
-                                this.collidedEntities.add(entityI.id)
-                                this.collisions.push(entityI.id, entityJ.id)
-                            }
-                            if (entityJListens) {
-                                this.collidedEntities.add(entityJ.id)
-
-                                this.collisions.push(entityJ.id, entityI.id)
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private handlePlayerCollisions(time: number) {
-        for (let i = 0; i < this.collisions.length; i += 2) {
-            const selfId = this.collisions[i]
-            const otherId = this.collisions[i + 1]
-            if (selfId === this.state.playerId) {
-                const player = World.getEntity(this.state.world, selfId)
-                const other = World.getEntity(this.state.world, otherId)
-                if (!player || !other) {
-                    continue
-                }
-                if (other.colliderGroup & COLLIDER_GROUP_ENEMY && player.invulnerableUntil < time) {
-                    player.invulnerableUntil = time + 1000
+            if ((self.flags & EntityFlags.ROLE_PLAYER) && (other.flags & EntityFlags.ROLE_ENEMY) && self.invulnerableUntil < time) {
+                if (this.state.health > 0) {
+                    self.invulnerableUntil = time + 1000
                     this.state.health -= 1
-                    if (this.state.health === 0) {
-                        this.state.quitTime = time + 2000
-                    }
+                }
+                if (this.state.health === 0) {
+                    this.state.quitTime = time + 2000
+                }
+            }
+
+            if ((self.flags & EntityFlags.ROLE_ENEMY) && (other.flags & EntityFlags.ROLE_PLAYER_BULLET)) {
+                self.flags |= EntityFlags.DYING
+                other.flags |= EntityFlags.DYING
+                this.state.score += 50
+            }
+
+            if ((self.flags & EntityFlags.ROLE_PLAYER) && (other.flags & EntityFlags.ROLE_POWERUP)) {
+                other.flags |= EntityFlags.DYING
+                if (this.state.health < MAX_HEALTH && (this.state.health > 0)) {
+                    this.state.health += 1
                 }
             }
         }
     }
+
+    private removeDyingEntities() {
+        const world = this.state.world
+        for (let i = 0; i < world.entities.length; i++) {
+            const entity = world.entities[i]
+            if (Flag.hasBigintFlags(entity.flags, EntityFlags.DYING, EntityFlags.ALIVE)) {
+                World.releaseEntity(world, entity)
+            }
+        }
+    }
+}
+
+function spawnPlayer(world: World): Entity {
+    const player = World.spawnEntity(world)
+
+    player.flags |= EntityFlags.COLLIDER
+    player.colliderBbSrc = [
+        BoundingBox.createAabb(-20, -15, 40, 30),
+        BoundingBox.createAabb(-10, -45, 20, 30),
+    ]
+    player.colliderBbTransform = [
+        BoundingBox.createAabb(0, 0, 0, 0),
+        BoundingBox.createAabb(0, 0, 0, 0),
+    ]
+    player.colliderGroup = ColliderFlag.PLAYER
+    player.collidesWith = ColliderFlag.ENEMY | ColliderFlag.POWERUP
+    player.colour = 'green'
+
+    player.flags |= EntityFlags.ROLE_PLAYER
+
+    return player
+}
+
+function spawnPlayerBullet(world: World, x: number, y: number) {
+    const bullet = World.spawnEntity(world)
+    bullet.posX = x
+    bullet.posY = y
+    bullet.velY = PLAYER_BULLET_SPEED
+    bullet.flags |= EntityFlags.COLLIDER
+    bullet.colliderBbSrc = [BoundingBox.createAabb(-5, -5, 10, 10)]
+    bullet.colliderBbTransform = [BoundingBox.createAabb(-5, -5, 10, 10)]
+    bullet.colliderGroup = ColliderFlag.PLAYER_BULLET
+    bullet.collidesWith = ColliderFlag.ENEMY
+    bullet.colour = 'red'
+    bullet.flags |= EntityFlags.ROLE_PLAYER_BULLET
+}
+
+function spawnAsteroid(world: World, x: number, y: number) {
+    const entity = World.spawnEntity(world)
+
+    const halfSize = Math.ceil((Math.random() * 100) + 20)
+    const size = halfSize * 2
+    const vel = Math.ceil(Math.random() * 300) + 300
+
+    entity.posX = x
+    entity.posY = y - halfSize
+    entity.velY = vel
+
+    entity.flags |= EntityFlags.COLLIDER
+    entity.colliderBbSrc = [BoundingBox.createAabb(-halfSize, -halfSize, size, size)]
+    entity.colliderBbTransform = [BoundingBox.clone(entity.colliderBbSrc[0])]
+    entity.colliderGroup = ColliderFlag.ENEMY
+    entity.collidesWith = ColliderFlag.PLAYER | ColliderFlag.PLAYER_BULLET
+
+    entity.colour = 'red'
+    entity.flags |= EntityFlags.ROLE_ENEMY
+}
+
+function spawnPowerup(world: World, x: number, y: number) {
+    const entity = World.spawnEntity(world)
+
+    entity.posX = x
+    entity.posY = y
+    entity.velY = 350
+
+    entity.flags |= EntityFlags.COLLIDER
+    entity.colliderBbSrc = [BoundingBox.createAabb(-20, -20, 40, 40)]
+    entity.colliderBbTransform = [BoundingBox.clone(entity.colliderBbSrc[0])]
+    entity.colliderGroup = ColliderFlag.POWERUP
+
+    entity.colour = 'blue' 
+    entity.flags |= EntityFlags.ROLE_POWERUP
 }
