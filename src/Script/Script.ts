@@ -1,10 +1,10 @@
-import { GameEvent } from "../GameEvent";
-import { Entity } from "../Entity";
-import { World } from "../World";
+import { GameEvent } from "../game-state/GameEvent";
+import { Entity, World } from "../game-state/Entity";
+import { GameState } from "../game-state/GameState";
 
 export type Script = {
-    update(world: World, entity: Entity): void
-    handleEvent(world: World, entity: Entity, event: GameEvent): void
+    update(gameState: GameState, entity: Entity): void
+    handleEvent(gameState: GameState, entity: Entity, event: GameEvent): void
 }
 
 export const Script = {

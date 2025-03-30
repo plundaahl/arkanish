@@ -1,11 +1,11 @@
-import { Flag } from "./Flag";
-import { Entity, EntityFlags } from "./Entity";
-import { World } from "./World";
+import { Flag } from "./game-state/Flag";
+import { Entity, EntityFlags, World } from "./game-state/Entity";
 import { Script } from './Script/Script'
 import { PlayerScript } from "./Script/PlayerScript";
-import { GameEventBuffer, GameEventType } from "./GameEvent";
+import { GameEventBuffer, GameEventType } from "./game-state/GameEvent";
 import { PowerupScript } from "./Script/PowerupScript";
 import { BulletScript } from "./Script/BulletScript";
+import { GameState } from './game-state/GameState'
 
 let nextMachineId = 1
 
@@ -26,30 +26,30 @@ registerMachine(PowerupScript)
 registerMachine(BulletScript)
 
 export const ScriptSystem = {
-    run: (world: World, eventBuffer: GameEventBuffer): void => {
+    run: (state: GameState): void => {
         // Handle all events
-        for (let i = 0; i < eventBuffer.events.length; i++) {
-            const event = eventBuffer.events[i];
+        for (let i = 0; i < state.events.length; i++) {
+            const event = state.events[i];
             if (event.type === GameEventType.NULL) {
                 continue
             }
-            const entity = World.getEntity(world, event.entity)
+            const entity = World.getEntity(state, event.entity)
             const machine = entity && findMachineById(entity.script)
             if (entity && Flag.hasBigintFlags(entity.flags, EntityFlags.ALIVE, EntityFlags.SCRIPT) && machine) {
-                machine.handleEvent(world, entity, event)
+                machine.handleEvent(state, entity, event)
             }
         }
 
         // Run per-frame update
-        for (let i = 0; i < world.entities.length; i++) {
-            const entity = world.entities[i]
+        for (let i = 0; i < state.entities.length; i++) {
+            const entity = state.entities[i]
             const machine = findMachineById(entity.script)
 
             if (!Flag.hasBigintFlags(entity.flags, EntityFlags.ALIVE, EntityFlags.SCRIPT) || !machine) {
                 continue
             }
 
-            machine.update(world, entity)
+            machine.update(state, entity)
         }
     },
     enterState: (world: World, entity: Entity, machine: Script, state: number) => {

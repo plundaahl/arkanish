@@ -1,25 +1,20 @@
-import { World } from './World'
-import { Flag } from './Flag'
-import { EntityFlags } from './Entity'
-import { BoundingBox } from './BoundingBox'
-import { GameEventBuffer } from './GameEvent'
-
-export type Collisions = {
-    // Pairs of entity IDs: the listener, and the one that was collided with
-    collisions: number[]
-    collidedEntities: Set<number>
-}
+import { Flag } from './game-state/Flag'
+import { EntityFlags, World } from './game-state/Entity'
+import { BoundingBox } from './game-state/BoundingBox'
+import { GameEventBuffer } from './game-state/GameEvent'
+import { Collisions } from './game-state/Collisions'
+import { GameState } from './game-state/GameState'
 
 export const CollisionSystem = {
     makeState: (): Collisions => ({
         collisions: [],
         collidedEntities: new Set(),
     }),
-    run: (world: World, collision: Collisions, eventBuffer: GameEventBuffer): void => {
-        collision.collidedEntities.clear()
-        collision.collisions.length = 0
+    run: (gameState: GameState): void => {
+        gameState.collidedEntities.clear()
+        gameState.collisions.length = 0
 
-        const entities = world.entities
+        const entities = gameState.entities
 
         for (let i = 0; i < entities.length; i++) {
             const entityI = entities[i]
@@ -43,14 +38,14 @@ export const CollisionSystem = {
                     for (const b of entityJ.colliderBbTransform) {
                         if (BoundingBox.intersects(a, b)) {
                             if (entityIListens) {
-                                collision.collidedEntities.add(entityI.id)
-                                collision.collisions.push(entityI.id, entityJ.id)
-                                GameEventBuffer.addCollisionEvent(eventBuffer, entityI.id, entityJ.id)
+                                gameState.collidedEntities.add(entityI.id)
+                                gameState.collisions.push(entityI.id, entityJ.id)
+                                GameEventBuffer.addCollisionEvent(gameState, entityI.id, entityJ.id)
                             }
                             if (entityJListens) {
-                                collision.collidedEntities.add(entityJ.id)
-                                collision.collisions.push(entityJ.id, entityI.id)
-                                GameEventBuffer.addCollisionEvent(eventBuffer, entityJ.id, entityI.id)
+                                gameState.collidedEntities.add(entityJ.id)
+                                gameState.collisions.push(entityJ.id, entityI.id)
+                                GameEventBuffer.addCollisionEvent(gameState, entityJ.id, entityI.id)
                             }
                         }
                     }

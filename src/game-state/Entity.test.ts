@@ -1,4 +1,4 @@
-import { World } from './World'
+import { World } from './Entity'
 
 describe('spawnEntity', () => {
     test('Creates a new entity record if list is empty', () => {

@@ -1,14 +1,15 @@
 import { CURSOR_DOWN, Scene, UiState } from './Scene'
-import { World } from '../World'
-import { ColliderFlag, Entity, EntityFlags } from '../Entity'
-import { BoundingBox, BoundingBoxTypes } from '../BoundingBox'
-import { Flag } from '../Flag'
-import { Collisions, CollisionSystem } from '../CollisionDetectionSystem'
+import { World } from '../game-state/Entity'
+import { ColliderFlag, Entity, EntityFlags } from '../game-state/Entity'
+import { BoundingBox, BoundingBoxTypes } from '../game-state/BoundingBox'
+import { Flag } from '../game-state/Flag'
+import { CollisionSystem } from '../CollisionDetectionSystem'
 import { ScriptSystem } from '../ScriptSystem'
-import { GameEventBuffer } from '../GameEvent'
+import { GameEventBuffer } from '../game-state/GameEvent'
 import { PlayerScript } from '../Script/PlayerScript'
 import { PowerupScript } from '../Script/PowerupScript'
 import { BulletScript } from '../Script/BulletScript'
+import { GameState } from '../game-state/GameState'
 
 const MS_PER_SEC = 1000
 
@@ -21,20 +22,10 @@ const PLAYER_RATE_OF_FIRE = 200
 const PLAYER_BULLET_SPEED = -500
 const MS_PER_SCORE_TICK = 800
 
-type State = {
-    playerId: number,
-    world: World,
-    lastSpawnTime: number,
-    numEntities: number,
-    playerNextShotTime: number,
-    score: number,
-    scoreTimeIncrementer: number,
-}
+type State = GameState
 
 export class GameScene implements Scene {
     private state: State;
-    private collisions: Collisions = CollisionSystem.makeState()
-    private eventBuffer: GameEventBuffer = GameEventBuffer.create() 
 
     constructor(
         private readonly onDeath: () => void,
@@ -50,9 +41,9 @@ export class GameScene implements Scene {
         this.spawnEntities(time, uiState)
         this.updateMovement(time)
         this.updateBoundingBoxTransforms()
-        CollisionSystem.run(this.state.world, this.collisions, this.eventBuffer)
-        ScriptSystem.run(this.state.world, this.eventBuffer)
-        GameEventBuffer.clear(this.eventBuffer)
+        CollisionSystem.run(this.state)
+        ScriptSystem.run(this.state)
+        GameEventBuffer.clear(this.state)
         this.removeDyingEntities()
         this.removeOutOfBoundsEntities(uiState)
 
@@ -60,27 +51,18 @@ export class GameScene implements Scene {
         this.renderGameObjects(time, canvas)
         this.renderUi(canvas)
 
-        this.state.world.lastUpdateTime = time
+        this.state.lastUpdateTime = time
 
-        const player = World.getEntity(this.state.world, this.state.playerId)
+        const player = World.getEntity(this.state, this.state.playerId)
         if (!player) {
             this.onDeath()
         }
     }
 
     private init(time: number, ui: UiState) {
-        this.state = {
-            playerId: 0,
-            world: World.create(),
-            lastSpawnTime: time,
-            numEntities: 0,
-            playerNextShotTime: 0,
-            score: 0,
-            scoreTimeIncrementer: 0,
-        }
-        this.state.world.lastUpdateTime = time
+        this.state = GameState.create(time)
 
-        const player = spawnPlayer(this.state.world)
+        const player = spawnPlayer(this.state)
         this.state.playerId = player.id
 
         console.log(this)
@@ -91,7 +73,7 @@ export class GameScene implements Scene {
             return
         }
 
-        const player = World.getEntity(this.state.world, this.state.playerId)
+        const player = World.getEntity(this.state, this.state.playerId)
         if (!player || player.scriptState === PlayerScript.DYING) {
             return
         }
@@ -101,12 +83,12 @@ export class GameScene implements Scene {
 
         if (uiState.cursorState === CURSOR_DOWN && time > this.state.playerNextShotTime) {
             this.state.playerNextShotTime = time + PLAYER_RATE_OF_FIRE
-            spawnPlayerBullet(this.state.world, player.posX, player.posY - PLAYER_HEIGHT_HALF)
+            spawnPlayerBullet(this.state, player.posX, player.posY - PLAYER_HEIGHT_HALF)
         }
     }
 
     private incrementScoreForTime(time: number) {
-        this.state.scoreTimeIncrementer += time - this.state.world.lastUpdateTime
+        this.state.scoreTimeIncrementer += time - this.state.lastUpdateTime
         if (this.state.scoreTimeIncrementer > MS_PER_SCORE_TICK) {
             this.state.scoreTimeIncrementer -= MS_PER_SCORE_TICK
             this.state.score += 1
@@ -141,12 +123,12 @@ export class GameScene implements Scene {
         // Render Bounding Boxes
         ctx.save()
         ctx.lineWidth = 2
-        for (const entity of this.state.world.entities) {
+        for (const entity of this.state.entities) {
             const colourIfDying = entity.flags & EntityFlags.DYING ? 'yellow' : ''
             if (Flag.hasBigintFlags(entity.flags, EntityFlags.ALIVE, EntityFlags.COLLIDER)) {
                 for (const box of entity.colliderBbTransform) {
                     if (box.type === BoundingBoxTypes.AABB) {
-                        if (this.collisions.collidedEntities.has(entity.id)) {
+                        if (this.state.collidedEntities.has(entity.id)) {
                             ctx.fillStyle = colourIfDying || entity.colour || 'white'
                             ctx.fillRect(box.left, box.top, box.width, box.height)
                         } else {
@@ -160,7 +142,7 @@ export class GameScene implements Scene {
         ctx.restore()
 
         // Render Player
-        const player = World.getEntity(this.state.world, this.state.playerId)
+        const player = World.getEntity(this.state, this.state.playerId)
         if (player) {
             ctx.save()
             ctx.beginPath()
@@ -189,7 +171,7 @@ export class GameScene implements Scene {
     private renderUi(ctx: CanvasRenderingContext2D) {
         ctx.save()
 
-        const player = World.getEntity(this.state.world, this.state.playerId)
+        const player = World.getEntity(this.state, this.state.playerId)
 
         ctx.font = '20px serif'
         ctx.fillStyle = 'white'
@@ -215,16 +197,16 @@ export class GameScene implements Scene {
             const x = Math.ceil(Math.random() * uiState.width)
             const y = -50
             if (Math.random() < 0.9) {
-                spawnAsteroid(this.state.world, x, y)
+                spawnAsteroid(this.state, x, y)
             } else {
-                spawnPowerup(this.state.world, x, y)
+                spawnPowerup(this.state, x, y)
             }
         }
 
     }
     
     private removeOutOfBoundsEntities(uiState: UiState) {
-        const world = this.state.world
+        const world = this.state
         for (let i = 0; i < world.entities.length; i++) {
             const entity = world.entities[i]
             if (!(entity.flags & EntityFlags.ALIVE)) {
@@ -239,8 +221,8 @@ export class GameScene implements Scene {
     }
 
     private updateMovement(time: number) {
-        const deltaT = time - this.state.world.lastUpdateTime
-        const world = this.state.world
+        const deltaT = time - this.state.lastUpdateTime
+        const world = this.state
 
         for (let i = 0; i < world.entities.length; i++) {
             const entity = world.entities[i]
@@ -251,7 +233,7 @@ export class GameScene implements Scene {
     }
 
     private updateBoundingBoxTransforms() {
-        for (const entity of this.state.world.entities) {
+        for (const entity of this.state.entities) {
             if (entity.flags & EntityFlags.ALIVE) {
                 for (let i = 0; i < entity.colliderBbSrc.length; i++) {
                     const src = entity.colliderBbSrc[i]
@@ -263,7 +245,7 @@ export class GameScene implements Scene {
     }
 
     private removeDyingEntities() {
-        const world = this.state.world
+        const world = this.state
         for (let i = 0; i < world.entities.length; i++) {
             const entity = world.entities[i]
             if (Flag.hasBigintFlags(entity.flags, EntityFlags.DYING, EntityFlags.ALIVE)) {
