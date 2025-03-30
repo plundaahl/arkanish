@@ -7,6 +7,7 @@ export const EntityFlags = Object.freeze({
     ALIVE: entityFlag(),
     DYING: entityFlag(),
     COLLIDER: entityFlag(),
+    SCRIPT: entityFlag(),
     ROLE_PLAYER: entityFlag(),
     ROLE_PLAYER_BULLET: entityFlag(),
     ROLE_ENEMY: entityFlag(),
@@ -34,6 +35,10 @@ export interface Entity {
     collidesWith: number,
     invulnerableUntil: number,
     colour: string,
+    script: number,
+    scriptState: number,
+    scriptTimeEnteredState: number,
+    hp: number,
 }
 
 export type EntitySpec = Omit<Entity, 'id'>
@@ -50,6 +55,10 @@ const NULL_ENTITY_SPEC: EntitySpec = Object.freeze({
     collidesWith: 0,
     invulnerableUntil: 0,
     colour: '',
+    script: 0,
+    scriptState: 0,
+    scriptTimeEnteredState: 0,
+    hp: 0,
 })
 
 export const Entity = {

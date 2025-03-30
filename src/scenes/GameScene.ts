@@ -4,6 +4,11 @@ import { ColliderFlag, Entity, EntityFlags } from '../Entity'
 import { BoundingBox, BoundingBoxTypes } from '../BoundingBox'
 import { Flag } from '../Flag'
 import { Collisions, CollisionSystem } from '../CollisionDetectionSystem'
+import { ScriptSystem } from '../ScriptSystem'
+import { GameEventBuffer } from '../GameEvent'
+import { PlayerScript } from '../Script/PlayerScript'
+import { PowerupScript } from '../Script/PowerupScript'
+import { BulletScript } from '../Script/BulletScript'
 
 const MS_PER_SEC = 1000
 
@@ -15,24 +20,21 @@ const PLAYER_OFFSET = PLAYER_HEIGHT_HALF / 2
 const PLAYER_RATE_OF_FIRE = 200
 const PLAYER_BULLET_SPEED = -500
 const MS_PER_SCORE_TICK = 800
-const MAX_HEALTH = 3
 
 type State = {
     playerId: number,
     world: World,
     lastSpawnTime: number,
     numEntities: number,
-    health: number,
-    quitTime: number,
     playerNextShotTime: number,
     score: number,
     scoreTimeIncrementer: number,
 }
 
 export class GameScene implements Scene {
-    private prevTime: number;
     private state: State;
     private collisions: Collisions = CollisionSystem.makeState()
+    private eventBuffer: GameEventBuffer = GameEventBuffer.create() 
 
     constructor(
         private readonly onDeath: () => void,
@@ -48,8 +50,9 @@ export class GameScene implements Scene {
         this.spawnEntities(time, uiState)
         this.updateMovement(time)
         this.updateBoundingBoxTransforms()
-        CollisionSystem.run(this.state.world, this.collisions)
-        this.handleCollisions(time)
+        CollisionSystem.run(this.state.world, this.collisions, this.eventBuffer)
+        ScriptSystem.run(this.state.world, this.eventBuffer)
+        GameEventBuffer.clear(this.eventBuffer)
         this.removeDyingEntities()
         this.removeOutOfBoundsEntities(uiState)
 
@@ -57,26 +60,25 @@ export class GameScene implements Scene {
         this.renderGameObjects(time, canvas)
         this.renderUi(canvas)
 
-        this.prevTime = time
+        this.state.world.lastUpdateTime = time
 
-        if (this.state.quitTime > 0 && time >= this.state.quitTime) {
+        const player = World.getEntity(this.state.world, this.state.playerId)
+        if (!player) {
             this.onDeath()
         }
     }
 
     private init(time: number, ui: UiState) {
-        this.prevTime = time
         this.state = {
             playerId: 0,
             world: World.create(),
             lastSpawnTime: time,
             numEntities: 0,
-            health: MAX_HEALTH,
-            quitTime: -1,
             playerNextShotTime: 0,
             score: 0,
             scoreTimeIncrementer: 0,
         }
+        this.state.world.lastUpdateTime = time
 
         const player = spawnPlayer(this.state.world)
         this.state.playerId = player.id
@@ -88,12 +90,9 @@ export class GameScene implements Scene {
         if (!uiState.cursorActive) {
             return
         }
-        if (this.state.health <= 0) {
-            return
-        }
 
         const player = World.getEntity(this.state.world, this.state.playerId)
-        if (!player) {
+        if (!player || player.scriptState === PlayerScript.DYING) {
             return
         }
 
@@ -107,7 +106,7 @@ export class GameScene implements Scene {
     }
 
     private incrementScoreForTime(time: number) {
-        this.state.scoreTimeIncrementer += time - this.prevTime
+        this.state.scoreTimeIncrementer += time - this.state.world.lastUpdateTime
         if (this.state.scoreTimeIncrementer > MS_PER_SCORE_TICK) {
             this.state.scoreTimeIncrementer -= MS_PER_SCORE_TICK
             this.state.score += 1
@@ -139,30 +138,7 @@ export class GameScene implements Scene {
     }
 
     private renderGameObjects(time: number, ctx: CanvasRenderingContext2D): void {
-        const player = World.getEntity(this.state.world, this.state.playerId)
-        if (player) {
-            ctx.save()
-            ctx.beginPath()
-
-            ctx.moveTo(player.posX, player.posY - PLAYER_HEIGHT_HALF - PLAYER_OFFSET)
-            ctx.lineTo(player.posX - PLAYER_WIDTH_HALF, player.posY + PLAYER_HEIGHT_HALF - PLAYER_OFFSET)
-            ctx.lineTo(player.posX, player.posY + (PLAYER_HEIGHT_HALF / 2) - PLAYER_OFFSET)
-            ctx.lineTo(player.posX + PLAYER_WIDTH_HALF, player.posY + PLAYER_HEIGHT_HALF - PLAYER_OFFSET)
-            ctx.closePath()
-            ctx.fillStyle = this.state.health === 3
-                ? '#FF0000'
-                : this.state.health === 2
-                ? '#990000'
-                : this.state.health === 1
-                ? '#550000'
-                : 'white'
-            
-            ctx.lineWidth = 5
-            ctx.fill()
-            
-            ctx.restore()
-        }
-
+        // Render Bounding Boxes
         ctx.save()
         ctx.lineWidth = 2
         for (const entity of this.state.world.entities) {
@@ -182,22 +158,51 @@ export class GameScene implements Scene {
             }
         }
         ctx.restore()
+
+        // Render Player
+        const player = World.getEntity(this.state.world, this.state.playerId)
+        if (player) {
+            ctx.save()
+            ctx.beginPath()
+
+            ctx.moveTo(player.posX, player.posY - PLAYER_HEIGHT_HALF - PLAYER_OFFSET)
+            ctx.lineTo(player.posX - PLAYER_WIDTH_HALF, player.posY + PLAYER_HEIGHT_HALF - PLAYER_OFFSET)
+            ctx.lineTo(player.posX, player.posY + (PLAYER_HEIGHT_HALF / 2) - PLAYER_OFFSET)
+            ctx.lineTo(player.posX + PLAYER_WIDTH_HALF, player.posY + PLAYER_HEIGHT_HALF - PLAYER_OFFSET)
+            ctx.closePath()
+
+            if (player.scriptState === PlayerScript.INVULNERABLE) {
+                ctx.lineWidth = 2
+                ctx.strokeStyle = 'red'
+                ctx.stroke()
+            } else {
+                ctx.fillStyle = player.scriptState === PlayerScript.DYING
+                    ? 'white'
+                    : 'red'
+                ctx.fill()
+            }
+            
+            ctx.restore()
+        }
     }
 
     private renderUi(ctx: CanvasRenderingContext2D) {
         ctx.save()
 
-        
+        const player = World.getEntity(this.state.world, this.state.playerId)
+
         ctx.font = '20px serif'
         ctx.fillStyle = 'white'
-        
-        const hpText = `HP: ${this.state.health}`
+
+        const hpText = `HP: ${player?.hp || 0}`
         const scoreText = `Score: ${this.state.score}`
+        const stateText = `State: ${player?.scriptTimeEnteredState}`
 
         const hpTextMetrics = ctx.measureText(hpText)
 
         ctx.fillText(hpText, 50, 50)
         ctx.fillText(scoreText, 50, 50 + hpTextMetrics.actualBoundingBoxAscent + hpTextMetrics.actualBoundingBoxDescent + 10)
+        ctx.fillText(stateText, 50, 50 + ((hpTextMetrics.actualBoundingBoxAscent + hpTextMetrics.actualBoundingBoxDescent + 10) * 2))
 
         ctx.restore()
     }
@@ -234,7 +239,7 @@ export class GameScene implements Scene {
     }
 
     private updateMovement(time: number) {
-        const deltaT = time - this.prevTime
+        const deltaT = time - this.state.world.lastUpdateTime
         const world = this.state.world
 
         for (let i = 0; i < world.entities.length; i++) {
@@ -257,43 +262,6 @@ export class GameScene implements Scene {
         }
     }
 
-    private handleCollisions(time: number) {
-        const { collisions } = this.collisions
-        for (let i = 0; i < collisions.length; i += 2) {
-            const selfId = collisions[i]
-            const otherId = collisions[i + 1]
-            const self = World.getEntity(this.state.world, selfId)
-            const other = World.getEntity(this.state.world, otherId)
-
-            if (!self || !other) {
-                continue
-            }
-
-            if ((self.flags & EntityFlags.ROLE_PLAYER) && (other.flags & EntityFlags.ROLE_ENEMY) && self.invulnerableUntil < time) {
-                if (this.state.health > 0) {
-                    self.invulnerableUntil = time + 1000
-                    this.state.health -= 1
-                }
-                if (this.state.health === 0) {
-                    this.state.quitTime = time + 2000
-                }
-            }
-
-            if ((self.flags & EntityFlags.ROLE_ENEMY) && (other.flags & EntityFlags.ROLE_PLAYER_BULLET)) {
-                self.flags |= EntityFlags.DYING
-                other.flags |= EntityFlags.DYING
-                this.state.score += 50
-            }
-
-            if ((self.flags & EntityFlags.ROLE_PLAYER) && (other.flags & EntityFlags.ROLE_POWERUP)) {
-                other.flags |= EntityFlags.DYING
-                if (this.state.health < MAX_HEALTH && (this.state.health > 0)) {
-                    this.state.health += 1
-                }
-            }
-        }
-    }
-
     private removeDyingEntities() {
         const world = this.state.world
         for (let i = 0; i < world.entities.length; i++) {
@@ -307,6 +275,7 @@ export class GameScene implements Scene {
 
 function spawnPlayer(world: World): Entity {
     const player = World.spawnEntity(world)
+    player.flags |= EntityFlags.ROLE_PLAYER
 
     player.flags |= EntityFlags.COLLIDER
     player.colliderBbSrc = [
@@ -321,23 +290,30 @@ function spawnPlayer(world: World): Entity {
     player.collidesWith = ColliderFlag.ENEMY | ColliderFlag.POWERUP
     player.colour = 'green'
 
-    player.flags |= EntityFlags.ROLE_PLAYER
+    ScriptSystem.attachScript(world, player, PlayerScript)
+
+    player.hp = 3
 
     return player
 }
 
 function spawnPlayerBullet(world: World, x: number, y: number) {
     const bullet = World.spawnEntity(world)
+    bullet.flags |= EntityFlags.ROLE_PLAYER_BULLET
+
     bullet.posX = x
     bullet.posY = y
     bullet.velY = PLAYER_BULLET_SPEED
+
     bullet.flags |= EntityFlags.COLLIDER
     bullet.colliderBbSrc = [BoundingBox.createAabb(-5, -5, 10, 10)]
     bullet.colliderBbTransform = [BoundingBox.createAabb(-5, -5, 10, 10)]
     bullet.colliderGroup = ColliderFlag.PLAYER_BULLET
     bullet.collidesWith = ColliderFlag.ENEMY
+
+    ScriptSystem.attachScript(world, bullet, BulletScript)
+
     bullet.colour = 'red'
-    bullet.flags |= EntityFlags.ROLE_PLAYER_BULLET
 }
 
 function spawnAsteroid(world: World, x: number, y: number) {
@@ -363,6 +339,7 @@ function spawnAsteroid(world: World, x: number, y: number) {
 
 function spawnPowerup(world: World, x: number, y: number) {
     const entity = World.spawnEntity(world)
+    entity.flags |= EntityFlags.ROLE_POWERUP
 
     entity.posX = x
     entity.posY = y
@@ -372,7 +349,9 @@ function spawnPowerup(world: World, x: number, y: number) {
     entity.colliderBbSrc = [BoundingBox.createAabb(-20, -20, 40, 40)]
     entity.colliderBbTransform = [BoundingBox.clone(entity.colliderBbSrc[0])]
     entity.colliderGroup = ColliderFlag.POWERUP
+    entity.collidesWith = ColliderFlag.PLAYER
 
     entity.colour = 'blue' 
-    entity.flags |= EntityFlags.ROLE_POWERUP
+
+    ScriptSystem.attachScript(world, entity, PowerupScript)
 }

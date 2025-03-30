@@ -5,6 +5,7 @@ const DEFAULT_NUM_ENTITIES = 512
 export interface World {
     entities: Entity[]
     freeList: number[]
+    lastUpdateTime: number
 }
 export const World = {
     create: (size: number = DEFAULT_NUM_ENTITIES): World => {
@@ -19,6 +20,7 @@ export const World = {
         return {
             entities,
             freeList,
+            lastUpdateTime: 0,
         }
     },
     reset: (world: World) => {

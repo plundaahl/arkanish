@@ -2,6 +2,7 @@ import { World } from './World'
 import { Flag } from './Flag'
 import { EntityFlags } from './Entity'
 import { BoundingBox } from './BoundingBox'
+import { GameEventBuffer } from './GameEvent'
 
 export type Collisions = {
     // Pairs of entity IDs: the listener, and the one that was collided with
@@ -14,7 +15,7 @@ export const CollisionSystem = {
         collisions: [],
         collidedEntities: new Set(),
     }),
-    run: (world: World, collision: Collisions): void => {
+    run: (world: World, collision: Collisions, eventBuffer: GameEventBuffer): void => {
         collision.collidedEntities.clear()
         collision.collisions.length = 0
 
@@ -44,11 +45,12 @@ export const CollisionSystem = {
                             if (entityIListens) {
                                 collision.collidedEntities.add(entityI.id)
                                 collision.collisions.push(entityI.id, entityJ.id)
+                                GameEventBuffer.addCollisionEvent(eventBuffer, entityI.id, entityJ.id)
                             }
                             if (entityJListens) {
                                 collision.collidedEntities.add(entityJ.id)
-
                                 collision.collisions.push(entityJ.id, entityI.id)
+                                GameEventBuffer.addCollisionEvent(eventBuffer, entityJ.id, entityI.id)
                             }
                         }
                     }
