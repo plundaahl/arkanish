@@ -3,15 +3,14 @@ import { World } from '../game-state/Entity'
 import { ColliderFlag, Entity, EntityFlags } from '../game-state/Entity'
 import { BoundingBox, BoundingBoxTypes } from '../game-state/BoundingBox'
 import { Flag } from '../game-state/Flag'
-import { CollisionSystem } from '../CollisionDetectionSystem'
-import { ScriptSystem } from '../ScriptSystem'
-import { GameEventBuffer } from '../game-state/GameEvent'
-import { PlayerScript } from '../Script/PlayerScript'
-import { PowerupScript } from '../Script/PowerupScript'
-import { BulletScript } from '../Script/BulletScript'
+import { CollisionSystem } from '../systems/CollisionDetectionSystem'
+import { ScriptSystem } from '../systems/ScriptSystem'
+import { PlayerScript } from '../scripts/PlayerScript'
+import { PowerupScript } from '../scripts/PowerupScript'
+import { BulletScript } from '../scripts/BulletScript'
 import { GameState } from '../game-state/GameState'
-
-const MS_PER_SEC = 1000
+import { CleanupSystem } from '../systems/CleanupSystem'
+import { MovementSystem } from '../systems/MovementSystem'
 
 const STAR_TIME_SCALE = 1 / 5000
 const PLAYER_SCALE = 2
@@ -33,39 +32,32 @@ export class GameScene implements Scene {
 
     update(time: number, canvas: CanvasRenderingContext2D, uiState: UiState): void {
         if (!this.state) {
-            this.init(time, uiState)
+            this.state = GameState.create(time)
+            const player = spawnPlayer(this.state)
+            this.state.playerId = player.id
         }
+
+        this.state.frameLength = time - this.state.time
+        this.state.time = time
 
         this.incrementScoreForTime(time)
         this.handlePlayerInput(time, uiState)
         this.spawnEntities(time, uiState)
-        this.updateMovement(time)
-        this.updateBoundingBoxTransforms()
+        MovementSystem.run(this.state)
         CollisionSystem.run(this.state)
         ScriptSystem.run(this.state)
-        GameEventBuffer.clear(this.state)
-        this.removeDyingEntities()
-        this.removeOutOfBoundsEntities(uiState)
+        CleanupSystem.run(this.state)
 
         this.renderBackground(time, canvas, uiState)
         this.renderGameObjects(time, canvas)
         this.renderUi(canvas)
 
-        this.state.lastUpdateTime = time
+        CollisionSystem.cleanup(this.state)
 
         const player = World.getEntity(this.state, this.state.playerId)
         if (!player) {
             this.onDeath()
         }
-    }
-
-    private init(time: number, ui: UiState) {
-        this.state = GameState.create(time)
-
-        const player = spawnPlayer(this.state)
-        this.state.playerId = player.id
-
-        console.log(this)
     }
 
     private handlePlayerInput(time: number, uiState: UiState) {
@@ -88,7 +80,7 @@ export class GameScene implements Scene {
     }
 
     private incrementScoreForTime(time: number) {
-        this.state.scoreTimeIncrementer += time - this.state.lastUpdateTime
+        this.state.scoreTimeIncrementer += time - this.state.time
         if (this.state.scoreTimeIncrementer > MS_PER_SCORE_TICK) {
             this.state.scoreTimeIncrementer -= MS_PER_SCORE_TICK
             this.state.score += 1
@@ -204,59 +196,10 @@ export class GameScene implements Scene {
         }
 
     }
-    
-    private removeOutOfBoundsEntities(uiState: UiState) {
-        const world = this.state
-        for (let i = 0; i < world.entities.length; i++) {
-            const entity = world.entities[i]
-            if (!(entity.flags & EntityFlags.ALIVE)) {
-                continue
-            }
-            if ((entity.velY > 0 && entity.posY > uiState.height + 200)
-                || (entity.velY < 0 && entity.posY < -200)) {
-                World.releaseEntity(world, entity)
-                this.state.numEntities--
-            }
-        }
-    }
-
-    private updateMovement(time: number) {
-        const deltaT = time - this.state.lastUpdateTime
-        const world = this.state
-
-        for (let i = 0; i < world.entities.length; i++) {
-            const entity = world.entities[i]
-            if (entity.flags & EntityFlags.ALIVE) {
-                entity.posY += (entity.velY * deltaT) / MS_PER_SEC
-            }
-        }
-    }
-
-    private updateBoundingBoxTransforms() {
-        for (const entity of this.state.entities) {
-            if (entity.flags & EntityFlags.ALIVE) {
-                for (let i = 0; i < entity.colliderBbSrc.length; i++) {
-                    const src = entity.colliderBbSrc[i]
-                    const dest = entity.colliderBbTransform[i]
-                    BoundingBox.transform(src, dest, entity.posX, entity.posY)
-                } 
-            }
-        }
-    }
-
-    private removeDyingEntities() {
-        const world = this.state
-        for (let i = 0; i < world.entities.length; i++) {
-            const entity = world.entities[i]
-            if (Flag.hasBigintFlags(entity.flags, EntityFlags.DYING, EntityFlags.ALIVE)) {
-                World.releaseEntity(world, entity)
-            }
-        }
-    }
 }
 
-function spawnPlayer(world: World): Entity {
-    const player = World.spawnEntity(world)
+function spawnPlayer(gameState: GameState): Entity {
+    const player = World.spawnEntity(gameState)
     player.flags |= EntityFlags.ROLE_PLAYER
 
     player.flags |= EntityFlags.COLLIDER
@@ -272,15 +215,15 @@ function spawnPlayer(world: World): Entity {
     player.collidesWith = ColliderFlag.ENEMY | ColliderFlag.POWERUP
     player.colour = 'green'
 
-    ScriptSystem.attachScript(world, player, PlayerScript)
+    ScriptSystem.attachScript(gameState, player, PlayerScript)
 
     player.hp = 3
 
     return player
 }
 
-function spawnPlayerBullet(world: World, x: number, y: number) {
-    const bullet = World.spawnEntity(world)
+function spawnPlayerBullet(gameState: GameState, x: number, y: number) {
+    const bullet = World.spawnEntity(gameState)
     bullet.flags |= EntityFlags.ROLE_PLAYER_BULLET
 
     bullet.posX = x
@@ -293,13 +236,13 @@ function spawnPlayerBullet(world: World, x: number, y: number) {
     bullet.colliderGroup = ColliderFlag.PLAYER_BULLET
     bullet.collidesWith = ColliderFlag.ENEMY
 
-    ScriptSystem.attachScript(world, bullet, BulletScript)
+    ScriptSystem.attachScript(gameState, bullet, BulletScript)
 
     bullet.colour = 'red'
 }
 
-function spawnAsteroid(world: World, x: number, y: number) {
-    const entity = World.spawnEntity(world)
+function spawnAsteroid(gameState: GameState, x: number, y: number) {
+    const entity = World.spawnEntity(gameState)
 
     const halfSize = Math.ceil((Math.random() * 100) + 20)
     const size = halfSize * 2
@@ -319,8 +262,8 @@ function spawnAsteroid(world: World, x: number, y: number) {
     entity.flags |= EntityFlags.ROLE_ENEMY
 }
 
-function spawnPowerup(world: World, x: number, y: number) {
-    const entity = World.spawnEntity(world)
+function spawnPowerup(gameState: GameState, x: number, y: number) {
+    const entity = World.spawnEntity(gameState)
     entity.flags |= EntityFlags.ROLE_POWERUP
 
     entity.posX = x
@@ -335,5 +278,5 @@ function spawnPowerup(world: World, x: number, y: number) {
 
     entity.colour = 'blue' 
 
-    ScriptSystem.attachScript(world, entity, PowerupScript)
+    ScriptSystem.attachScript(gameState, entity, PowerupScript)
 }

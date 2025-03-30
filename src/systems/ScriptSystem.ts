@@ -1,11 +1,11 @@
-import { Flag } from "./game-state/Flag";
-import { Entity, EntityFlags, World } from "./game-state/Entity";
-import { Script } from './Script/Script'
-import { PlayerScript } from "./Script/PlayerScript";
-import { GameEventBuffer, GameEventType } from "./game-state/GameEvent";
-import { PowerupScript } from "./Script/PowerupScript";
-import { BulletScript } from "./Script/BulletScript";
-import { GameState } from './game-state/GameState'
+import { Flag } from "../game-state/Flag";
+import { Entity, EntityFlags, World } from "../game-state/Entity";
+import { Script } from '../scripts/Script'
+import { PlayerScript } from "../scripts/PlayerScript";
+import { GameEventType } from "../game-state/GameEvent";
+import { PowerupScript } from "../scripts/PowerupScript";
+import { BulletScript } from "../scripts/BulletScript";
+import { GameState } from '../game-state/GameState'
 
 let nextMachineId = 1
 
@@ -52,15 +52,15 @@ export const ScriptSystem = {
             machine.update(state, entity)
         }
     },
-    enterState: (world: World, entity: Entity, machine: Script, state: number) => {
+    enterState: (world: GameState, entity: Entity, machine: Script, state: number) => {
         const machineId = findIdByMachine(machine)
         if (machineId && Flag.hasBigintFlags(entity.flags, EntityFlags.ALIVE, EntityFlags.SCRIPT)) {
             entity.script = machineId
             entity.scriptState = state
-            entity.scriptTimeEnteredState = world.lastUpdateTime
+            entity.scriptTimeEnteredState = world.time
         }
     },
-    attachScript: (world: World, entity: Entity, script: Script) => {
+    attachScript: (world: GameState, entity: Entity, script: Script) => {
         const scriptId = findIdByMachine(script)
         if (!scriptId) {
             throw new Error(`No such script id [${scriptId}]`)
@@ -68,6 +68,6 @@ export const ScriptSystem = {
         entity.flags |= EntityFlags.SCRIPT
         entity.script = scriptId
         entity.scriptState = 0
-        entity.scriptTimeEnteredState = world.lastUpdateTime
+        entity.scriptTimeEnteredState = world.time
     }
 }

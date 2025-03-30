@@ -17,12 +17,12 @@ export const PlayerScript = {
             case PlayerScript.ACTIVE:
                 break
             case PlayerScript.INVULNERABLE:
-                if (gameState.lastUpdateTime > entity.scriptTimeEnteredState + TIME_INVULNERABLE_AFTER_HIT) {
+                if (gameState.time > entity.scriptTimeEnteredState + TIME_INVULNERABLE_AFTER_HIT) {
                     Script.transitionTo(gameState, entity, PlayerScript.ACTIVE)
                 }
                 break
             case PlayerScript.DYING:
-                if (gameState.lastUpdateTime > entity.scriptTimeEnteredState + TIME_DYING) {
+                if (gameState.time > entity.scriptTimeEnteredState + TIME_DYING) {
                     entity.flags |= EntityFlags.DYING
                 }
                 break

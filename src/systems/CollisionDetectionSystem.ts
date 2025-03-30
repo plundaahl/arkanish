@@ -1,15 +1,10 @@
-import { Flag } from './game-state/Flag'
-import { EntityFlags, World } from './game-state/Entity'
-import { BoundingBox } from './game-state/BoundingBox'
-import { GameEventBuffer } from './game-state/GameEvent'
-import { Collisions } from './game-state/Collisions'
-import { GameState } from './game-state/GameState'
+import { Flag } from '../game-state/Flag'
+import { EntityFlags, World } from '../game-state/Entity'
+import { BoundingBox } from '../game-state/BoundingBox'
+import { GameEventBuffer } from '../game-state/GameEvent'
+import { GameState } from '../game-state/GameState'
 
 export const CollisionSystem = {
-    makeState: (): Collisions => ({
-        collisions: [],
-        collidedEntities: new Set(),
-    }),
     run: (gameState: GameState): void => {
         gameState.collidedEntities.clear()
         gameState.collisions.length = 0
@@ -52,5 +47,8 @@ export const CollisionSystem = {
                 }
             }
         }
-    }
+    },
+    cleanup: (state: GameState) => {
+        GameEventBuffer.clear(state)
+    },
 }
