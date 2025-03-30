@@ -9,6 +9,7 @@ const TIME_DYING = 1500
 const PLAYER_MAX_HP = 3
 
 export const PlayerScript = {
+    id: 'Player',
     ACTIVE: 0,
     INVULNERABLE: 1,
     DYING: 2,

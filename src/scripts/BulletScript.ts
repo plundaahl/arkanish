@@ -3,6 +3,7 @@ import { Entity, EntityFlags, World } from "../game-state/Entity";
 import { GameState } from "../game-state/GameState";
 
 export const BulletScript = {
+    id: 'Bullet',
     update: (world: GameState, entity: Entity): void => {},
     handleEvent: (gameState: GameState, self: Entity, event: GameEvent): void => {
         if (GameEvent.isCollisionEvent(event)) {

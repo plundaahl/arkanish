@@ -6,11 +6,13 @@ import { Flag } from '../game-state/Flag'
 import { CollisionSystem } from '../systems/CollisionDetectionSystem'
 import { ScriptSystem } from '../systems/ScriptSystem'
 import { PlayerScript } from '../scripts/PlayerScript'
-import { PowerupScript } from '../scripts/PowerupScript'
 import { BulletScript } from '../scripts/BulletScript'
 import { GameState } from '../game-state/GameState'
 import { CleanupSystem } from '../systems/CleanupSystem'
 import { MovementSystem } from '../systems/MovementSystem'
+import { Script } from '../scripts/Script'
+import { spawnAsteroidSpawner } from '../scripts/AsteroidSpawnerScript'
+import { EventSystem } from '../systems/EventSystem'
 
 const STAR_TIME_SCALE = 1 / 5000
 const PLAYER_SCALE = 2
@@ -34,6 +36,7 @@ export class GameScene implements Scene {
         if (!this.state) {
             this.state = GameState.create(time)
             const player = spawnPlayer(this.state)
+            spawnAsteroidSpawner(this.state, 0, 100)
             this.state.playerId = player.id
         }
 
@@ -42,17 +45,15 @@ export class GameScene implements Scene {
 
         this.incrementScoreForTime(time)
         this.handlePlayerInput(time, uiState)
-        this.spawnEntities(time, uiState)
+        EventSystem.run(this.state)
+        ScriptSystem.run(this.state)
         MovementSystem.run(this.state)
         CollisionSystem.run(this.state)
-        ScriptSystem.run(this.state)
         CleanupSystem.run(this.state)
 
         this.renderBackground(time, canvas, uiState)
         this.renderGameObjects(time, canvas)
         this.renderUi(canvas)
-
-        CollisionSystem.cleanup(this.state)
 
         const player = World.getEntity(this.state, this.state.playerId)
         if (!player) {
@@ -180,22 +181,6 @@ export class GameScene implements Scene {
 
         ctx.restore()
     }
-
-    private spawnEntities(time: number, uiState: UiState) {
-        if (this.state.numEntities < 50 && time - this.state.lastSpawnTime > 150) {
-            this.state.numEntities++;
-            this.state.lastSpawnTime = time
-
-            const x = Math.ceil(Math.random() * uiState.width)
-            const y = -50
-            if (Math.random() < 0.9) {
-                spawnAsteroid(this.state, x, y)
-            } else {
-                spawnPowerup(this.state, x, y)
-            }
-        }
-
-    }
 }
 
 function spawnPlayer(gameState: GameState): Entity {
@@ -215,7 +200,7 @@ function spawnPlayer(gameState: GameState): Entity {
     player.collidesWith = ColliderFlag.ENEMY | ColliderFlag.POWERUP
     player.colour = 'green'
 
-    ScriptSystem.attachScript(gameState, player, PlayerScript)
+    Script.attachScript(gameState, player, PlayerScript)
 
     player.hp = 3
 
@@ -236,47 +221,7 @@ function spawnPlayerBullet(gameState: GameState, x: number, y: number) {
     bullet.colliderGroup = ColliderFlag.PLAYER_BULLET
     bullet.collidesWith = ColliderFlag.ENEMY
 
-    ScriptSystem.attachScript(gameState, bullet, BulletScript)
+    Script.attachScript(gameState, bullet, BulletScript)
 
     bullet.colour = 'red'
-}
-
-function spawnAsteroid(gameState: GameState, x: number, y: number) {
-    const entity = World.spawnEntity(gameState)
-
-    const halfSize = Math.ceil((Math.random() * 100) + 20)
-    const size = halfSize * 2
-    const vel = Math.ceil(Math.random() * 300) + 300
-
-    entity.posX = x
-    entity.posY = y - halfSize
-    entity.velY = vel
-
-    entity.flags |= EntityFlags.COLLIDER
-    entity.colliderBbSrc = [BoundingBox.createAabb(-halfSize, -halfSize, size, size)]
-    entity.colliderBbTransform = [BoundingBox.clone(entity.colliderBbSrc[0])]
-    entity.colliderGroup = ColliderFlag.ENEMY
-    entity.collidesWith = ColliderFlag.PLAYER | ColliderFlag.PLAYER_BULLET
-
-    entity.colour = 'red'
-    entity.flags |= EntityFlags.ROLE_ENEMY
-}
-
-function spawnPowerup(gameState: GameState, x: number, y: number) {
-    const entity = World.spawnEntity(gameState)
-    entity.flags |= EntityFlags.ROLE_POWERUP
-
-    entity.posX = x
-    entity.posY = y
-    entity.velY = 350
-
-    entity.flags |= EntityFlags.COLLIDER
-    entity.colliderBbSrc = [BoundingBox.createAabb(-20, -20, 40, 40)]
-    entity.colliderBbTransform = [BoundingBox.clone(entity.colliderBbSrc[0])]
-    entity.colliderGroup = ColliderFlag.POWERUP
-    entity.collidesWith = ColliderFlag.PLAYER
-
-    entity.colour = 'blue' 
-
-    ScriptSystem.attachScript(gameState, entity, PowerupScript)
 }

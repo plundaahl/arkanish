@@ -48,7 +48,4 @@ export const CollisionSystem = {
             }
         }
     },
-    cleanup: (state: GameState) => {
-        GameEventBuffer.clear(state)
-    },
 }

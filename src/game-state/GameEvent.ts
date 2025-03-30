@@ -34,24 +34,25 @@ export const GameEvent = {
 }
 
 export type GameEventBuffer = {
-    events: GameEvent[]
+    publishedEvents: GameEvent[]
+    pendingEvents: GameEvent[]
 }
 
 const provisionEvent = (buffer: GameEventBuffer): GameEvent => {
-    for (const event of buffer.events) {
+    for (const event of buffer.pendingEvents) {
         if (event.type === GameEventType.NULL) {
             return event
         }
     }
     const event = GameEvent.create()
-    buffer.events.push(event)
+    buffer.publishedEvents.push(event)
     return event
 }
 
 export const GameEventBuffer = {
-    create: (): GameEventBuffer => ({ events: [] }),
+    create: (): GameEventBuffer => ({ publishedEvents: [], pendingEvents: [] }),
     clear: (buffer: GameEventBuffer) => {
-        for (const event of buffer.events) {
+        for (const event of buffer.publishedEvents) {
             GameEvent.releaseEvent(event)
         }
     },
