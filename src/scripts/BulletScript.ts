@@ -18,7 +18,7 @@ export const BulletScript = {
                 console.log(`Bullet [${bullet.id}] impacted target [${target.id}] at [${gameState.time}]`)
                 Entity.killEntity(bullet)
                 Entity.killEntity(target)
-                gameState.score += 50
+                gameState.score += 10
             }
         }
     }

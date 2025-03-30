@@ -85,7 +85,7 @@ export class GameScene implements Scene {
     }
 
     private incrementScoreForTime(time: number) {
-        this.state.scoreTimeIncrementer += time - this.state.time
+        this.state.scoreTimeIncrementer += this.state.frameLength
         if (this.state.scoreTimeIncrementer > MS_PER_SCORE_TICK) {
             this.state.scoreTimeIncrementer -= MS_PER_SCORE_TICK
             this.state.score += 1

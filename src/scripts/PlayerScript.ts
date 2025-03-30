@@ -43,7 +43,7 @@ export const PlayerScript = {
                         ? PlayerScript.INVULNERABLE
                         : PlayerScript.DYING
                 )
-            } else if (Flag.hasBigintFlags(other.flags, EntityFlags.ROLE_POWERUP) && entity.scriptState != PlayerScript.DYING) {
+            } else if (Flag.hasBigintFlags(other.flags, EntityFlags.ROLE_PICKUP) && entity.scriptState != PlayerScript.DYING) {
                 entity.hp = Math.min(entity.hp + 1, PLAYER_MAX_HP)
             }
         }

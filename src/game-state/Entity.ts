@@ -9,7 +9,7 @@ export const EntityFlags = Object.freeze({
     ROLE_PLAYER: entityFlag(),
     ROLE_PLAYER_BULLET: entityFlag(),
     ROLE_ENEMY: entityFlag(),
-    ROLE_POWERUP: entityFlag(),
+    ROLE_PICKUP: entityFlag(),
 })
 
 export const EntityStates = Object.freeze({

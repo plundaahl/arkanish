@@ -7,6 +7,7 @@ import { PowerupScript } from "../scripts/PowerupScript";
 import { BulletScript } from "../scripts/BulletScript";
 import { GameState } from '../game-state/GameState'
 import { AsteroidSpawnerScript } from "../scripts/AsteroidSpawnerScript";
+import { CoinScript } from "../scripts/CoinScript";
 
 const registeredScripts: [string, Script][] = []
 const findMachineById = (id: string) => registeredScripts.find(record => record[0] === id)?.[1]
@@ -25,6 +26,7 @@ const registerScripts = (...scripts: Script[]) => {
 registerScripts(
     PlayerScript,
     PowerupScript,
+    CoinScript,
     BulletScript,
     AsteroidSpawnerScript,
 )
