@@ -1,8 +1,7 @@
 import { CURSOR_DOWN, Scene, UiState } from './Scene'
-import { EntityStates, World } from '../game-state/Entity'
+import { World } from '../game-state/Entity'
 import { ColliderFlags, Entity, EntityFlags } from '../game-state/Entity'
-import { BoundingBox, BoundingBoxTypes } from '../game-state/BoundingBox'
-import { Flag } from '../game-state/Flag'
+import { BoundingBox } from '../game-state/BoundingBox'
 import { CollisionSystem } from '../systems/CollisionSystem'
 import { ScriptSystem } from '../systems/ScriptSystem'
 import { PlayerScript } from '../scripts/PlayerScript'
@@ -13,12 +12,12 @@ import { MovementSystem } from '../systems/MovementSystem'
 import { Script } from '../scripts/Script'
 import { spawnAsteroidSpawner } from '../scripts/AsteroidSpawnerScript'
 import { EventSystem } from '../systems/EventSystem'
+import { RenderCommandBuffer } from '../RenderCommand'
+import { RenderSystem } from '../systems/RenderSystem'
 
 const STAR_TIME_SCALE = 1 / 5000
 const PLAYER_SCALE = 2
 const PLAYER_HEIGHT_HALF = PLAYER_SCALE * 15
-const PLAYER_WIDTH_HALF = PLAYER_SCALE * 10
-const PLAYER_OFFSET = PLAYER_HEIGHT_HALF / 2
 const PLAYER_RATE_OF_FIRE = 200
 const PLAYER_BULLET_SPEED = -500
 const MS_PER_SCORE_TICK = 800
@@ -27,6 +26,7 @@ type State = GameState
 
 export class GameScene implements Scene {
     private state: State;
+    private renderCommandBuffer: RenderCommandBuffer = RenderCommandBuffer.create()
 
     constructor(
         private readonly onDeath: () => void,
@@ -55,9 +55,8 @@ export class GameScene implements Scene {
         SpawnSystem.runDespawn(this.state)
 
         this.renderBackground(time, canvas, uiState)
-        this.renderBoundingBoxes(canvas)
-        this.renderPlayer(canvas)
-        this.renderUi(canvas)
+        this.renderUi(this.renderCommandBuffer)
+        RenderSystem.render(this.state, this.renderCommandBuffer, canvas)
 
         const player = World.getEntity(this.state, this.state.playerId)
         if (!player) {
@@ -116,75 +115,28 @@ export class GameScene implements Scene {
         ctx.restore()
     }
 
-    private renderBoundingBoxes(ctx: CanvasRenderingContext2D) {
-        ctx.save()
-        ctx.lineWidth = 2
-        for (const entity of this.state.entities) {
-            if (entity.state !== EntityStates.ALIVE
-                || !Flag.hasBigintFlags(entity.flags, EntityFlags.COLLIDER)
-            ) {
-                continue
-            }
-            for (const box of entity.colliderBbTransform) {
-                if (box.type === BoundingBoxTypes.AABB) {
-                    if (this.state.collidedEntities.has(entity.id)) {
-                        ctx.fillStyle = entity.colour || 'white'
-                        ctx.fillRect(box.left, box.top, box.width, box.height)
-                    } else {
-                        ctx.strokeStyle = entity.colour || 'white'
-                        ctx.strokeRect(box.left, box.top, box.width, box.height)
-                    }
-                }
-            }
-        }
-        ctx.restore()
-    }
-
-    private renderPlayer(ctx: CanvasRenderingContext2D): void {
+    private renderUi(buffer: RenderCommandBuffer) {
         const player = World.getEntity(this.state, this.state.playerId)
-        if (player) {
-            ctx.save()
-            ctx.beginPath()
-
-            ctx.moveTo(player.posX, player.posY - PLAYER_HEIGHT_HALF - PLAYER_OFFSET)
-            ctx.lineTo(player.posX - PLAYER_WIDTH_HALF, player.posY + PLAYER_HEIGHT_HALF - PLAYER_OFFSET)
-            ctx.lineTo(player.posX, player.posY + (PLAYER_HEIGHT_HALF / 2) - PLAYER_OFFSET)
-            ctx.lineTo(player.posX + PLAYER_WIDTH_HALF, player.posY + PLAYER_HEIGHT_HALF - PLAYER_OFFSET)
-            ctx.closePath()
-
-            if (player.scriptState === PlayerScript.INVULNERABLE) {
-                ctx.lineWidth = 2
-                ctx.strokeStyle = 'red'
-                ctx.stroke()
-            } else {
-                ctx.fillStyle = player.scriptState === PlayerScript.DYING
-                    ? 'white'
-                    : 'red'
-                ctx.fill()
-            }
-            
-            ctx.restore()
-        }
-    }
-
-    private renderUi(ctx: CanvasRenderingContext2D) {
-        ctx.save()
-
-        const player = World.getEntity(this.state, this.state.playerId)
-
-        ctx.font = '20px serif'
-        ctx.fillStyle = 'white'
-
         const hpText = `HP: ${player?.hp || 0}`
         const scoreText = `Score: ${this.state.score}`
-
-        const hpTextMetrics = ctx.measureText(hpText)
-
-        ctx.fillText(hpText, 50, 50)
-        ctx.fillText(scoreText, 50, 50 + hpTextMetrics.actualBoundingBoxAscent + hpTextMetrics.actualBoundingBoxDescent + 10)
-
-        ctx.restore()
+        RenderCommandBuffer.addCustomRenderCmd(buffer, 1000, renderText, [hpText, scoreText])
     }
+}
+
+function renderText(ctx: CanvasRenderingContext2D, text: string[]) {
+    ctx.save()
+    ctx.font = '20px serif'
+    ctx.fillStyle = 'white'
+
+    let pos = 50;
+
+    for (const line of text) {
+        ctx.fillText(line, 50, pos)
+        const textMetrics = ctx.measureText(line)
+        pos += textMetrics.actualBoundingBoxAscent + textMetrics.actualBoundingBoxDescent + 10
+    }
+
+    ctx.restore()
 }
 
 function spawnPlayer(gameState: GameState): Entity {
@@ -207,6 +159,8 @@ function spawnPlayer(gameState: GameState): Entity {
     Script.attachScript(gameState, player, PlayerScript)
 
     player.hp = 3
+
+    player.posZ = 1
 
     return player
 }

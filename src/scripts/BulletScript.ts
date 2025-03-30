@@ -15,7 +15,6 @@ export const BulletScript = {
             if ((bullet.flags & EntityFlags.ROLE_PLAYER_BULLET)
                 && (target.flags & EntityFlags.ROLE_ENEMY)
             ) {
-                console.log(`Bullet [${bullet.id}] impacted target [${target.id}] at [${gameState.time}]`)
                 Entity.killEntity(bullet)
                 Entity.killEntity(target)
                 gameState.score += 10

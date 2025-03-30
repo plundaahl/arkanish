@@ -33,6 +33,7 @@ export interface Entity {
     flags: bigint
     posX: number
     posY: number
+    posZ: number
     velX: number
     velY: number
     colliderBbSrc: BoundingBox[],
@@ -54,6 +55,7 @@ const NULL_ENTITY_SPEC: EntitySpec = Object.freeze({
     flags: 0n,
     posX: 0,
     posY: 0,
+    posZ: 0,
     velX: 0,
     velY: 0,
     colliderBbSrc: [],
