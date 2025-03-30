@@ -24,7 +24,7 @@ export const PlayerScript = {
                 break
             case PlayerScript.DYING:
                 if (gameState.time > entity.scriptTimeEnteredState + TIME_DYING) {
-                    entity.flags |= EntityFlags.DYING
+                    Entity.killEntity(entity)
                 }
                 break
         }

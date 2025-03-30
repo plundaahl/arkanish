@@ -1,14 +1,14 @@
 import { CURSOR_DOWN, Scene, UiState } from './Scene'
-import { World } from '../game-state/Entity'
-import { ColliderFlag, Entity, EntityFlags } from '../game-state/Entity'
+import { EntityStates, World } from '../game-state/Entity'
+import { ColliderFlags, Entity, EntityFlags } from '../game-state/Entity'
 import { BoundingBox, BoundingBoxTypes } from '../game-state/BoundingBox'
 import { Flag } from '../game-state/Flag'
-import { CollisionSystem } from '../systems/CollisionDetectionSystem'
+import { CollisionSystem } from '../systems/CollisionSystem'
 import { ScriptSystem } from '../systems/ScriptSystem'
 import { PlayerScript } from '../scripts/PlayerScript'
 import { BulletScript } from '../scripts/BulletScript'
 import { GameState } from '../game-state/GameState'
-import { CleanupSystem } from '../systems/CleanupSystem'
+import { SpawnSystem } from '../systems/SpawnSystem'
 import { MovementSystem } from '../systems/MovementSystem'
 import { Script } from '../scripts/Script'
 import { spawnAsteroidSpawner } from '../scripts/AsteroidSpawnerScript'
@@ -35,24 +35,28 @@ export class GameScene implements Scene {
     update(time: number, canvas: CanvasRenderingContext2D, uiState: UiState): void {
         if (!this.state) {
             this.state = GameState.create(time)
-            const player = spawnPlayer(this.state)
-            spawnAsteroidSpawner(this.state, 0, 100)
-            this.state.playerId = player.id
+            this.state.playerId = spawnPlayer(this.state).id
+            spawnAsteroidSpawner(this.state, 0, -100)
         }
 
         this.state.frameLength = time - this.state.time
         this.state.time = time
 
         this.incrementScoreForTime(time)
+        SpawnSystem.runSpawn(this.state)
+        
         this.handlePlayerInput(time, uiState)
-        EventSystem.run(this.state)
-        ScriptSystem.run(this.state)
         MovementSystem.run(this.state)
         CollisionSystem.run(this.state)
-        CleanupSystem.run(this.state)
+        
+        EventSystem.run(this.state)
+        ScriptSystem.run(this.state)
+
+        SpawnSystem.runDespawn(this.state)
 
         this.renderBackground(time, canvas, uiState)
-        this.renderGameObjects(time, canvas)
+        this.renderBoundingBoxes(canvas)
+        this.renderPlayer(canvas)
         this.renderUi(canvas)
 
         const player = World.getEntity(this.state, this.state.playerId)
@@ -112,29 +116,31 @@ export class GameScene implements Scene {
         ctx.restore()
     }
 
-    private renderGameObjects(time: number, ctx: CanvasRenderingContext2D): void {
-        // Render Bounding Boxes
+    private renderBoundingBoxes(ctx: CanvasRenderingContext2D) {
         ctx.save()
         ctx.lineWidth = 2
         for (const entity of this.state.entities) {
-            const colourIfDying = entity.flags & EntityFlags.DYING ? 'yellow' : ''
-            if (Flag.hasBigintFlags(entity.flags, EntityFlags.ALIVE, EntityFlags.COLLIDER)) {
-                for (const box of entity.colliderBbTransform) {
-                    if (box.type === BoundingBoxTypes.AABB) {
-                        if (this.state.collidedEntities.has(entity.id)) {
-                            ctx.fillStyle = colourIfDying || entity.colour || 'white'
-                            ctx.fillRect(box.left, box.top, box.width, box.height)
-                        } else {
-                            ctx.strokeStyle = colourIfDying || entity.colour || 'white'
-                            ctx.strokeRect(box.left, box.top, box.width, box.height)
-                        }
+            if (entity.state !== EntityStates.ALIVE
+                || !Flag.hasBigintFlags(entity.flags, EntityFlags.COLLIDER)
+            ) {
+                continue
+            }
+            for (const box of entity.colliderBbTransform) {
+                if (box.type === BoundingBoxTypes.AABB) {
+                    if (this.state.collidedEntities.has(entity.id)) {
+                        ctx.fillStyle = entity.colour || 'white'
+                        ctx.fillRect(box.left, box.top, box.width, box.height)
+                    } else {
+                        ctx.strokeStyle = entity.colour || 'white'
+                        ctx.strokeRect(box.left, box.top, box.width, box.height)
                     }
                 }
             }
         }
         ctx.restore()
+    }
 
-        // Render Player
+    private renderPlayer(ctx: CanvasRenderingContext2D): void {
         const player = World.getEntity(this.state, this.state.playerId)
         if (player) {
             ctx.save()
@@ -171,13 +177,11 @@ export class GameScene implements Scene {
 
         const hpText = `HP: ${player?.hp || 0}`
         const scoreText = `Score: ${this.state.score}`
-        const stateText = `State: ${player?.scriptTimeEnteredState}`
 
         const hpTextMetrics = ctx.measureText(hpText)
 
         ctx.fillText(hpText, 50, 50)
         ctx.fillText(scoreText, 50, 50 + hpTextMetrics.actualBoundingBoxAscent + hpTextMetrics.actualBoundingBoxDescent + 10)
-        ctx.fillText(stateText, 50, 50 + ((hpTextMetrics.actualBoundingBoxAscent + hpTextMetrics.actualBoundingBoxDescent + 10) * 2))
 
         ctx.restore()
     }
@@ -196,8 +200,8 @@ function spawnPlayer(gameState: GameState): Entity {
         BoundingBox.createAabb(0, 0, 0, 0),
         BoundingBox.createAabb(0, 0, 0, 0),
     ]
-    player.colliderGroup = ColliderFlag.PLAYER
-    player.collidesWith = ColliderFlag.ENEMY | ColliderFlag.POWERUP
+    player.colliderGroup = ColliderFlags.PLAYER
+    player.collidesWith = ColliderFlags.ENEMY | ColliderFlags.POWERUP
     player.colour = 'green'
 
     Script.attachScript(gameState, player, PlayerScript)
@@ -218,8 +222,8 @@ function spawnPlayerBullet(gameState: GameState, x: number, y: number) {
     bullet.flags |= EntityFlags.COLLIDER
     bullet.colliderBbSrc = [BoundingBox.createAabb(-5, -5, 10, 10)]
     bullet.colliderBbTransform = [BoundingBox.createAabb(-5, -5, 10, 10)]
-    bullet.colliderGroup = ColliderFlag.PLAYER_BULLET
-    bullet.collidesWith = ColliderFlag.ENEMY
+    bullet.colliderGroup = ColliderFlags.PLAYER_BULLET
+    bullet.collidesWith = ColliderFlags.ENEMY
 
     Script.attachScript(gameState, bullet, BulletScript)
 

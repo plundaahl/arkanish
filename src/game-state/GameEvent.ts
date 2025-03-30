@@ -51,11 +51,6 @@ const provisionEvent = (buffer: GameEventBuffer): GameEvent => {
 
 export const GameEventBuffer = {
     create: (): GameEventBuffer => ({ publishedEvents: [], pendingEvents: [] }),
-    clear: (buffer: GameEventBuffer) => {
-        for (const event of buffer.publishedEvents) {
-            GameEvent.releaseEvent(event)
-        }
-    },
     addCollisionEvent: (buffer: GameEventBuffer, entity: number, hitBy: number) => {
         const event = provisionEvent(buffer) as CollisionGameEvent
         event.type = GameEventType.COLLISION

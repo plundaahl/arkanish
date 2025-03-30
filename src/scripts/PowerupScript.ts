@@ -7,7 +7,7 @@ export const PowerupScript = {
     update: () => {},
     handleEvent: (state: GameState, entity: Entity, event: GameEvent): void => {
         if (GameEvent.isCollisionEvent(event)) {
-            entity.flags |= EntityFlags.DYING
+            Entity.killEntity(entity)
         }
     }
 }

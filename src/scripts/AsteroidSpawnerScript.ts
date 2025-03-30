@@ -1,4 +1,4 @@
-import { ColliderFlag, Entity, EntityFlags, World } from "../game-state/Entity";
+import { ColliderFlags, Entity, EntityFlags, World } from "../game-state/Entity";
 import { GameState } from "../game-state/GameState";
 import { BoundingBox } from "../game-state/BoundingBox";
 import { Script } from "./Script";
@@ -52,8 +52,8 @@ function spawnAsteroid(gameState: GameState, x: number, y: number) {
     entity.flags |= EntityFlags.COLLIDER
     entity.colliderBbSrc = [BoundingBox.createAabb(-halfSize, -halfSize, size, size)]
     entity.colliderBbTransform = [BoundingBox.clone(entity.colliderBbSrc[0])]
-    entity.colliderGroup = ColliderFlag.ENEMY
-    entity.collidesWith = ColliderFlag.PLAYER | ColliderFlag.PLAYER_BULLET
+    entity.colliderGroup = ColliderFlags.ENEMY
+    entity.collidesWith = ColliderFlags.PLAYER | ColliderFlags.PLAYER_BULLET
 
     entity.colour = 'red'
     entity.flags |= EntityFlags.ROLE_ENEMY
@@ -70,8 +70,8 @@ function spawnPowerup(gameState: GameState, x: number, y: number) {
     entity.flags |= EntityFlags.COLLIDER
     entity.colliderBbSrc = [BoundingBox.createAabb(-20, -20, 40, 40)]
     entity.colliderBbTransform = [BoundingBox.clone(entity.colliderBbSrc[0])]
-    entity.colliderGroup = ColliderFlag.POWERUP
-    entity.collidesWith = ColliderFlag.PLAYER
+    entity.colliderGroup = ColliderFlags.POWERUP
+    entity.collidesWith = ColliderFlags.PLAYER
 
     entity.colour = 'blue' 
 

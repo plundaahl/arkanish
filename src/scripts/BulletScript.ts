@@ -5,18 +5,19 @@ import { GameState } from "../game-state/GameState";
 export const BulletScript = {
     id: 'Bullet',
     update: (world: GameState, entity: Entity): void => {},
-    handleEvent: (gameState: GameState, self: Entity, event: GameEvent): void => {
+    handleEvent: (gameState: GameState, bullet: Entity, event: GameEvent): void => {
         if (GameEvent.isCollisionEvent(event)) {
-            const other = World.getEntity(gameState, event.hitBy)
-            if (!other) {
+            const target = World.getEntity(gameState, event.hitBy)
+            if (!target) {
                 return
             }
 
-            if ((self.flags & EntityFlags.ROLE_PLAYER_BULLET)
-                && (other.flags & EntityFlags.ROLE_ENEMY)
+            if ((bullet.flags & EntityFlags.ROLE_PLAYER_BULLET)
+                && (target.flags & EntityFlags.ROLE_ENEMY)
             ) {
-                self.flags |= EntityFlags.DYING
-                other.flags |= EntityFlags.DYING
+                console.log(`Bullet [${bullet.id}] impacted target [${target.id}] at [${gameState.time}]`)
+                Entity.killEntity(bullet)
+                Entity.killEntity(target)
                 gameState.score += 50
             }
         }

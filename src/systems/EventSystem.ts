@@ -3,13 +3,12 @@ import { GameState } from "../game-state/GameState";
 
 export const EventSystem = {
     run: (state: GameState) => {
-        const temp = state.publishedEvents
-        state.publishedEvents = state.pendingEvents
-        state.pendingEvents = temp
-
-        for (const event of state.pendingEvents) {
+        for (const event of state.publishedEvents) {
             GameEvent.releaseEvent(event)
         }
+
+        const newlyFreed = state.publishedEvents
+        state.publishedEvents = state.pendingEvents
+        state.pendingEvents = newlyFreed
     },
-    cleanup: (state: GameState) => {},
 }

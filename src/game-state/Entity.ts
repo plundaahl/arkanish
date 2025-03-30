@@ -4,8 +4,6 @@ import { Flag } from './Flag'
 
 const entityFlag = Flag.makeBigintFlagFactory()
 export const EntityFlags = Object.freeze({
-    ALIVE: entityFlag(),
-    DYING: entityFlag(),
     COLLIDER: entityFlag(),
     SCRIPT: entityFlag(),
     ROLE_PLAYER: entityFlag(),
@@ -14,8 +12,15 @@ export const EntityFlags = Object.freeze({
     ROLE_POWERUP: entityFlag(),
 })
 
+export const EntityStates = Object.freeze({
+    FREE: 0,
+    SPAWNING: 1,
+    ALIVE: 2,
+    DYING: 3,
+})
+
 const colliderFlag = Flag.makeNumberFlagFactory()
-export const ColliderFlag = Object.freeze({
+export const ColliderFlags = Object.freeze({
     PLAYER: colliderFlag(),
     ENEMY: colliderFlag(),
     POWERUP: colliderFlag(),
@@ -24,6 +29,7 @@ export const ColliderFlag = Object.freeze({
 
 export interface Entity {
     id: number
+    state: number
     flags: bigint
     posX: number
     posY: number
@@ -44,6 +50,7 @@ export interface Entity {
 export type EntitySpec = Omit<Entity, 'id'>
 
 const NULL_ENTITY_SPEC: EntitySpec = Object.freeze({
+    state: EntityStates.FREE,
     flags: 0n,
     posX: 0,
     posY: 0,
@@ -73,6 +80,9 @@ export const Entity = {
     release: (entity: Entity) => {
         Object.assign(entity, NULL_ENTITY_SPEC)
         entity.id = Id.incrementGen(entity.id)
+    },
+    killEntity: (entity: Entity) => {
+        entity.state = EntityStates.DYING
     },
 }
 
@@ -107,9 +117,14 @@ export const World = {
             throw new Error(`Entity index [${idx}] is out-of-bounds.  World only contains [${world.entities.length}] entities.`)
         }
         const entity = world.entities[idx]
-        return entity.id === id
-            ? entity
-            : undefined
+        if (entity.id === id
+            && (entity.state === EntityStates.ALIVE
+                || entity.state === EntityStates.DYING
+            )
+        ) {
+            return entity
+        }
+        return undefined
     },
     spawnEntity: (world: World, spec?: EntitySpec): Entity => {
         let idx = world.freeList.pop()
@@ -121,7 +136,7 @@ export const World = {
         } else {
             entity = world.entities[idx]
         }
-        entity.flags = EntityFlags.ALIVE
+        entity.state = EntityStates.SPAWNING
         return entity
     },
     releaseEntity: (world: World, entity: number | Entity): void => {
