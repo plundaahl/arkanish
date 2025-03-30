@@ -51,14 +51,12 @@ export const ScriptSystem = {
             const entity = state.entities[i]
             const machine = findMachineById(entity.script)
 
-            if (!(entity.state === EntityStates.ALIVE
+            if (entity.state === EntityStates.ALIVE
                 && Flag.hasBigintFlags(entity.flags, EntityFlags.SCRIPT)
                 && machine
-            )) {
-                continue
+            ) {
+                machine.update(state, entity)
             }
-
-            machine.update(state, entity)
         }
     },
     enterState: (world: GameState, entity: Entity, machine: Script, state: number) => {

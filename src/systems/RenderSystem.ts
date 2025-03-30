@@ -63,7 +63,7 @@ export const RenderSystem = {
     },
 }
 
-function renderBox(ctx: CanvasRenderingContext2D, style: string, fill: boolean, x: number, y: number, w: number, h: number) {
+export function renderBox(ctx: CanvasRenderingContext2D, style: string, fill: boolean, x: number, y: number, w: number, h: number) {
     ctx.save()
     ctx.lineWidth = 2
 

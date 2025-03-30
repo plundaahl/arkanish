@@ -14,6 +14,7 @@ import { spawnAsteroidSpawner } from '../scripts/AsteroidSpawnerScript'
 import { EventSystem } from '../systems/EventSystem'
 import { RenderCommandBuffer } from '../RenderCommand'
 import { RenderSystem } from '../systems/RenderSystem'
+import { ParticleSystem } from '../systems/ParticleSystem'
 
 const STAR_TIME_SCALE = 1 / 5000
 const PLAYER_SCALE = 2
@@ -56,6 +57,7 @@ export class GameScene implements Scene {
 
         this.renderBackground(time, canvas, uiState)
         this.renderUi(this.renderCommandBuffer)
+        ParticleSystem.render(this.state, this.renderCommandBuffer)
         RenderSystem.render(this.state, this.renderCommandBuffer, canvas)
 
         const player = World.getEntity(this.state, this.state.playerId)
