@@ -21,6 +21,7 @@ export class ArkanishApp extends HTMLElement {
         super()
 
         this.handleMouseEvent = this.handleMouseEvent.bind(this)
+        this.handleTouchEvent = this.handleTouchEvent.bind(this)
         this.handleResize = this.handleResize.bind(this)
         this.handleKeyboardEvent = this.handleKeyboardEvent.bind(this)
         this.error = this.error.bind(this)
@@ -39,6 +40,10 @@ export class ArkanishApp extends HTMLElement {
         this.addEventListener('mouseup', this.handleMouseEvent)
         this.addEventListener('mousemove', this.handleMouseEvent)
         this.addEventListener('mouseleave', this.handleMouseEvent)
+        this.addEventListener('touchstart', this.handleTouchEvent)
+        this.addEventListener('touchend', this.handleTouchEvent)
+        this.addEventListener('touchmove', this.handleTouchEvent)
+        this.addEventListener('touchcancel', this.handleTouchEvent)
         window.addEventListener('resize', this.handleResize)
 
         // Game-specific setup
@@ -92,6 +97,46 @@ export class ArkanishApp extends HTMLElement {
         }
     }
 
+    handleTouchEvent(event: TouchEvent) {
+        event.preventDefault()
+        switch (event.type) {
+            case "touchstart":
+                for (let i = 0; i < event.changedTouches.length; i++) {
+                    const touch = event.changedTouches[i]
+                    this.uiState.touches.push({
+                        x: touch.clientX,
+                        y: touch.clientY,
+                        offsetX: 0,
+                        offsetY: 0,
+                        id: touch.identifier,
+                        state: CURSOR_DOWN,
+                        element: 0,
+                    })
+                }
+                break;
+            case "touchend":
+            case "touchcancel":
+                for (let i = 0; i < event.changedTouches.length; i++) {
+                    const touch = event.changedTouches[i]
+                    const state = this.uiState.touches.find(t => t.id === touch.identifier)
+                    if (state) {
+                        state.state = CURSOR_CLICK
+                    }
+                }
+                break;
+            case "touchmove":
+                for (let i = 0; i < event.changedTouches.length; i++) {
+                    const touch = event.changedTouches[i]
+                    const state = this.uiState.touches.find(t => t.id === touch.identifier)
+                    if (state) {
+                        state.x = touch.clientX
+                        state.y = touch.clientY
+                    }
+                }
+                break;
+        }
+    }
+
     handleKeyboardEvent(event: KeyboardEvent) {
 
     }
@@ -110,6 +155,14 @@ export class ArkanishApp extends HTMLElement {
 
         if (this.uiState.cursorState === CURSOR_CLICK) {
             this.uiState.cursorState = CURSOR_IDLE
+        }
+
+        for (let i = 0; i < this.uiState.touches.length; i++) {
+            const touch = this.uiState.touches[i]
+            if (touch.state === CURSOR_CLICK) {
+                this.uiState.touches[i] = this.uiState.touches[this.uiState.touches.length - 1]
+                this.uiState.touches.pop()
+            }
         }
 
         window.requestAnimationFrame(this.update)

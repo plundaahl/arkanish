@@ -1,4 +1,4 @@
-import { CURSOR_CLICK, Scene, UiState } from './Scene'
+import { CURSOR_CLICK, CURSOR_DOWN, Scene, UiState, renderTouches } from './Scene'
 
 const TITLE = 'Arkanish'
 const START = 'Start'
@@ -60,15 +60,28 @@ export class MenuScene implements Scene {
             const bottom = hPos + textHeight + padding
 
             const cursorIn = cursorActive && left <= cursorX && cursorX <= right && top <= cursorY && cursorY <= bottom
+            let touchIn = false
+            for (const touch of ui.touches) {
+                if (left <= touch.x && touch.x <= right && top <= touch.y && touch.y <= bottom) {
+                    // Touch complete click
+                    if (touch.element === 1 && touch.state === CURSOR_CLICK) {
+                        touchIn = true
+                    }
+                    // Touch begin click
+                    if (touch.element === 0 && touch.state === CURSOR_DOWN) {
+                        touch.element = 1
+                    }
+                }
+            }
+
+            if (touchIn || (cursorIn && ui.cursorState === CURSOR_CLICK)) {
+                this.shouldStart = true
+            }
 
             if (cursorIn) {
                 ctx.fillStyle = 'green'
                 ctx.fillRect(left, top, elWidth, elHeight)
                 ctx.fillStyle = 'black'
-
-                if (ui.cursorState === CURSOR_CLICK) {
-                    this.shouldStart = true
-                }
             } else {
                 ctx.strokeStyle = 'green'
                 ctx.lineWidth = 4

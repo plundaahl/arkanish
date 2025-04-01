@@ -13,6 +13,7 @@ export const MovementSystem = {
             const entity = state.entities[i]
             if (entity.state === EntityStates.ALIVE) {
                 entity.posY += (entity.velY * deltaT) / MS_PER_SEC
+                entity.posX += (entity.velX * deltaT) / MS_PER_SEC
             }
         }
 

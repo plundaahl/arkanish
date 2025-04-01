@@ -1,4 +1,4 @@
-import { CURSOR_DOWN, Scene, UiState } from './Scene'
+import { CURSOR_DOWN, renderTouches, Scene, UiState } from './Scene'
 import { World } from '../game-state/Entity'
 import { ColliderFlags, Entity, EntityFlags } from '../game-state/Entity'
 import { BoundingBox } from '../game-state/BoundingBox'
@@ -36,7 +36,7 @@ export class GameScene implements Scene {
     update(time: number, canvas: CanvasRenderingContext2D, uiState: UiState): void {
         if (!this.state) {
             this.state = GameState.create(time)
-            this.state.playerId = spawnPlayer(this.state).id
+            this.state.playerId = spawnPlayer(this.state, uiState.width / 2, 9 * uiState.height / 12).id
             spawnAsteroidSpawner(this.state, 0, -100)
         }
 
@@ -67,21 +67,66 @@ export class GameScene implements Scene {
     }
 
     private handlePlayerInput(time: number, uiState: UiState) {
-        if (!uiState.cursorActive) {
-            return
+        let moveImpulseX: number | undefined
+        let moveImpulseY: number | undefined
+        let fire: boolean = false
+
+        // Mouse
+        if (uiState.cursorActive) {
+            const player = World.getEntity(this.state, this.state.playerId)
+            if (!player || player.scriptState === PlayerScript.DYING) {
+                return
+            }
+
+            moveImpulseX = uiState.cursorX
+            moveImpulseY = uiState.cursorY
+            fire = uiState.cursorState === CURSOR_DOWN
         }
 
         const player = World.getEntity(this.state, this.state.playerId)
-        if (!player || player.scriptState === PlayerScript.DYING) {
-            return
+
+        // Touch
+        let shipTouch = uiState.touches.find(touch => touch.element === 1)
+        for (const touch of uiState.touches) {
+            if (!shipTouch && touch.element === 0) {
+                touch.element = 1
+                touch.offsetX = (player?.posX || 0) - touch.x
+                touch.offsetY = (player?.posY || 0) - touch.y
+                shipTouch = touch
+            }
         }
 
-        player.posX = uiState.cursorX
-        player.posY = uiState.cursorY
+        if (shipTouch) {
+            moveImpulseX = shipTouch.x + shipTouch.offsetX
+            moveImpulseY = shipTouch.y + shipTouch.offsetY
+            fire = shipTouch.state === CURSOR_DOWN
+        }
 
-        if (uiState.cursorState === CURSOR_DOWN && time > this.state.playerNextShotTime) {
-            this.state.playerNextShotTime = time + PLAYER_RATE_OF_FIRE
-            spawnPlayerBullet(this.state, player.posX, player.posY - PLAYER_HEIGHT_HALF)
+        // Apply Input
+        if (player && player.scriptState !== PlayerScript.DYING) {
+            const PLAYER_MAX_VEL = 800
+            const MAX_MAGNITUDE = 10
+
+            if (moveImpulseX && moveImpulseY) {           
+                const offsetX = moveImpulseX - player.posX
+                const offsetY = moveImpulseY - player.posY
+                const offsetMagnitude = Math.sqrt((offsetX * offsetX) + (offsetY * offsetY))
+                const proportionX = offsetMagnitude !== 0 ? offsetX / offsetMagnitude : 0
+                const proportionY = offsetMagnitude !== 0 ? offsetY / offsetMagnitude : 0
+                const scaling = Math.min(offsetMagnitude / MAX_MAGNITUDE, 1)
+                const deltaPosThisTick = PLAYER_MAX_VEL * this.state.frameLength / 1000
+
+                player.velX = proportionX * scaling * PLAYER_MAX_VEL
+                player.velY = proportionY * scaling * PLAYER_MAX_VEL
+            } else {
+                player.velX = 0
+                player.velY = 0
+            }
+
+            if (fire && time > this.state.playerNextShotTime) {
+                this.state.playerNextShotTime = time + PLAYER_RATE_OF_FIRE
+                spawnPlayerBullet(this.state, player.posX, player.posY - PLAYER_HEIGHT_HALF)
+            }
         }
     }
 
@@ -141,7 +186,7 @@ function renderText(ctx: CanvasRenderingContext2D, text: string[]) {
     ctx.restore()
 }
 
-function spawnPlayer(gameState: GameState): Entity {
+function spawnPlayer(gameState: GameState, x: number, y: number): Entity {
     const player = World.spawnEntity(gameState)
     player.flags |= EntityFlags.ROLE_PLAYER
 
@@ -163,6 +208,8 @@ function spawnPlayer(gameState: GameState): Entity {
     player.hp = 3
 
     player.posZ = 1
+    player.posX = x
+    player.posY = y
 
     return player
 }
