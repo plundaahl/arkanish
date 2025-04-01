@@ -23,10 +23,7 @@ module.exports = {
     new CopyWebpackPlugin({
       patterns: [
         { 
-          from: 'public', 
-          globOptions: {
-            ignore: ['**/style.css'] // Skip CSS file as it's referenced by the HTML
-          }
+          from: 'public'
         },
       ],
     }),
