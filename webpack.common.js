@@ -1,3 +1,4 @@
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 const path = require('path');
 
 module.exports = {
@@ -18,5 +19,17 @@ module.exports = {
     filename: 'bundle.js',
     path: path.resolve(__dirname, 'dist'),
   },
+  plugins: [
+    new CopyWebpackPlugin({
+      patterns: [
+        { 
+          from: 'public', 
+          globOptions: {
+            ignore: ['**/style.css'] // Skip CSS file as it's referenced by the HTML
+          }
+        },
+      ],
+    }),
+  ],
 };
 
