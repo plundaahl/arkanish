@@ -1,4 +1,4 @@
-import { CURSOR_DOWN, renderTouches, Scene, UiState } from './Scene'
+import { CURSOR_DOWN, Scene, UiState } from './Scene'
 import { World } from '../game-state/Entity'
 import { ColliderFlags, Entity, EntityFlags } from '../game-state/Entity'
 import { BoundingBox } from '../game-state/BoundingBox'
@@ -10,11 +10,14 @@ import { GameState } from '../game-state/GameState'
 import { SpawnSystem } from '../systems/SpawnSystem'
 import { MovementSystem } from '../systems/MovementSystem'
 import { Script } from '../scripts/Script'
-import { spawnAsteroidSpawner } from '../scripts/AsteroidSpawnerScript'
+import { AsteroidSpawnerScript } from '../scripts/AsteroidSpawnerScript'
 import { EventSystem } from '../systems/EventSystem'
 import { RenderCommandBuffer } from '../RenderCommand'
 import { RenderSystem } from '../systems/RenderSystem'
 import { ParticleSystem } from '../systems/ParticleSystem'
+import { Level, LevelState } from '../game-state/Level'
+import { SpawnActionHandler } from '../actions/SpawnAction'
+import { LevelSystem } from '../systems/LevelSystem'
 
 const STAR_TIME_SCALE = 1 / 5000
 const PLAYER_SCALE = 2
@@ -24,6 +27,23 @@ const PLAYER_BULLET_SPEED = -500
 const MS_PER_SCORE_TICK = 800
 
 type State = GameState
+
+const level: Level = {
+    initSection: 'main',
+    sections: {
+        main: {
+            contents: [
+                { when: { type: 'time', at: 2500 }, then: [
+                    SpawnActionHandler.create({
+                        posX: 0,
+                        posY: -100,
+                        script: AsteroidSpawnerScript.id,
+                    })
+                ]},
+            ]
+        }
+    }
+}
 
 export class GameScene implements Scene {
     private state: State;
@@ -37,13 +57,14 @@ export class GameScene implements Scene {
         if (!this.state) {
             this.state = GameState.create(time)
             this.state.playerId = spawnPlayer(this.state, uiState.width / 2, 9 * uiState.height / 12).id
-            spawnAsteroidSpawner(this.state, 0, -100)
+            LevelState.loadLevel(this.state, level)
         }
 
         this.state.frameLength = time - this.state.time
         this.state.time = time
 
         this.incrementScoreForTime(time)
+        LevelSystem.run(this.state)
         SpawnSystem.runSpawn(this.state)
         
         this.handlePlayerInput(time, uiState)

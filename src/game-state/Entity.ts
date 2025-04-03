@@ -10,6 +10,20 @@ export const EntityFlags = Object.freeze({
     ROLE_PLAYER_BULLET: entityFlag(),
     ROLE_ENEMY: entityFlag(),
     ROLE_PICKUP: entityFlag(),
+    parse: (flags: string[] | undefined): bigint => {
+        if (!flags) {
+            return 0n
+        }
+        let bitfield = 0n
+        for (const flag of flags) {
+            const flagValue = (EntityFlags as any)[flag]
+            if (typeof flagValue !== 'bigint') {
+                throw new Error(`Invalid flag [${flag}].`)
+            }
+            bitfield |= flagValue
+        }
+        return bitfield
+    },
 })
 
 export const EntityStates = Object.freeze({
@@ -50,7 +64,7 @@ export interface Entity {
 
 export type EntitySpec = Omit<Entity, 'id'>
 
-const NULL_ENTITY_SPEC: EntitySpec = Object.freeze({
+export const NULL_ENTITY_SPEC: EntitySpec = Object.freeze({
     state: EntityStates.FREE,
     flags: 0n,
     posX: 0,
@@ -85,6 +99,46 @@ export const Entity = {
     },
     killEntity: (entity: Entity) => {
         entity.state = EntityStates.DYING
+    },
+}
+
+export type EntityTemplate = Partial<Omit<Entity,
+    'id'
+    | 'state'
+    | 'flags'
+    | 'colliderBbTransfrom'
+    | 'invulnerableUntil'
+    | 'scriptState'
+    | 'scriptTimeEnteredState'
+> & { flags: string[] }>
+
+export const EntityTemplate = {
+    is: (obj: unknown): obj is EntityTemplate => {
+        if (typeof obj !== 'object' || obj === null) {
+            return false
+        }
+        const objAny = obj as any
+        return (
+            (Array.isArray(objAny['flags']) || objAny['flags'] === undefined)
+            && (typeof objAny['posX'] === 'number' || objAny['posX'] === undefined)
+            && (typeof objAny['posY'] === 'number' || objAny['posY'] === undefined)
+            && (typeof objAny['posZ'] === 'number' || objAny['posZ'] === undefined)
+            && (typeof objAny['velX'] === 'number' || objAny['velX'] === undefined)
+            && (typeof objAny['velY'] === 'number' || objAny['velY'] === undefined)
+            && (Array.isArray(objAny['colliderBbSrc']) || objAny['colliderBbSrc'] === undefined)
+            && (typeof objAny['colliderGroup'] === 'number' || objAny['colliderGroup'] === undefined)
+            && (typeof objAny['collidesWith'] === 'number' || objAny['collidesWith'] === undefined)
+            && (typeof objAny['colour'] === 'string' || objAny['colour'] === undefined)
+            && (typeof objAny['script'] === 'string' || objAny['script'] === undefined)
+            && (typeof objAny['hp'] === 'number' || objAny['hp'] === undefined)
+        )
+    },
+    toEntitySpec: (template: EntityTemplate): EntitySpec => {
+        const spec = Object.assign({}, NULL_ENTITY_SPEC)
+        const { flags, ...rest } = template
+        Object.assign(spec, rest)
+        spec.flags = EntityFlags.parse(flags)
+        return spec
     },
 }
 

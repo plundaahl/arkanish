@@ -1,6 +1,10 @@
 import { CURSOR_CLICK, CURSOR_DOWN, CURSOR_IDLE, mkUiState, Scene, UiState } from './scenes/Scene'
 import { MenuScene } from './scenes/MenuScene'
 import { GameScene } from './scenes/GameScene'
+import { Action } from './game-state/Level'
+import { SpawnActionHandler } from './actions/SpawnAction'
+
+Action.register(SpawnActionHandler)
 
 function orError<T>(element: T | null, error: string, ifNull: (message: string) => void): T {
     if (element === null) {
