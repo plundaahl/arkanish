@@ -1,4 +1,4 @@
-import { CURSOR_CLICK, CURSOR_DOWN, CURSOR_IDLE, mkUiState, Scene, UiState } from './scenes/Scene'
+import { CURSOR_CLICK, CURSOR_DOWN, CURSOR_IDLE, Scene, UiState } from './scenes/Scene'
 import { MenuScene } from './scenes/MenuScene'
 import { GameScene } from './scenes/GameScene'
 import { Action } from './game-state/Level'
@@ -51,7 +51,7 @@ export class ArkanishApp extends HTMLElement {
         window.addEventListener('resize', this.handleResize)
 
         // Game-specific setup
-        this.uiState = mkUiState()
+        this.uiState = UiState.create()
         this.scene = this.makeMenuScene()
         this.running = true;
 

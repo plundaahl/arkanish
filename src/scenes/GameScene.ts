@@ -36,7 +36,7 @@ const level: Level = {
                 { when: { type: 'time', at: 2500 }, then: [
                     SpawnActionHandler.create({
                         posX: 0,
-                        posY: -100,
+                        posY: -450,
                         script: AsteroidSpawnerScript.id,
                     })
                 ]},
@@ -45,9 +45,12 @@ const level: Level = {
     }
 }
 
+const BUOY_SCALE = 1
+
 export class GameScene implements Scene {
     private state: State;
-    private renderCommandBuffer: RenderCommandBuffer = RenderCommandBuffer.create()
+    private gameRenderCommandBuffer: RenderCommandBuffer = RenderCommandBuffer.create()
+    private uiRenderCommandBuffer: RenderCommandBuffer = RenderCommandBuffer.create()
 
     constructor(
         private readonly onDeath: () => void,
@@ -56,13 +59,14 @@ export class GameScene implements Scene {
     update(time: number, canvas: CanvasRenderingContext2D, uiState: UiState): void {
         if (!this.state) {
             this.state = GameState.create(time)
-            this.state.playerId = spawnPlayer(this.state, uiState.width / 2, 9 * uiState.height / 12).id
+            this.state.playerId = spawnPlayer(this.state).id
             LevelState.loadLevel(this.state, level)
         }
 
         this.state.frameLength = time - this.state.time
         this.state.time = time
 
+        this.calculatePlayAreaProjection(uiState)
         this.incrementScoreForTime(time)
         LevelSystem.run(this.state)
         SpawnSystem.runSpawn(this.state)
@@ -77,14 +81,33 @@ export class GameScene implements Scene {
         SpawnSystem.runDespawn(this.state)
 
         this.renderBackground(time, canvas, uiState)
-        this.renderUi(this.renderCommandBuffer)
-        ParticleSystem.render(this.state, this.renderCommandBuffer)
-        RenderSystem.render(this.state, this.renderCommandBuffer, canvas)
+        this.renderUi(this.uiRenderCommandBuffer)
+        ParticleSystem.render(this.state, this.gameRenderCommandBuffer)
+        RenderSystem.render(this.state, uiState, this.gameRenderCommandBuffer, this.uiRenderCommandBuffer, canvas)
 
         const player = World.getEntity(this.state, this.state.playerId)
         if (!player) {
             this.onDeath()
         }
+    }
+
+    private calculatePlayAreaProjection(ui: UiState) {
+        const canvasAspect = ui.width / ui.height
+        const playSpaceAspect = this.state.playArea.width / this.state.playArea.height
+        const isTooWide = canvasAspect > playSpaceAspect
+
+        const projectionWidth = isTooWide
+            ? Math.floor(ui.height * playSpaceAspect)
+            : ui.width
+
+        const projectionHeight = isTooWide
+            ? ui.height
+            : Math.floor(ui.width / playSpaceAspect)
+        
+        ui.playArea.left = Math.max(ui.width - projectionWidth, 0) * 0.5
+        ui.playArea.top = Math.max(ui.height - projectionHeight, 0) * 0.5
+        ui.playArea.width = projectionWidth
+        ui.playArea.height = projectionHeight
     }
 
     private handlePlayerInput(time: number, uiState: UiState) {
@@ -99,8 +122,8 @@ export class GameScene implements Scene {
                 return
             }
 
-            moveImpulseX = uiState.cursorX
-            moveImpulseY = uiState.cursorY
+            moveImpulseX = UiState.canvasXToGameX(this.state, uiState, uiState.cursorX)
+            moveImpulseY = UiState.canvasYToGameY(this.state, uiState, uiState.cursorY)
             fire = uiState.cursorState === CURSOR_DOWN
         }
 
@@ -111,15 +134,15 @@ export class GameScene implements Scene {
         for (const touch of uiState.touches) {
             if (!shipTouch && touch.element === 0) {
                 touch.element = 1
-                touch.offsetX = (player?.posX || 0) - touch.x
-                touch.offsetY = (player?.posY || 0) - touch.y
+                touch.offsetX = (player?.posX || 0) - UiState.canvasXToGameX(this.state, uiState, touch.x)
+                touch.offsetY = (player?.posY || 0) - UiState.canvasYToGameY(this.state, uiState, touch.y)
                 shipTouch = touch
             }
         }
 
         if (shipTouch) {
-            moveImpulseX = shipTouch.x + shipTouch.offsetX
-            moveImpulseY = shipTouch.y + shipTouch.offsetY
+            moveImpulseX = UiState.canvasXToGameX(this.state, uiState, shipTouch.x) + shipTouch.offsetX
+            moveImpulseY = UiState.canvasYToGameY(this.state, uiState, shipTouch.y) + shipTouch.offsetY
             fire = shipTouch.state === CURSOR_DOWN
         }
 
@@ -207,7 +230,7 @@ function renderText(ctx: CanvasRenderingContext2D, text: string[]) {
     ctx.restore()
 }
 
-function spawnPlayer(gameState: GameState, x: number, y: number): Entity {
+function spawnPlayer(gameState: GameState): Entity {
     const player = World.spawnEntity(gameState)
     player.flags |= EntityFlags.ROLE_PLAYER
 
@@ -229,8 +252,8 @@ function spawnPlayer(gameState: GameState, x: number, y: number): Entity {
     player.hp = 3
 
     player.posZ = 1
-    player.posX = x
-    player.posY = y
+    player.posX = 0
+    player.posY = gameState.playArea.height / 4
 
     return player
 }
@@ -252,4 +275,20 @@ function spawnPlayerBullet(gameState: GameState, x: number, y: number) {
     Script.attachScript(gameState, bullet, BulletScript)
 
     bullet.colour = 'red'
+}
+
+function spawnBuoy(gameState: GameState, x: number, y: number) {
+    const entity = World.spawnEntity(gameState)
+
+    const halfSize = 20
+    const size = halfSize * 2
+
+    entity.posX = x
+    entity.posY = y
+
+    entity.flags |= EntityFlags.COLLIDER
+    entity.colliderBbSrc = [BoundingBox.createAabb(-halfSize, -halfSize, size, size)]
+    entity.colliderBbTransform = [BoundingBox.clone(entity.colliderBbSrc[0])]
+
+    entity.colour = 'purple'
 }

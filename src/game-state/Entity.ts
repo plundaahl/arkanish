@@ -88,7 +88,7 @@ export const Entity = {
     create: (idx: number, spec?: EntitySpec): Entity => {
         const entity = Object.assign({ id: Id.init(idx) }, NULL_ENTITY_SPEC)
         if (spec) {
-            Entity.populate(entity, spec)
+            Object.assign(entity, spec)
         }
         return entity
     },
@@ -187,10 +187,13 @@ export const World = {
         let entity: Entity
         if (idx === undefined) {
             idx = world.entities.length
-            entity = Entity.create(idx, spec)
+            entity = Entity.create(idx)
             world.entities[idx] = entity
         } else {
             entity = world.entities[idx]
+        }
+        if (spec) {
+            Entity.populate(entity, spec)
         }
         entity.state = EntityStates.SPAWNING
         return entity

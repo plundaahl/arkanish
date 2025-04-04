@@ -1,9 +1,11 @@
+import { AABB, BoundingBox } from './BoundingBox'
 import { Collisions } from './Collisions'
 import { World } from './Entity'
 import { FrameState } from './Frame'
 import { GameEventBuffer } from './GameEvent'
 import { LevelState } from './Level'
 import { ParticleState } from './Particles'
+import { PlayAreaState } from './PlayArea'
 
 export type GameState = World
     & GameEventBuffer
@@ -11,6 +13,7 @@ export type GameState = World
     & FrameState
     & ParticleState
     & LevelState
+    & PlayAreaState
     & {
     playerId: number,
     playerNextShotTime: number,
@@ -29,6 +32,7 @@ export const GameState = {
             ...FrameState.create(time),
             ...ParticleState.create(),
             ...LevelState.create(),
+            ...PlayAreaState.create(),
             playerId: 0,
             lastSpawnTime: time,
             numEntities: 0,

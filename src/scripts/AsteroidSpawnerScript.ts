@@ -18,7 +18,7 @@ export const AsteroidSpawnerScript = {
                 Script.transitionTo(gameState, entity, AsteroidSpawnerScript.SPAWNING)
             }
         } else if (entity.scriptState === AsteroidSpawnerScript.SPAWNING) {
-            const x = Math.ceil(Math.random() * PLAY_AREA_WIDTH) + entity.posX
+            const x = Math.ceil(Math.random() * gameState.playArea.width) + gameState.playArea.left + entity.posX
             const y = entity.posY
             const roll = Math.random()
 
@@ -43,16 +43,21 @@ export function spawnAsteroidSpawner(gameState: GameState, x: number, y: number)
     Script.attachScript(gameState, entity, AsteroidSpawnerScript)
 }
 
-function randomVel() {
-    return Math.ceil(Math.random() * 300) + 300
+function clampToPlaySpace(gameState: GameState, x: number, width: number) {
+    return x * ((gameState.playArea.width - width) / gameState.playArea.width)
 }
 
 function spawnAsteroid(gameState: GameState, x: number, y: number) {
     const entity = World.spawnEntity(gameState)
 
-    const halfSize = Math.ceil((Math.random() * 100) + 20)
-    const size = halfSize * 2
-    const vel = randomVel()
+    const maxSize = gameState.playArea.width * 0.5
+    const minSize = gameState.playArea.width * 0.1
+    const size = Math.ceil((Math.random() * (maxSize - minSize)) + minSize)
+    const halfSize = size * 0.5
+
+    const maxVel = gameState.playArea.height * 0.7
+    const minVel = gameState.playArea.height * 0.3
+    const vel = Math.ceil(Math.random() * (maxVel - minVel)) + minVel
 
     entity.posX = x
     entity.posY = y - halfSize
@@ -72,7 +77,7 @@ function spawnPowerup(gameState: GameState, x: number, y: number) {
     const entity = World.spawnEntity(gameState)
     entity.flags |= EntityFlags.ROLE_PICKUP
 
-    entity.posX = x
+    entity.posX = clampToPlaySpace(gameState, x, 40)
     entity.posY = y
     entity.velY = 350
 
@@ -91,7 +96,7 @@ function spawnCoin(gameState: GameState, x: number, y: number) {
     const entity = World.spawnEntity(gameState)
     entity.flags |= EntityFlags.ROLE_PICKUP
 
-    entity.posX = x
+    entity.posX = clampToPlaySpace(gameState, x, 40)
     entity.posY = y
     entity.velY = 350
 
