@@ -5,7 +5,7 @@ import { Script } from "./Script";
 import { CoinScript } from "./CoinScript";
 import { PowerupScript } from "./PowerupScript";
 
-const TIME_BETWEEN_SPAWNS = 150
+const TIME_BETWEEN_SPAWNS = 180
 const PLAY_AREA_WIDTH = 1000
 
 export const AsteroidSpawnerScript = {
@@ -50,7 +50,7 @@ function clampToPlaySpace(gameState: GameState, x: number, width: number) {
 function spawnAsteroid(gameState: GameState, x: number, y: number) {
     const entity = World.spawnEntity(gameState)
 
-    const maxSize = gameState.playArea.width * 0.5
+    const maxSize = gameState.playArea.width * 0.45
     const minSize = gameState.playArea.width * 0.1
     const size = Math.ceil((Math.random() * (maxSize - minSize)) + minSize)
     const halfSize = size * 0.5

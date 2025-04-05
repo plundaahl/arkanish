@@ -1,3 +1,4 @@
+import { Flag } from "../game-state/Flag";
 import { BoundingBox } from "../game-state/BoundingBox";
 import { EntityFlags, EntityStates } from "../game-state/Entity";
 import { GameState } from "../game-state/GameState";
@@ -17,6 +18,24 @@ export const MovementSystem = {
             }
         }
 
+        // Constrain entities to play area
+        const playAreaLeft = state.playArea.left
+        const playAreaRight = state.playArea.width + state.playArea.left
+        const playAreaTop = state.playArea.top
+        const playAreaBottom = state.playArea.top + state.playArea.height
+        for (let i = 0; i < state.entities.length; i++) {
+            const entity = state.entities[i]
+            if (entity.state === EntityStates.ALIVE && Flag.hasBigintFlags(entity.flags, EntityFlags.CONSTRAIN_TO_PLAY_SPACE)) {
+                const left = BoundingBox.leftOf(...entity.colliderBbSrc)
+                const right = BoundingBox.rightOf(...entity.colliderBbSrc)
+                const top = BoundingBox.topOf(...entity.colliderBbSrc)
+                const bottom = BoundingBox.bottomOf(...entity.colliderBbSrc)
+
+                entity.posX = clamp(playAreaLeft - left, entity.posX, playAreaRight - right)
+                entity.posY = clamp(playAreaTop - top, entity.posY, playAreaBottom - bottom)
+            }
+        }
+
         // Update transforms
         for (const entity of state.entities) {
             if (entity.state === EntityStates.ALIVE) {
@@ -28,4 +47,8 @@ export const MovementSystem = {
             }
         }
     }
+}
+
+function clamp(min: number, current: number, max: number): number {
+    return Math.min(Math.max(min, current), max)
 }

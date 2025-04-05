@@ -254,6 +254,7 @@ function spawnPlayer(gameState: GameState): Entity {
     player.posZ = 1
     player.posX = 0
     player.posY = gameState.playArea.height / 4
+    player.flags |= EntityFlags.CONSTRAIN_TO_PLAY_SPACE
 
     return player
 }

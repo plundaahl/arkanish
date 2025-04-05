@@ -6,6 +6,7 @@ const entityFlag = Flag.makeBigintFlagFactory()
 export const EntityFlags = Object.freeze({
     COLLIDER: entityFlag(),
     SCRIPT: entityFlag(),
+    CONSTRAIN_TO_PLAY_SPACE: entityFlag(),
     ROLE_PLAYER: entityFlag(),
     ROLE_PLAYER_BULLET: entityFlag(),
     ROLE_ENEMY: entityFlag(),

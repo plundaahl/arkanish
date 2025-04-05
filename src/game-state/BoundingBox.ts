@@ -54,6 +54,44 @@ export const BoundingBox = {
         }
         throw new Error(`Unrecognized types [${a.type}, ${b.type}]`)
     },
+    leftOf: (...boxes: BoundingBox[]): number => {
+        let leftMost = undefined
+        for (const box of boxes) {
+            if (box.type === TypeAABB) {
+                leftMost = leftMost === undefined ? box.left : Math.min(leftMost, box.left)
+            }
+        }
+        return leftMost || 0
+    },
+    rightOf: (...boxes: BoundingBox[]): number => {
+        let rightMost = undefined
+        for (const box of boxes) {
+            if (box.type === TypeAABB) {
+                const right =  box.left + box.width
+                rightMost = rightMost === undefined ? right : Math.max(rightMost, right)
+            }
+        }
+        return rightMost || 0
+    },
+    topOf: (...boxes: BoundingBox[]): number => {
+        let topMost = undefined
+        for (const box of boxes) {
+            if (box.type === TypeAABB) {
+                topMost = topMost === undefined ? box.top : Math.min(topMost, box.top)
+            }
+        }
+        return topMost || 0
+    },
+    bottomOf: (...boxes: BoundingBox[]): number => {
+        let bottomMost = undefined
+        for (const box of boxes) {
+            if (box.type === TypeAABB) {
+                const bottom =  box.top + box.height
+                bottomMost = bottomMost === undefined ? bottom : Math.max(bottomMost, bottom)
+            }
+        }
+        return bottomMost || 0
+    },
 }
 
 function intersectsAabbWithAabb(a: AABB, b: AABB): boolean {
