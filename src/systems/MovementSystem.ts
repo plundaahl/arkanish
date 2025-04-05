@@ -2,6 +2,7 @@ import { Flag } from "../game-state/Flag";
 import { BoundingBox } from "../game-state/BoundingBox";
 import { EntityFlags, EntityStates } from "../game-state/Entity";
 import { GameState } from "../game-state/GameState";
+import { GameEventBuffer } from "../game-state/GameEvent";
 
 const MS_PER_SEC = 1000
 
@@ -23,16 +24,52 @@ export const MovementSystem = {
         const playAreaRight = state.playArea.width + state.playArea.left
         const playAreaTop = state.playArea.top
         const playAreaBottom = state.playArea.top + state.playArea.height
+
         for (let i = 0; i < state.entities.length; i++) {
             const entity = state.entities[i]
-            if (entity.state === EntityStates.ALIVE && Flag.hasBigintFlags(entity.flags, EntityFlags.CONSTRAIN_TO_PLAY_SPACE)) {
-                const left = BoundingBox.leftOf(...entity.colliderBbSrc)
-                const right = BoundingBox.rightOf(...entity.colliderBbSrc)
-                const top = BoundingBox.topOf(...entity.colliderBbSrc)
-                const bottom = BoundingBox.bottomOf(...entity.colliderBbSrc)
+            if (entity.state !== EntityStates.ALIVE) {
+                continue
+            }
 
+            const left = BoundingBox.leftOf(...entity.colliderBbSrc)
+            const right = BoundingBox.rightOf(...entity.colliderBbSrc)
+            const top = BoundingBox.topOf(...entity.colliderBbSrc)
+            const bottom = BoundingBox.bottomOf(...entity.colliderBbSrc)
+
+            if (Flag.hasBigintFlags(entity.flags, EntityFlags.CONSTRAIN_TO_PLAY_SPACE)) {
                 entity.posX = clamp(playAreaLeft - left, entity.posX, playAreaRight - right)
                 entity.posY = clamp(playAreaTop - top, entity.posY, playAreaBottom - bottom)
+            }
+
+            if (Flag.hasBigintFlags(entity.flags, EntityFlags.BOUNCE_IN_PLAY_SPACE)) {
+                let bounce = false
+                const leftOverlap = entity.posX + left - playAreaLeft
+                if (leftOverlap < 0) {
+                    entity.posX -= leftOverlap
+                    entity.velX *= -1
+                    bounce = true
+                }
+                const rightOverlap = entity.posX + right - playAreaRight
+                if (rightOverlap > 0) {
+                    entity.posX -= rightOverlap
+                    entity.velX *= -1
+                    bounce = true
+                }
+                const topOverlap = entity.posY + top - playAreaTop
+                if (topOverlap < 0) {
+                    entity.posY -= topOverlap
+                    entity.velY *= -1
+                    bounce = true
+                }
+                const bottomOverlap = entity.posY + bottom - playAreaBottom
+                if (bottomOverlap > 0) {
+                    entity.posY -= bottomOverlap
+                    entity.velY *= -1
+                    bounce = true
+                }
+                if (bounce) {
+                    GameEventBuffer.addBounceEvent(state, entity.id)
+                }
             }
         }
 

@@ -4,9 +4,19 @@ import { BoundingBox } from "../game-state/BoundingBox";
 import { Script } from "./Script";
 import { CoinScript } from "./CoinScript";
 import { PowerupScript } from "./PowerupScript";
+import { BouncyBallScript } from "./BouncyBallScript";
 
 const TIME_BETWEEN_SPAWNS = 180
 const PLAY_AREA_WIDTH = 1000
+
+const CHANCES: [number, typeof spawnAsteroid][] = [
+    [1, spawnCoin],
+    [9, spawnPowerup],
+    [50, spawnNothing],
+    [20, spawnBouncyBall],
+    [20, spawnAsteroid],
+]
+const TOTAL = CHANCES.map(([chance]) => chance).reduce((prev, total) => prev + total, 0)
 
 export const AsteroidSpawnerScript = {
     id: 'AsteroidSpawner',
@@ -20,14 +30,16 @@ export const AsteroidSpawnerScript = {
         } else if (entity.scriptState === AsteroidSpawnerScript.SPAWNING) {
             const x = Math.ceil(Math.random() * gameState.playArea.width) + gameState.playArea.left + entity.posX
             const y = entity.posY
-            const roll = Math.random()
+            const roll = Math.floor(Math.random() * TOTAL)
 
-            if (roll < 0.90) {
-                spawnAsteroid(gameState, x, y)
-            } else if (roll < 0.99) {
-                spawnPowerup(gameState, x, y)
-            } else {
-                spawnCoin(gameState, x, y)
+            let soFar = 0
+            for (let i = 0; i < CHANCES.length; i++) {
+                const [weight, spawnFn] = CHANCES[i]
+                soFar += weight
+                if (roll <= soFar) {
+                    spawnFn(gameState, x, y)
+                    break
+                }
             }
             Script.transitionTo(gameState, entity, AsteroidSpawnerScript.IDLE)
         }
@@ -109,4 +121,38 @@ function spawnCoin(gameState: GameState, x: number, y: number) {
     entity.colour = 'yellow' 
 
     Script.attachScript(gameState, entity, CoinScript)
+}
+
+function spawnBouncyBall(gameState: GameState, x: number, y: number) {
+    const entity = World.spawnEntity(gameState)
+
+    const size = 50
+    const halfSize = 25
+
+    const maxVelY = gameState.playArea.height * 0.7
+    const minVelY = gameState.playArea.height * 0.3
+    const maxVelX = gameState.playArea.height * 0.5
+    const minVelX = gameState.playArea.height * 0.3
+
+    entity.posX = x
+    entity.posY = y - halfSize
+    entity.velY = Math.ceil(Math.random() * (maxVelY - minVelY)) + minVelY
+    entity.velX = (Math.round(Math.random() * (maxVelX - minVelX)) + minVelX) * (Math.random() < 0.5 ? 1 : -1)
+
+    entity.flags |= EntityFlags.COLLIDER
+    entity.colliderBbSrc = [BoundingBox.createAabb(-halfSize, -halfSize, size, size)]
+    entity.colliderBbTransform = [BoundingBox.clone(entity.colliderBbSrc[0])]
+    entity.colliderGroup = ColliderFlags.ENEMY
+    entity.collidesWith = ColliderFlags.PLAYER | ColliderFlags.PLAYER_BULLET
+
+    Script.attachScript(gameState, entity, BouncyBallScript)
+    entity.flags |= EntityFlags.BOUNCE_IN_PLAY_SPACE
+    entity.hp = 4
+
+    entity.colour = 'pink'
+    entity.flags |= EntityFlags.ROLE_ENEMY
+}
+
+function spawnNothing(state: GameState, x: number, y: number) {
+    
 }
