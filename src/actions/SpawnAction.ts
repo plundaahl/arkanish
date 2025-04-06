@@ -25,9 +25,6 @@ export const SpawnActionHandler: SpawnActionHandler = {
         if (action.overrides.script) {
             Script.attachScript(state, entity, action.overrides.script)
         }
-        console.log(action.overrides)
-        console.log(spec)
-        console.log(entity)
     },
     create: (template: EntityTemplate): SpawnAction => {
         return { type: 'Spawn', overrides: template }

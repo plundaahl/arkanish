@@ -3,11 +3,14 @@ export const ParticleTypes = Object.freeze({
     JET: 1,
     EXPLOSION_RED: 2,
     EXPLOSION_WHITE: 3,
+    TELEGRAPH_CIRCLE: 4,
+    BLAST_CIRCLE: 5,
 })
 
 export type Particle = {
     type: number,
     variation: number,
+    attachedToEntity: number,
     originX: number,
     originY: number,
     originZ: number,
@@ -21,6 +24,7 @@ export type Particle = {
 const NULL_PARTICLE: Particle = Object.freeze({
     type: 0,
     variation: 0,
+    attachedToEntity: 0,
     originX: 0,
     originY: 0,
     originZ: 0,

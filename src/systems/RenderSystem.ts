@@ -31,6 +31,17 @@ export const RenderSystem = {
                             box.width,
                             box.height,
                         )
+                    } else if (box.type === BoundingBoxTypes.CIRCLE) {
+                        RenderCommandBuffer.addCustomRenderCmd(
+                            gameBuffer,
+                            entity.posZ,
+                            renderCircle,
+                            entity.colour || 'white',
+                            state.collidedEntities.has(entity.id),
+                            box.x,
+                            box.y,
+                            box.r,
+                        )
                     }
                 }
             }
@@ -134,6 +145,25 @@ export function renderBox(ctx: CanvasRenderingContext2D, style: string, fill: bo
         ctx.strokeRect(x, y, w, h)
     }
 
+    ctx.restore()
+}
+
+const FULL_CRICLE = 2 * Math.PI
+export function renderCircle(ctx: CanvasRenderingContext2D, style: string, fill: boolean, x: number, y: number, r: number, opacity: number = 1) {
+    ctx.save()
+    ctx.beginPath()
+    ctx.arc(x, y, Math.abs(r), 0, FULL_CRICLE)
+    ctx.closePath()
+
+    ctx.globalAlpha = opacity
+    if (fill) {
+        ctx.fillStyle = style
+        ctx.fill()
+    } else {
+        ctx.lineWidth = 2
+        ctx.strokeStyle = style
+        ctx.stroke()
+    }
     ctx.restore()
 }
 

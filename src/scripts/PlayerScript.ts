@@ -3,12 +3,13 @@ import { Entity, EntityFlags, World } from "../game-state/Entity";
 import { GameState } from "../game-state/GameState";
 import { Script } from "./Script";
 import { Flag } from "../game-state/Flag";
-import { ParticleState, ParticleTypes } from "../game-state/Particles";
+import { spawnExplosionWhiteParticle, spawnJetParticle } from '../particles'
 
 const TIME_INVULNERABLE_AFTER_HIT = 1000
 const TIME_DYING = 1500
 const PLAYER_MAX_HP = 3
 const MS_PER_JET_PARTICLE = 50
+const PLAYER_BLAST_RADIUS = 100
 
 let particleSpawnTime = 0
 
@@ -28,7 +29,7 @@ export const PlayerScript = {
                 break
             case PlayerScript.DYING:
                 if (particleSpawnTime < gameState.time) {
-                    spawnExplosionWhiteParticle(gameState, entity)
+                    spawnExplosionWhiteParticle(gameState, entity, PLAYER_BLAST_RADIUS)
                 }
                 if (gameState.time > entity.scriptTimeEnteredState + TIME_DYING) {
                     Entity.killEntity(entity)
@@ -52,7 +53,7 @@ export const PlayerScript = {
                 entity.hp -= 1
 
                 for (let i = 0; i < 10; i++) {
-                    spawnExplosionWhiteParticle(gameState, entity)
+                    spawnExplosionWhiteParticle(gameState, entity, PLAYER_BLAST_RADIUS)
                 }
 
                 Script.transitionTo(gameState, entity,
@@ -65,27 +66,4 @@ export const PlayerScript = {
             }
         }
     },
-}
-
-function spawnJetParticle(state: GameState, entity: Entity) {
-    const particle = ParticleState.provisionParticle(state, state.time)
-    particle.type = ParticleTypes.JET
-    particle.originZ = entity.posZ - 1
-    particle.originX = entity.posX
-    particle.originY = entity.posY
-    particle.vecY = 100
-    particle.vecX = (Math.random() * 20) - 10
-    particle.endTime = state.time + 500
-}
-
-
-function spawnExplosionWhiteParticle(state: GameState, entity: Entity) {
-    const particle = ParticleState.provisionParticle(state, state.time)
-    particle.type = ParticleTypes.EXPLOSION_WHITE
-    particle.originZ = entity.posZ + 1
-    particle.originX = entity.posX
-    particle.originY = entity.posY
-    particle.vecY = (Math.random() * 100) - 50
-    particle.vecX = (Math.random() * 100) - 50
-    particle.endTime = state.time + 250
 }

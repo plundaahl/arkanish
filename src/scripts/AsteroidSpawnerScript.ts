@@ -5,16 +5,16 @@ import { Script } from "./Script";
 import { CoinScript } from "./CoinScript";
 import { PowerupScript } from "./PowerupScript";
 import { BouncyBallScript } from "./BouncyBallScript";
+import { Vector2 } from "../game-state/Vector";
 
 const TIME_BETWEEN_SPAWNS = 180
-const PLAY_AREA_WIDTH = 1000
 
 const CHANCES: [number, typeof spawnAsteroid][] = [
-    [1, spawnCoin],
-    [9, spawnPowerup],
-    [50, spawnNothing],
-    [20, spawnBouncyBall],
-    [20, spawnAsteroid],
+    [3, spawnCoin],
+    [2, spawnPowerup],
+    [15, spawnNothing],
+    [8, spawnBouncyBall],
+    [70, spawnAsteroid],
 ]
 const TOTAL = CHANCES.map(([chance]) => chance).reduce((prev, total) => prev + total, 0)
 
@@ -126,30 +126,32 @@ function spawnCoin(gameState: GameState, x: number, y: number) {
 function spawnBouncyBall(gameState: GameState, x: number, y: number) {
     const entity = World.spawnEntity(gameState)
 
-    const size = 50
-    const halfSize = 25
+    const halfSize = 20
 
-    const maxVelY = gameState.playArea.height * 0.7
-    const minVelY = gameState.playArea.height * 0.3
-    const maxVelX = gameState.playArea.height * 0.5
-    const minVelX = gameState.playArea.height * 0.3
+    const minMag = gameState.playArea.height * 0.7
+    const maxMag = gameState.playArea.height * 0.9
+    const minAngle = Math.PI * 1.25
+    const maxAngle = Math.PI * 1.45 
+    const angle = (Math.random() * (maxAngle - minAngle)) + minAngle
+    const mag = (Math.random() * (maxMag - minMag)) + minMag
+    const vec = Vector2.fromAngle(angle, mag)
 
     entity.posX = x
     entity.posY = y - halfSize
-    entity.velY = Math.ceil(Math.random() * (maxVelY - minVelY)) + minVelY
-    entity.velX = (Math.round(Math.random() * (maxVelX - minVelX)) + minVelX) * (Math.random() < 0.5 ? 1 : -1)
+    entity.velY = Vector2.yOf(vec)
+    entity.velX = Vector2.xOf(vec) * (Math.random() < 0.5 ? 1 : -1)
 
     entity.flags |= EntityFlags.COLLIDER
-    entity.colliderBbSrc = [BoundingBox.createAabb(-halfSize, -halfSize, size, size)]
+    entity.colliderBbSrc = [BoundingBox.createCircleBb(0, 0, halfSize)]
     entity.colliderBbTransform = [BoundingBox.clone(entity.colliderBbSrc[0])]
     entity.colliderGroup = ColliderFlags.ENEMY
     entity.collidesWith = ColliderFlags.PLAYER | ColliderFlags.PLAYER_BULLET
 
     Script.attachScript(gameState, entity, BouncyBallScript)
     entity.flags |= EntityFlags.BOUNCE_IN_PLAY_SPACE
-    entity.hp = 4
+    entity.hp = Math.ceil(Math.random() * 3) + 1
 
-    entity.colour = 'pink'
+    entity.colour = 'red'
     entity.flags |= EntityFlags.ROLE_ENEMY
 }
 

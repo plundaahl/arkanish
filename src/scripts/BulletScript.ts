@@ -2,6 +2,7 @@ import { GameEvent } from "../game-state/GameEvent";
 import { Entity, EntityFlags, World } from "../game-state/Entity";
 import { GameState } from "../game-state/GameState";
 import { ParticleState, ParticleTypes } from "../game-state/Particles";
+import { spawnExplosionRedParticle } from "../particles";
 
 export const BulletScript = {
     id: 'Bullet',
@@ -21,26 +22,11 @@ export const BulletScript = {
 
                 const numParticles = Math.ceil(Math.random() * 10) + 5
                 for (let i = 0; i < numParticles; i++) {
-                    spawnExplosionRedParticle(gameState, target)
+                    spawnExplosionRedParticle(gameState, target, 100)
                 }
 
                 gameState.score += 10
             }
         }
     }
-}
-
-const EXPLOSION_PARTICLE_TIME = 250
-function spawnExplosionRedParticle(state: GameState, entity: Entity) {
-    const particle = ParticleState.provisionParticle(state, state.time)
-
-    const travelRate = EXPLOSION_PARTICLE_TIME / 1000
-
-    particle.type = ParticleTypes.EXPLOSION_RED
-    particle.originZ = entity.posZ - 1
-    particle.originX = entity.posX
-    particle.originY = entity.posY
-    particle.vecY = (Math.random() * 200) - 100 + (entity.velY * travelRate)
-    particle.vecX = (Math.random() * 200) - 100 + (entity.velX * travelRate)
-    particle.endTime = state.time + 500
 }
