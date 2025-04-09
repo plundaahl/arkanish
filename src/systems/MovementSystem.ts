@@ -3,8 +3,10 @@ import { BoundingBox } from "../game-state/BoundingBox";
 import { EntityFlags, EntityStates } from "../game-state/Entity";
 import { GameState } from "../game-state/GameState";
 import { GameEventBuffer } from "../game-state/GameEvent";
+import { modulo } from "../game-state/Vector";
 
 const MS_PER_SEC = 1000
+const FULL_CIRCLE = Math.PI * 2
 
 export const MovementSystem = {
     run: (state: GameState) => {
@@ -16,6 +18,7 @@ export const MovementSystem = {
             if (entity.state === EntityStates.ALIVE) {
                 entity.posY += (entity.velY * deltaT) / MS_PER_SEC
                 entity.posX += (entity.velX * deltaT) / MS_PER_SEC
+                entity.posR += modulo((entity.velR * deltaT) / MS_PER_SEC, FULL_CIRCLE)
             }
         }
 
@@ -79,7 +82,7 @@ export const MovementSystem = {
                 for (let i = 0; i < entity.colliderBbSrc.length; i++) {
                     const src = entity.colliderBbSrc[i]
                     const dest = entity.colliderBbTransform[i]
-                    BoundingBox.transform(src, dest, entity.posX, entity.posY)
+                    BoundingBox.transform(src, dest, entity.posX, entity.posY, entity.posR)
                 } 
             }
         }

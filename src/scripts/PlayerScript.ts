@@ -61,6 +61,7 @@ export const PlayerScript = {
                 if (entity.hp > 0) {
                     Script.transitionTo(gameState, entity, PlayerScript.INVULNERABLE)
                 } else {
+                    entity.velR = (Math.random() * (Math.PI * 4)) - (Math.PI * 2)
                     Script.transitionTo(gameState, entity, PlayerScript.DYING)
                 }
             } else if (Flag.hasBigintFlags(other.flags, EntityFlags.ROLE_PICKUP) && entity.scriptState != PlayerScript.DYING) {

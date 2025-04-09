@@ -241,14 +241,14 @@ function spawnPlayer(gameState: GameState): Entity {
     player.flags |= EntityFlags.COLLIDER
     player.colliderBbSrc = [
         BoundingBox.createConvexPolyBb(
-            Vector2.fromCoordinates(0, 0 - PLAYER_HEIGHT_HALF - PLAYER_OFFSET),
-            Vector2.fromCoordinates(-PLAYER_WIDTH_HALF, PLAYER_HEIGHT_HALF - PLAYER_OFFSET),
-            Vector2.fromCoordinates(0, (PLAYER_HEIGHT_HALF / 2) - PLAYER_OFFSET),
+            Vector2.createFromCoordinates(0, 0 - PLAYER_HEIGHT_HALF - PLAYER_OFFSET),
+            Vector2.createFromCoordinates(-PLAYER_WIDTH_HALF, PLAYER_HEIGHT_HALF - PLAYER_OFFSET),
+            Vector2.createFromCoordinates(0, (PLAYER_HEIGHT_HALF / 2) - PLAYER_OFFSET),
         ),
         BoundingBox.createConvexPolyBb(
-            Vector2.fromCoordinates(0, 0 - PLAYER_HEIGHT_HALF - PLAYER_OFFSET),
-            Vector2.fromCoordinates(0, (PLAYER_HEIGHT_HALF / 2) - PLAYER_OFFSET),
-            Vector2.fromCoordinates(PLAYER_WIDTH_HALF, PLAYER_HEIGHT_HALF - PLAYER_OFFSET),
+            Vector2.createFromCoordinates(0, 0 - PLAYER_HEIGHT_HALF - PLAYER_OFFSET),
+            Vector2.createFromCoordinates(0, (PLAYER_HEIGHT_HALF / 2) - PLAYER_OFFSET),
+            Vector2.createFromCoordinates(PLAYER_WIDTH_HALF, PLAYER_HEIGHT_HALF - PLAYER_OFFSET),
         ),
     ]
     player.colliderBbTransform = player.colliderBbSrc.map(BoundingBox.clone)

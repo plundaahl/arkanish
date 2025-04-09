@@ -50,8 +50,10 @@ export interface Entity {
     posX: number
     posY: number
     posZ: number
+    posR: number
     velX: number
     velY: number
+    velR: number
     colliderBbSrc: BoundingBox[],
     colliderBbTransform: BoundingBox[],
     colliderGroup: number,
@@ -72,8 +74,10 @@ export const NULL_ENTITY_SPEC: EntitySpec = Object.freeze({
     posX: 0,
     posY: 0,
     posZ: 0,
+    posR: 0,
     velX: 0,
     velY: 0,
+    velR: 0,
     colliderBbSrc: [],
     colliderBbTransform: [],
     colliderGroup: 0,

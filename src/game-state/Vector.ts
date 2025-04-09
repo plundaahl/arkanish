@@ -5,18 +5,15 @@ export type Vector2 = [number, number]
 const FULL_CIRCLE = Math.PI * 2
 
 export const Vector2 = {
-    fromCoordinates: (x: number, y: number): Vector2 => [x, y],
-    fromAngle: (angle: number, magnitude: number): Vector2 => [Math.cos(angle) * magnitude, Math.sin(angle) * magnitude],
-    fromVec: (vec: Vector2): Vector2 => [vec[VEC2_X], vec[VEC2_Y]],
+    createFromCoordinates: (x: number, y: number): Vector2 => [x, y],
+    createFromAngle: (angle: number, magnitude: number): Vector2 => [Math.cos(angle) * magnitude, Math.sin(angle) * magnitude],
+    createFromVec: (vec: Vector2): Vector2 => [vec[VEC2_X], vec[VEC2_Y]],
     xOf: (vec: Vector2): number => vec[VEC2_X],
     yOf: (vec: Vector2): number => vec[VEC2_Y],
-    magnitudeOf: (vec: Vector2): number => Math.sqrt(
-        (Vector2.xOf(vec) * Vector2.xOf(vec))
-        + (Vector2.yOf(vec) * Vector2.yOf(vec))
-    ),
-    angleOf: (vec: Vector2): number => modulo(Math.atan2(Vector2.yOf(vec), Vector2.xOf(vec)), FULL_CIRCLE),
+    magnitudeOf: (vec: Vector2): number => Math.sqrt((vec[VEC2_X] * vec[VEC2_X]) + (vec[VEC2_Y] * vec[VEC2_Y])),
+    angleOf: (vec: Vector2): number => modulo(Math.atan2(vec[VEC2_Y], vec[VEC2_X]), FULL_CIRCLE),
     angleBetween: (a: Vector2, b: Vector2): number => modulo(Vector2.angleOf(b) - Vector2.angleOf(a), FULL_CIRCLE),
-    rotatedBy: (vec: Vector2, rotation: number): Vector2 => Vector2.fromAngle(Vector2.angleOf(vec) + rotation, Vector2.magnitudeOf(vec)),
+    rotatedBy: (vec: Vector2, rotation: number): Vector2 => Vector2.createFromAngle(Vector2.angleOf(vec) + rotation, Vector2.magnitudeOf(vec)),
     rotateBy: (vec: Vector2, rotation: number): Vector2 => {
         const curAngle = Vector2.angleOf(vec)
         const curMag = Vector2.magnitudeOf(vec)
@@ -24,11 +21,26 @@ export const Vector2 = {
         vec[VEC2_Y] = Math.sin(curAngle + rotation) * curMag
         return vec
     },
-    subtract: (a: Vector2, b: Vector2): Vector2 => {
+    subtracted: (a: Vector2, b: Vector2): Vector2 => {
         return [Vector2.xOf(a) - Vector2.xOf(b), Vector2.yOf(a) - Vector2.yOf(b)]
     },
-    add: (a: Vector2, b: Vector2): Vector2 => {
+    subtract: (a: Vector2, b: Vector2): Vector2 => {
+        a[VEC2_X] -= b[VEC2_X]
+        a[VEC2_Y] -= b[VEC2_Y]
+        return a
+    },
+    added: (a: Vector2, b: Vector2): Vector2 => {
         return [Vector2.xOf(a) + Vector2.xOf(b), Vector2.yOf(a) + Vector2.yOf(b)]
+    },
+    add: (a: Vector2, b: Vector2): Vector2 => {
+        a[VEC2_X] += b[VEC2_X]
+        a[VEC2_Y] += b[VEC2_Y]
+        return a
+    },
+    addCoordinates: (vec: Vector2, x: number, y: number): Vector2 => {
+        vec[VEC2_X] += x
+        vec[VEC2_Y] += y
+        return vec
     },
     dot: (a: Vector2, b: Vector2): number => (Vector2.xOf(a) * Vector2.xOf(b)) + (Vector2.yOf(a) * Vector2.yOf(b)),
     unitFrom: (vec: Vector2): Vector2 => {
@@ -42,8 +54,8 @@ export const Vector2 = {
         return vec
     },
     mean: (...vectors: Vector2[]): Vector2 => {
-        const sum = vectors.reduce(Vector2.add, Vector2.fromCoordinates(0, 0))
-        return [Vector2.xOf(sum) / vectors.length, Vector2.yOf(sum) / vectors.length]
+        const sum = vectors.reduce(Vector2.added, Vector2.createFromCoordinates(0, 0))
+        return [sum[VEC2_X] / vectors.length, sum[VEC2_Y] / vectors.length]
     },
 }
 
