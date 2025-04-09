@@ -1,9 +1,10 @@
 import { Flag } from "../game-state/Flag";
 import { BoundingBox } from "../game-state/BoundingBox";
-import { EntityFlags, EntityStates } from "../game-state/Entity";
+import { Entity, EntityFlags, EntityStates, World } from "../game-state/Entity";
 import { GameState } from "../game-state/GameState";
 import { GameEventBuffer } from "../game-state/GameEvent";
-import { modulo } from "../game-state/Vector";
+import { modulo, Vector2 } from "../game-state/Vector";
+import { Id } from "../game-state/Id";
 
 const MS_PER_SEC = 1000
 const FULL_CIRCLE = Math.PI * 2
@@ -12,7 +13,7 @@ export const MovementSystem = {
     run: (state: GameState) => {
         const deltaT = state.frameLength
 
-        // Move entities
+        // Move parent entities
         for (let i = 0; i < state.entities.length; i++) {
             const entity = state.entities[i]
             if (entity.state === EntityStates.ALIVE) {
@@ -77,13 +78,59 @@ export const MovementSystem = {
         }
 
         // Update transforms
+        const childEntities: Entity[] = []
         for (const entity of state.entities) {
-            if (entity.state === EntityStates.ALIVE) {
-                for (let i = 0; i < entity.colliderBbSrc.length; i++) {
-                    const src = entity.colliderBbSrc[i]
-                    const dest = entity.colliderBbTransform[i]
-                    BoundingBox.transform(src, dest, entity.posX, entity.posY, entity.posR)
-                } 
+            if (entity.state !== EntityStates.ALIVE) {
+                continue
+            }
+            if (entity.parent !== 0) {
+                if (!World.getEntity(state, entity.parent)) {
+                    // If parent is missing, decouple child
+                    entity.posX = entity.transX
+                    entity.posY = entity.transY
+                    entity.posR = entity.transR
+                    entity.parent = 0
+                } else {
+                    childEntities.push(entity)
+                    continue
+                }
+            }
+
+            // Update parent transforms
+            entity.transX = entity.posX
+            entity.transY = entity.posY
+            entity.transR = entity.posR
+            for (let i = 0; i < entity.colliderBbSrc.length; i++) {
+                const src = entity.colliderBbSrc[i]
+                const dest = entity.colliderBbTransform[i]
+                BoundingBox.transform(src, dest, entity.posX, entity.posY, entity.posR)
+            }
+        }
+
+        childEntities.sort(byIdIndex)
+        const vParent: Vector2 = Vector2.createFromCoordinates(0, 0)
+        const vChild: Vector2 = Vector2.createFromCoordinates(0, 0)
+        for (const entity of childEntities) {
+            const parent = World.getEntity(state, entity.parent)
+            if (!parent) {
+                throw new Error(`Should not happen (checked for this in previous loop).`)
+            }
+
+            // Update child transforms
+            Vector2.setToCoordinates(vParent, parent.transX, parent.transY)
+            Vector2.setToCoordinates(vChild, entity.posX, entity.posY)
+
+            Vector2.rotateBy(vChild, parent.transR)
+            Vector2.addCoordinates(vChild, parent.transX, parent.transY)
+
+            entity.transX = Vector2.xOf(vChild)
+            entity.transY = Vector2.yOf(vChild)
+            entity.transR = entity.posR + parent.transR
+
+            for (let i = 0; i < entity.colliderBbSrc.length; i++) {
+                const src = entity.colliderBbSrc[i]
+                const dest = entity.colliderBbTransform[i]
+                BoundingBox.transform(src, dest, entity.transX, entity.transY, entity.transR)
             }
         }
     }
@@ -91,4 +138,8 @@ export const MovementSystem = {
 
 function clamp(min: number, current: number, max: number): number {
     return Math.min(Math.max(min, current), max)
+}
+
+function byIdIndex(a: Entity, b: Entity): number {
+    return Id.indexOf(a.id) - Id.indexOf(b.id)
 }

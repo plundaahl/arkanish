@@ -9,7 +9,9 @@ import { Vector2 } from "../game-state/Vector";
 
 const TIME_BETWEEN_SPAWNS = 180
 
-const CHANCES: [number, typeof spawnAsteroid][] = [
+type SpawnFn = (state: GameState, x: number, y: number) => any
+
+const CHANCES: [number, SpawnFn][] = [
     [3, spawnCoin],
     [2, spawnPowerup],
     [15, spawnNothing],

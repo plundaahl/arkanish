@@ -8,6 +8,16 @@ export const Vector2 = {
     createFromCoordinates: (x: number, y: number): Vector2 => [x, y],
     createFromAngle: (angle: number, magnitude: number): Vector2 => [Math.cos(angle) * magnitude, Math.sin(angle) * magnitude],
     createFromVec: (vec: Vector2): Vector2 => [vec[VEC2_X], vec[VEC2_Y]],
+    setToCoordinates: (vec: Vector2, x: number, y: number): Vector2 => {
+        vec[VEC2_X] = x
+        vec[VEC2_Y] = y
+        return vec
+    },
+    setToVec: (vec: Vector2, source: Vector2): Vector2 => {
+        vec[VEC2_X] = source[VEC2_X]
+        vec[VEC2_Y] = source[VEC2_Y]
+        return vec
+    },
     xOf: (vec: Vector2): number => vec[VEC2_X],
     yOf: (vec: Vector2): number => vec[VEC2_Y],
     magnitudeOf: (vec: Vector2): number => Math.sqrt((vec[VEC2_X] * vec[VEC2_X]) + (vec[VEC2_Y] * vec[VEC2_Y])),

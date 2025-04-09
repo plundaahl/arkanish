@@ -47,6 +47,7 @@ export interface Entity {
     id: number
     state: number
     flags: bigint
+    parent: number
     posX: number
     posY: number
     posZ: number
@@ -54,6 +55,9 @@ export interface Entity {
     velX: number
     velY: number
     velR: number
+    transX: number
+    transY: number
+    transR: number
     colliderBbSrc: BoundingBox[],
     colliderBbTransform: BoundingBox[],
     colliderGroup: number,
@@ -71,6 +75,7 @@ export type EntitySpec = Omit<Entity, 'id'>
 export const NULL_ENTITY_SPEC: EntitySpec = Object.freeze({
     state: EntityStates.FREE,
     flags: 0n,
+    parent: 0,
     posX: 0,
     posY: 0,
     posZ: 0,
@@ -78,6 +83,9 @@ export const NULL_ENTITY_SPEC: EntitySpec = Object.freeze({
     velX: 0,
     velY: 0,
     velR: 0,
+    transX: 0,
+    transY: 0,
+    transR: 0,
     colliderBbSrc: [],
     colliderBbTransform: [],
     colliderGroup: 0,
