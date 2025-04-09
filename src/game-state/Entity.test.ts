@@ -1,4 +1,4 @@
-import { World } from './Entity'
+import { Entity, EntityStates, World } from './Entity'
 
 describe('spawnEntity', () => {
     test('Creates a new entity record if list is empty', () => {
@@ -25,9 +25,11 @@ describe('getEntity', () => {
     })
 
     test('Returns entity if entity created', () => {
-        const world = World.create(1)
+        const world = World.create(0)
         const spawnedEntity = World.spawnEntity(world)
-        expect(World.getEntity(world, spawnedEntity.id)).toBe(spawnedEntity)
+        spawnedEntity.state = EntityStates.ALIVE
+        const retrievedEntity = World.getEntity(world, spawnedEntity.id)
+        expect(Object.is(spawnedEntity, retrievedEntity)).toBe(true)
     })
 
     test('Returns undefined if entity released', () => {
