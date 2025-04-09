@@ -15,3 +15,17 @@ describe('intersects', () => {
         })
     })
 })
+
+describe('createConvexPoly', () => {
+    test('Should error if not a polygon', () => {
+        expect(() => BoundingBox.createConvexPolyBb([0, 1], [1, 0])).toThrow()
+    })
+
+    test('Should error if polygon is concave', () => {
+        expect(() => BoundingBox.createConvexPolyBb([1, 0], [0, 1], [0, 2], [-1, -1])).toThrow()
+    })
+
+    test('Should not error if polygon is convex', () => {
+        expect(() => BoundingBox.createConvexPolyBb([1, 0], [0, 1], [-1, -1])).not.toThrow()
+    })
+})

@@ -77,6 +77,12 @@ function spawnAsteroid(gameState: GameState, x: number, y: number) {
 
     entity.flags |= EntityFlags.COLLIDER
     entity.colliderBbSrc = [BoundingBox.createAabb(-halfSize, -halfSize, size, size)]
+    const vertexes: Vector2[] = []
+    const numVertexes = Math.floor(Math.random() * 3) + 3
+    for (let i = 0; i < numVertexes; i++) {
+        vertexes.push(Vector2.fromAngle(i * Math.PI * 2 / numVertexes, halfSize))
+    }
+    entity.colliderBbSrc = [BoundingBox.createConvexPolyBb(...vertexes)]
     entity.colliderBbTransform = [BoundingBox.clone(entity.colliderBbSrc[0])]
     entity.colliderGroup = ColliderFlags.ENEMY
     entity.collidesWith = ColliderFlags.PLAYER | ColliderFlags.PLAYER_BULLET

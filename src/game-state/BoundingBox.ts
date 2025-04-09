@@ -1,19 +1,20 @@
-import { Vector2 } from "./Vector"
+import { modulo, Vector2 } from "./Vector"
 
 const TypeNullBB = 0 as const
 const TypeAABB = 1 as const
 const TypeCircleBB = 2 as const
+const TypeConvexPolyBB = 3 as const
 
 export const BoundingBoxTypes = {
-    AABB: TypeAABB,
     NULL: TypeNullBB,
+    AABB: TypeAABB,
     CIRCLE: TypeCircleBB,
+    CONVEX_POLY: TypeConvexPolyBB,
 }
 
 export type NullBB = {
     type: typeof TypeNullBB
 }
-const NULL_BB: NullBB = { type: TypeNullBB }
 
 export type AABB = {
     type: typeof TypeAABB,
@@ -30,7 +31,12 @@ export type CircleBB = {
     r: number,
 }
 
-export type BoundingBox = NullBB | AABB | CircleBB
+export type ConvexPolyBB = {
+    type: typeof TypeConvexPolyBB,
+    vertexes: Vector2[],
+}
+
+export type BoundingBox = NullBB | AABB | CircleBB | ConvexPolyBB
 
 export const BoundingBox = {
     createAabb: (left: number, top: number, width: number, height: number): AABB => {
@@ -38,8 +44,62 @@ export const BoundingBox = {
     },
     createNullBb: () => ({ type: TypeNullBB }),
     createCircleBb: (x: number, y: number, r: number): CircleBB => ({ type: TypeCircleBB, x, y, r: Math.abs(r) }),
+    createConvexPolyBb: (...vertexes: Vector2[]): ConvexPolyBB => {
+        if (vertexes.length < 3) {
+            throw new Error(`Convex polygons must have at least 3 points.  You provided [${vertexes.length}].`)
+        }
+
+        const center = Vector2.mean(...vertexes)
+
+        let totalAngle = 0
+        for (let i = 0; i < vertexes.length; i++) {
+            const v1 = vertexes[i]
+            const v2 = vertexes[(i + 1) % (vertexes.length)]
+            const angleBetween = Vector2.angleBetween(Vector2.subtract(v1, center), Vector2.subtract(v2, center))
+            totalAngle += angleBetween <= Math.PI ? angleBetween : angleBetween - (Math.PI * 2)
+        }
+        if (totalAngle < 0) {
+            vertexes.reverse()
+        }
+
+        // Make sure it's convex
+        const edges: Vector2[] = []
+        for (let i = 0; i < vertexes.length; i++) {
+            const v1 = vertexes[i]
+            const v2 = vertexes[(i + 1) % (vertexes.length)]
+            edges.push(Vector2.subtract(v2, v1))
+        }
+
+        for (let i = 0; i < edges.length; i++) {
+            const edge1 = edges[i]
+            const edge2 = edges[(i + 1) % (edges.length)]
+            const angle = Vector2.angleBetween(edge1, edge2)
+            if (!(0 <= angle && angle <= Math.PI)) {
+                throw new Error([
+                    `Not a convex polygon.`,
+                    `Angle at vertex [${i}] was [${angle}].`,
+                    `Vertexes: [${JSON.stringify(vertexes)}].`,
+                    `Their centered angles were [${vertexes.map(v => Vector2.angleOf(Vector2.subtract(v, center))).join(', ')}]`,
+                    `Edges: [${JSON.stringify(edges)}].`].join('  '))
+            }
+        }
+
+        return { type: TypeConvexPolyBB, vertexes }
+    },
     clone: (box: BoundingBox): BoundingBox => {
-        return Object.assign({}, box)
+        switch (box.type) {
+            case TypeNullBB:
+            case TypeAABB:
+            case TypeCircleBB:
+                return Object.assign({}, box)
+            case TypeConvexPolyBB:
+                return {
+                    ...box,
+                    vertexes: box.vertexes.map((vertex) => [...vertex]),
+                }
+            default:
+                throw new Error(`Unrecognized BoundingBox type.`)
+        }
     },
     transform: (source: BoundingBox, dest: BoundingBox, xOffset: number, yOffset: number) => {
         for (const prop of Object.getOwnPropertyNames(dest)) {
@@ -61,27 +121,48 @@ export const BoundingBox = {
                     const destBox = dest as CircleBB
                     destBox.x += xOffset
                     destBox.y += yOffset
+                    return
+                }
+            case TypeConvexPolyBB:
+                {
+                    const destBox = dest as ConvexPolyBB
+                    // TODO:  This is awful.  Shouldn't need to re-allocate brand new vertexes every time.
+                    destBox.vertexes = []
+                    for (const vertex of source.vertexes) {
+                        destBox.vertexes.push([vertex[0] + xOffset, vertex[1] + yOffset])
+                    }
+                    return
                 }
         }
     },
-    intersects: (a: BoundingBox, b: BoundingBox): boolean => {
+    intersects: (...boxes: [BoundingBox, BoundingBox]): boolean => {
+        boxes.sort((a, b) => a.type - b.type)
+        const [a, b] = boxes
+
         if (a.type === TypeNullBB || b.type === TypeNullBB) {
             return false
         }
+
         if (a.type === TypeAABB) {
             if (b.type === TypeAABB) {
                 return intersectsAabbWithAabb(a, b)
+            } else if (b.type === TypeCircleBB) {
+                return intersectsAabbWithCircle(a, b)
+            } else if (b.type === TypeConvexPolyBB) {
+                return intersectsConvexPolyWithAabb(b, a)
+            }
+        } else if (a.type === TypeCircleBB) {
+            if (b.type === TypeCircleBB) {
+                return intersectsCircleWithCircle(a, b)
+            } else if (b.type === TypeConvexPolyBB) {
+                return intersectsConvexPolyWithCircle(b, a)
+            }
+        } else if (a.type === TypeConvexPolyBB) {
+            if (b.type === TypeConvexPolyBB) {
+                return intersectsConvexPolyWithConvexPoly(a, b)
             }
         }
-        if (a.type === TypeCircleBB && b.type === TypeCircleBB) {
-            return intersectsCircleWithCircle(a, b)
-        }
-        if (a.type === TypeAABB && b.type === TypeCircleBB) {
-            return intersectsAabbWithCircle(a, b)
-        }
-        if (a.type === TypeCircleBB && b.type === TypeAABB) {
-            return intersectsAabbWithCircle(b, a)
-        }
+
         throw new Error(`Unrecognized types [${a.type}, ${b.type}]`)
     },
     leftOf: (...boxes: BoundingBox[]): number => {
@@ -171,4 +252,56 @@ function intersectsAabbWithCircle(a: AABB, b: CircleBB): boolean {
     const distance = Vector2.subtract(closestPointOnAabb, circleCenter)
 
     return Math.min(Vector2.magnitudeOf(distance), Vector2.magnitudeOf(aabbToCircle)) <= b.r
+}
+
+function intersectsConvexPolyWithConvexPoly(...polys: [ConvexPolyBB, ConvexPolyBB]): boolean {
+    for (let p = 0; p < polys.length; p++) {
+        const a = polys[p]
+        const b = polys[(p + 1) % polys.length]
+
+        for (let i = 0; i < a.vertexes.length; i++) {
+            const normal = Vector2.scaleToUnit(
+                Vector2.rotateBy(
+                    Vector2.subtract(a.vertexes[(i + 1) % a.vertexes.length], a.vertexes[i]),
+                    Math.PI * -0.5))
+            
+            let aMin = Number.MAX_SAFE_INTEGER
+            let aMax = Number.MIN_SAFE_INTEGER
+            for (const v of a.vertexes) {
+                const dot = Vector2.dot(v, normal)
+                aMin = Math.min(aMin, dot)
+                aMax = Math.max(aMax, dot)
+            }
+            
+            let bMin = Number.MAX_SAFE_INTEGER
+            let bMax = Number.MIN_SAFE_INTEGER
+            for (const v of b.vertexes) {
+                const dot = Vector2.dot(v, normal)
+                bMin = Math.min(bMin, dot)
+                bMax = Math.max(bMax, dot)
+            }
+
+            if (aMax < bMin || bMax < bMin) {
+                return false
+            }
+        }
+    }
+    return true
+}
+
+function intersectsConvexPolyWithCircle(a: ConvexPolyBB, b: CircleBB): boolean {
+    return false
+}
+
+function intersectsConvexPolyWithAabb(a: ConvexPolyBB, b: AABB): boolean {
+    const bAsPoly = {
+        type: TypeConvexPolyBB,
+        vertexes: [
+            Vector2.fromCoordinates(b.left + b.width, b.top + b.height),
+            Vector2.fromCoordinates(b.left + b.width, b.top),
+            Vector2.fromCoordinates(b.left, b.top),
+            Vector2.fromCoordinates(b.left, b.top + b.height),
+        ]
+    }
+    return intersectsConvexPolyWithConvexPoly(a, bAsPoly)
 }

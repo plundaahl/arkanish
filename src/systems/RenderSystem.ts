@@ -4,7 +4,8 @@ import { EntityFlags, EntityStates } from "../game-state/Entity";
 import { GameState } from "../game-state/GameState";
 import { PlayerScript } from "../scripts/PlayerScript";
 import { BoundingBoxTypes } from "../game-state/BoundingBox";
-import { UiState } from "scenes/Scene";
+import { UiState } from "../scenes/Scene";
+import { Vector2 } from "../game-state/Vector";
 
 const PLAYER_SCALE = 2
 const PLAYER_HEIGHT_HALF = PLAYER_SCALE * 15
@@ -41,6 +42,16 @@ export const RenderSystem = {
                             box.x,
                             box.y,
                             box.r,
+                        )
+                    } else if (box.type === BoundingBoxTypes.CONVEX_POLY) {
+                        RenderCommandBuffer.addCustomRenderCmd(
+                            gameBuffer,
+                            entity.posZ,
+                            renderPoly,
+                            entity.colour || 'white',
+                            state.collidedEntities.has(entity.id),
+                            1,
+                            box.vertexes,
                         )
                     }
                 }
@@ -164,6 +175,31 @@ export function renderCircle(ctx: CanvasRenderingContext2D, style: string, fill:
         ctx.strokeStyle = style
         ctx.stroke()
     }
+    ctx.restore()
+}
+
+export function renderPoly(ctx: CanvasRenderingContext2D, style: string, fill: boolean, opacity: number, vertexes: Vector2[]) {
+    if (vertexes.length < 2) {
+        return
+    }
+    ctx.save()
+    ctx.beginPath()
+    ctx.moveTo(...vertexes[0])
+    for (let i = 1; i < vertexes.length; i++) {
+        ctx.lineTo(...vertexes[i])
+    }
+    ctx.closePath()
+
+    ctx.globalAlpha = opacity
+    if (fill) {
+        ctx.fillStyle = style
+        ctx.fill()
+    } else {
+        ctx.lineWidth = 2
+        ctx.strokeStyle = style
+        ctx.stroke()
+    }
+
     ctx.restore()
 }
 
