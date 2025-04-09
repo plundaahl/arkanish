@@ -18,10 +18,13 @@ import { ParticleSystem } from '../systems/ParticleSystem'
 import { Level, LevelState } from '../game-state/Level'
 import { SpawnActionHandler } from '../actions/SpawnAction'
 import { LevelSystem } from '../systems/LevelSystem'
+import { Vector2 } from '../game-state/Vector'
 
 const STAR_TIME_SCALE = 1 / 5000
 const PLAYER_SCALE = 2
 const PLAYER_HEIGHT_HALF = PLAYER_SCALE * 15
+const PLAYER_WIDTH_HALF = PLAYER_SCALE * 10
+const PLAYER_OFFSET = PLAYER_HEIGHT_HALF / 2
 const PLAYER_RATE_OF_FIRE = 200
 const PLAYER_BULLET_SPEED = -500
 const MS_PER_SCORE_TICK = 800
@@ -237,13 +240,18 @@ function spawnPlayer(gameState: GameState): Entity {
 
     player.flags |= EntityFlags.COLLIDER
     player.colliderBbSrc = [
-        BoundingBox.createAabb(-20, -15, 40, 30),
-        BoundingBox.createAabb(-10, -45, 20, 30),
+        BoundingBox.createConvexPolyBb(
+            Vector2.fromCoordinates(0, 0 - PLAYER_HEIGHT_HALF - PLAYER_OFFSET),
+            Vector2.fromCoordinates(-PLAYER_WIDTH_HALF, PLAYER_HEIGHT_HALF - PLAYER_OFFSET),
+            Vector2.fromCoordinates(0, (PLAYER_HEIGHT_HALF / 2) - PLAYER_OFFSET),
+        ),
+        BoundingBox.createConvexPolyBb(
+            Vector2.fromCoordinates(0, 0 - PLAYER_HEIGHT_HALF - PLAYER_OFFSET),
+            Vector2.fromCoordinates(0, (PLAYER_HEIGHT_HALF / 2) - PLAYER_OFFSET),
+            Vector2.fromCoordinates(PLAYER_WIDTH_HALF, PLAYER_HEIGHT_HALF - PLAYER_OFFSET),
+        ),
     ]
-    player.colliderBbTransform = [
-        BoundingBox.createAabb(0, 0, 0, 0),
-        BoundingBox.createAabb(0, 0, 0, 0),
-    ]
+    player.colliderBbTransform = player.colliderBbSrc.map(BoundingBox.clone)
     player.colliderGroup = ColliderFlags.PLAYER
     player.collidesWith = ColliderFlags.ENEMY | ColliderFlags.POWERUP
     player.colour = 'green'

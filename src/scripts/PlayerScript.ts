@@ -24,6 +24,7 @@ export const PlayerScript = {
                 break
             case PlayerScript.INVULNERABLE:
                 if (gameState.time > entity.scriptTimeEnteredState + TIME_INVULNERABLE_AFTER_HIT) {
+                    entity.colour = 'green'
                     Script.transitionTo(gameState, entity, PlayerScript.ACTIVE)
                 }
                 break
@@ -56,11 +57,12 @@ export const PlayerScript = {
                     spawnExplosionWhiteParticle(gameState, entity, PLAYER_BLAST_RADIUS)
                 }
 
-                Script.transitionTo(gameState, entity,
-                    entity.hp > 0
-                        ? PlayerScript.INVULNERABLE
-                        : PlayerScript.DYING
-                )
+                entity.colour = 'white'
+                if (entity.hp > 0) {
+                    Script.transitionTo(gameState, entity, PlayerScript.INVULNERABLE)
+                } else {
+                    Script.transitionTo(gameState, entity, PlayerScript.DYING)
+                }
             } else if (Flag.hasBigintFlags(other.flags, EntityFlags.ROLE_PICKUP) && entity.scriptState != PlayerScript.DYING) {
                 entity.hp = Math.min(entity.hp + 1, PLAYER_MAX_HP)
             }

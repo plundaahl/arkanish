@@ -2,15 +2,9 @@ import { Flag } from "../game-state/Flag";
 import { RenderCmd, RenderCommandBuffer } from "../RenderCommand";
 import { EntityFlags, EntityStates } from "../game-state/Entity";
 import { GameState } from "../game-state/GameState";
-import { PlayerScript } from "../scripts/PlayerScript";
 import { BoundingBoxTypes } from "../game-state/BoundingBox";
 import { UiState } from "../scenes/Scene";
 import { Vector2 } from "../game-state/Vector";
-
-const PLAYER_SCALE = 2
-const PLAYER_HEIGHT_HALF = PLAYER_SCALE * 15
-const PLAYER_WIDTH_HALF = PLAYER_SCALE * 10
-const PLAYER_OFFSET = PLAYER_HEIGHT_HALF / 2
 
 export const RenderSystem = {
     render: (state: GameState, ui: UiState, gameBuffer: RenderCommandBuffer, uiBuffer: RenderCommandBuffer, ctx: CanvasRenderingContext2D) => {
@@ -49,24 +43,12 @@ export const RenderSystem = {
                             entity.posZ,
                             renderPoly,
                             entity.colour || 'white',
-                            state.collidedEntities.has(entity.id),
+                            state.collidedEntities.has(entity.id) || entity.id === state.playerId,
                             1,
                             box.vertexes,
                         )
                     }
                 }
-            }
-
-            if (entity.id === state.playerId) {
-                RenderCommandBuffer.addCustomRenderCmd(
-                    gameBuffer,
-                    entity.posZ + 1,
-                    renderPlayer,
-                    entity.scriptState === PlayerScript.INVULNERABLE,
-                    entity.scriptState === PlayerScript.DYING,
-                    entity.posX,
-                    entity.posY,
-                )
             }
         }
 
@@ -200,29 +182,5 @@ export function renderPoly(ctx: CanvasRenderingContext2D, style: string, fill: b
         ctx.stroke()
     }
 
-    ctx.restore()
-}
-
-function renderPlayer(ctx: CanvasRenderingContext2D, invulnerable: boolean, dying: boolean, posX: number, posY: number) {
-    ctx.save()
-    ctx.beginPath()
-
-    ctx.moveTo(posX, posY - PLAYER_HEIGHT_HALF - PLAYER_OFFSET)
-    ctx.lineTo(posX - PLAYER_WIDTH_HALF, posY + PLAYER_HEIGHT_HALF - PLAYER_OFFSET)
-    ctx.lineTo(posX, posY + (PLAYER_HEIGHT_HALF / 2) - PLAYER_OFFSET)
-    ctx.lineTo(posX + PLAYER_WIDTH_HALF, posY + PLAYER_HEIGHT_HALF - PLAYER_OFFSET)
-    ctx.closePath()
-
-    if (invulnerable) {
-        ctx.lineWidth = 2
-        ctx.strokeStyle = 'red'
-        ctx.stroke()
-    } else {
-        ctx.fillStyle = dying
-            ? 'white'
-            : 'red'
-        ctx.fill()
-    }
-    
     ctx.restore()
 }
