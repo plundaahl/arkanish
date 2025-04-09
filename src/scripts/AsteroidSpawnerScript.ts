@@ -15,8 +15,9 @@ const CHANCES: [number, SpawnFn][] = [
     [3, spawnCoin],
     [2, spawnPowerup],
     [15, spawnNothing],
-    [8, spawnBouncyBall],
-    [70, spawnAsteroid],
+    [2, spawnBouncyBall],
+    [40, spawnAsteroid],
+    [5, spawnPlank],
 ]
 const TOTAL = CHANCES.map(([chance]) => chance).reduce((prev, total) => prev + total, 0)
 
@@ -157,6 +158,48 @@ function spawnBouncyBall(gameState: GameState, x: number, y: number) {
     entity.flags |= EntityFlags.ROLE_ENEMY
 }
 
+const PLANK_SECTION_SIZE = 50
+
+function spawnPlank(gameState: GameState, x: number, y: number) {
+    const center = World.spawnEntity(gameState)
+    center.posX = x
+    center.posY = y
+    center.velY = rollBetween(100, 250)
+    center.velR = rollBetween(0.25, 0.8) * Math.PI * positiveOrNegative()
+    center.posR = Math.random() * Math.PI * 2
+
+    const numSections = Math.floor(rollBetween(3, 7))
+    const halfWidth = PLANK_SECTION_SIZE * numSections * 0.5
+
+    for (let i = 0; i < numSections; i++) {
+        const section = World.spawnEntity(gameState)
+        section.parent = center.id
+        section.posX = (PLANK_SECTION_SIZE * i) - halfWidth
+
+        section.flags |= EntityFlags.COLLIDER
+        section.colliderGroup = ColliderFlags.ENEMY
+        section.collidesWith = ColliderFlags.PLAYER | ColliderFlags.PLAYER_BULLET
+        section.colliderBbSrc = [BoundingBox.createConvexPolyBb(
+            Vector2.createFromCoordinates(-25, -25),
+            Vector2.createFromCoordinates(25, -25),
+            Vector2.createFromCoordinates(25, 25),
+            Vector2.createFromCoordinates(-25, 25),
+        )]
+        section.colliderBbTransform = [BoundingBox.clone(section.colliderBbSrc[0])]
+
+        section.colour = 'red'
+        section.flags |= EntityFlags.ROLE_ENEMY
+    }
+}
+
 function spawnNothing(state: GameState, x: number, y: number) {
     
+}
+
+function rollBetween(from: number, to: number): number {
+    return (Math.random() * (to - from)) + from
+}
+
+function positiveOrNegative() {
+    return Math.random() < 0.5 ? -1 : 1
 }
