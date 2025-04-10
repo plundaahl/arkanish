@@ -213,8 +213,8 @@ export class GameScene implements Scene {
         const player = World.getEntity(this.state, this.state.playerId)
         const hpText = `HP: ${player?.hp || 0}`
         const scoreText = `Score: ${this.state.score}`
-        const frameRate = `Framerate: ${Math.round(100000 / this.state.frameLength) * 0.01}`
-        RenderCommandBuffer.addCustomRenderCmd(buffer, 1000, renderText, [hpText, scoreText, frameRate])
+        // const frameRate = `Framerate: ${Math.round(100000 / this.state.frameLength) * 0.01}`
+        RenderCommandBuffer.addCustomRenderCmd(buffer, 1000, renderText, [hpText, scoreText])
     }
 }
 
