@@ -300,7 +300,54 @@ function intersectsConvexPolyWithConvexPoly(...polys: [ConvexPolyBB, ConvexPolyB
 }
 
 function intersectsConvexPolyWithCircle(a: ConvexPolyBB, b: CircleBB): boolean {
-    return false
+    const circleCenter = Vector2.createFromCoordinates(b.x, b.y)
+    const nearestVertexToCircle = Vector2.createFromCoordinates(0, 0)
+    let distanceToNearestVertex = Number.MAX_SAFE_INTEGER
+
+    for (let i = 0; i < a.vertexes.length; i++) {
+        const normal = Vector2.scaleToUnit(
+            Vector2.rotateBy(
+                Vector2.subtracted(a.vertexes[(i + 1) % a.vertexes.length], a.vertexes[i]),
+                Math.PI * -0.5))
+
+        let aMin = Number.MAX_SAFE_INTEGER
+        let aMax = Number.MIN_SAFE_INTEGER
+        for (const v of a.vertexes) {
+            const dot = Vector2.dot(v, normal)
+            aMin = Math.min(aMin, dot)
+            aMax = Math.max(aMax, dot)
+        }
+
+        const centerDot = Vector2.dot(circleCenter, normal)
+        const bMin = centerDot - Math.abs(b.r)
+        const bMax = centerDot + Math.abs(b.r)
+
+        if (Vector2.distanceBetween(circleCenter, a.vertexes[i]) < distanceToNearestVertex) {
+            Vector2.setToVec(nearestVertexToCircle, a.vertexes[i])
+        }
+
+        if (aMax < bMin || aMin > bMax) {
+            return false
+        }
+    }
+
+    const normal = Vector2.scaleToUnit(Vector2.subtract(nearestVertexToCircle, circleCenter))
+    const circleDot = Vector2.dot(circleCenter, normal)
+    const bMin = circleDot - Math.abs(b.r)
+    const bMax = circleDot + Math.abs(b.r)
+    let aMax = Number.MIN_SAFE_INTEGER
+    let aMin = Number.MAX_SAFE_INTEGER
+    for (const v of a.vertexes) {
+        const dot = Vector2.dot(v, normal)
+        aMin = Math.min(aMin, dot)
+        aMax = Math.max(aMax, dot)
+    }
+
+    if (aMax < bMin || aMin > bMax) {
+        return false
+    }
+
+    return true
 }
 
 function intersectsConvexPolyWithAabb(a: ConvexPolyBB, b: AABB): boolean {

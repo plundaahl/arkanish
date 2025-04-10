@@ -18,11 +18,30 @@ export const Vector2 = {
         vec[VEC2_Y] = source[VEC2_Y]
         return vec
     },
+    scaleBy: (vec: Vector2, scale: number): Vector2 => {
+        vec[VEC2_X] *= scale
+        vec[VEC2_Y] *= scale
+        return vec
+    },
+    scaleToUnit: (vec: Vector2): Vector2 => {
+        const mag = Vector2.magnitudeOf(vec)
+        if (mag != 0) {
+            const scale = 1 / mag
+            vec[VEC2_X] *= scale
+            vec[VEC2_Y] *= scale
+        }
+        return vec
+    },
     xOf: (vec: Vector2): number => vec[VEC2_X],
     yOf: (vec: Vector2): number => vec[VEC2_Y],
     magnitudeOf: (vec: Vector2): number => Math.sqrt((vec[VEC2_X] * vec[VEC2_X]) + (vec[VEC2_Y] * vec[VEC2_Y])),
     angleOf: (vec: Vector2): number => modulo(Math.atan2(vec[VEC2_Y], vec[VEC2_X]), FULL_CIRCLE),
     angleBetween: (a: Vector2, b: Vector2): number => modulo(Vector2.angleOf(b) - Vector2.angleOf(a), FULL_CIRCLE),
+    distanceBetween: (a: Vector2, b: Vector2): number => {
+        const xDist = a[VEC2_X] - b[VEC2_X]
+        const yDist = a[VEC2_Y] - b[VEC2_Y]
+        return Math.sqrt((xDist * xDist) + (yDist * yDist))
+    },
     rotatedBy: (vec: Vector2, rotation: number): Vector2 => Vector2.createFromAngle(Vector2.angleOf(vec) + rotation, Vector2.magnitudeOf(vec)),
     rotateBy: (vec: Vector2, rotation: number): Vector2 => {
         const curAngle = Vector2.angleOf(vec)
@@ -56,12 +75,6 @@ export const Vector2 = {
     unitFrom: (vec: Vector2): Vector2 => {
         const scale = 1 / Vector2.magnitudeOf(vec)
         return [Vector2.xOf(vec) * scale, Vector2.yOf(vec) * scale]
-    },
-    scaleToUnit: (vec: Vector2): Vector2 => {
-        const scale = 1 / Vector2.magnitudeOf(vec)
-        vec[VEC2_X] *= scale
-        vec[VEC2_Y] *= scale
-        return vec
     },
     mean: (...vectors: Vector2[]): Vector2 => {
         const sum = vectors.reduce(Vector2.added, Vector2.createFromCoordinates(0, 0))

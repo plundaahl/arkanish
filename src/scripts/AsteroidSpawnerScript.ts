@@ -13,7 +13,7 @@ type SpawnFn = (state: GameState, x: number, y: number) => any
 
 const CHANCES: [number, SpawnFn][] = [
     [3, spawnCoin],
-    [2, spawnPowerup],
+    [1, spawnShieldRecharge],
     [15, spawnNothing],
     [2, spawnBouncyBall],
     [40, spawnAsteroid],
@@ -75,7 +75,7 @@ function spawnAsteroid(gameState: GameState, x: number, y: number) {
     const vel = Math.ceil(Math.random() * (maxVel - minVel)) + minVel
 
     entity.posX = x
-    entity.posY = y - halfSize
+    entity.posY = y - size
     entity.velY = vel
 
     entity.flags |= EntityFlags.COLLIDER
@@ -88,7 +88,7 @@ function spawnAsteroid(gameState: GameState, x: number, y: number) {
     entity.flags |= EntityFlags.ROLE_ENEMY
 }
 
-function spawnPowerup(gameState: GameState, x: number, y: number) {
+function spawnShieldRecharge(gameState: GameState, x: number, y: number) {
     const entity = World.spawnEntity(gameState)
     entity.flags |= EntityFlags.ROLE_PICKUP
 
@@ -126,13 +126,13 @@ function spawnCoin(gameState: GameState, x: number, y: number) {
     Script.attachScript(gameState, entity, CoinScript)
 }
 
-function spawnBouncyBall(gameState: GameState, x: number, y: number) {
+export function spawnBouncyBall(gameState: GameState, x: number, y: number) {
     const entity = World.spawnEntity(gameState)
 
     const halfSize = 20
 
-    const minMag = gameState.playArea.height * 0.7
-    const maxMag = gameState.playArea.height * 0.9
+    const minMag = gameState.playArea.height * 0.5
+    const maxMag = gameState.playArea.height * 0.8
     const minAngle = Math.PI * 1.25
     const maxAngle = Math.PI * 1.45 
     const angle = (Math.random() * (maxAngle - minAngle)) + minAngle

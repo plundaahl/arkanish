@@ -17,8 +17,8 @@ export function spawnJetParticle(state: GameState, entity: Entity) {
 function spawnExplosionParticle(state: GameState, entity: Entity, radius: number, lifetime: number) {
     const particle = ParticleState.provisionParticle(state, state.time)
     particle.originZ = entity.posZ + 1
-    particle.originX = entity.posX
-    particle.originY = entity.posY
+    particle.originX = entity.transX
+    particle.originY = entity.transY
     const angle = Math.random() * 2 * Math.PI
     const magntiude = (Math.random() * radius * 0.5) + (radius * 0.5)
     const vec = Vector2.createFromAngle(angle, magntiude)
