@@ -3,7 +3,8 @@ import { Entity, EntityFlags, World } from "../../game-state/Entity";
 import { GameState } from "../../game-state/GameState";
 import { Script } from "../../game-state/Script";
 import { Flag } from "../../game-state/Flag";
-import { spawnExplosionWhiteParticle, spawnJetParticle } from '../../particles'
+import { ExplosionWhiteParticle } from "../../content/particles/ExplosionWhiteParticle";
+import { JetParticle } from "../particles/JetParticle";
 
 const TIME_INVULNERABLE_AFTER_HIT = 1000
 const TIME_DYING = 1500
@@ -30,7 +31,7 @@ export const PlayerScript = {
                 break
             case PlayerScript.DYING:
                 if (particleSpawnTime < gameState.time) {
-                    spawnExplosionWhiteParticle(gameState, entity, PLAYER_BLAST_RADIUS)
+                    ExplosionWhiteParticle.spawn(gameState, entity, PLAYER_BLAST_RADIUS)
                 }
                 if (gameState.time > entity.scriptTimeEnteredState + TIME_DYING) {
                     Entity.killEntity(entity)
@@ -40,7 +41,7 @@ export const PlayerScript = {
 
         if (particleSpawnTime < gameState.time) {
             particleSpawnTime = gameState.time + MS_PER_JET_PARTICLE
-            spawnJetParticle(gameState, entity)
+            JetParticle.spawn(gameState, entity)
         }
     },
     handleEvent: (gameState: GameState, entity: Entity, event: GameEvent): void => {
@@ -54,7 +55,7 @@ export const PlayerScript = {
                 entity.hp -= 1
 
                 for (let i = 0; i < 10; i++) {
-                    spawnExplosionWhiteParticle(gameState, entity, PLAYER_BLAST_RADIUS)
+                    ExplosionWhiteParticle.spawn(gameState, entity, PLAYER_BLAST_RADIUS)
                 }
 
                 entity.colour = 'white'

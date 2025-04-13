@@ -184,3 +184,26 @@ export function renderPoly(ctx: CanvasRenderingContext2D, style: string, fill: b
 
     ctx.restore()
 }
+
+const BEAM_LENGTH = 4000
+export function renderBeam(
+    ctx: CanvasRenderingContext2D, style: string, fill: boolean,
+    opacity: number, x: number, y: number, w: number, r: number
+) {
+    ctx.save()
+    ctx.translate(x, y)
+    ctx.rotate(r)
+
+    const halfWidth = w * 0.5
+
+    ctx.globalAlpha = opacity
+    if (fill) {
+        ctx.fillStyle = style
+        ctx.fillRect(0, 0 - halfWidth, BEAM_LENGTH, w)
+    } else {
+        ctx.strokeStyle = style
+        ctx.lineWidth = 2
+        ctx.strokeRect(0, 0 - halfWidth, BEAM_LENGTH, w)
+    }
+    ctx.restore()
+}

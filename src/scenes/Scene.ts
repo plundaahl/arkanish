@@ -1,4 +1,4 @@
-import { GameState } from "game-state/GameState"
+import { GameState } from "../game-state/GameState"
 import { AABB, BoundingBox } from "../game-state/BoundingBox"
 
 export const CURSOR_IDLE = 'IDLE'

@@ -4,7 +4,25 @@ import { GameScene } from './scenes/GameScene'
 import { Action } from './game-state/Level'
 import { SpawnActionHandler } from './actions/SpawnAction'
 import { Script } from './game-state/Script'
-import { AsteroidSpawnerScript, BeamSpinnerScript, BouncyBallScript, BulletScript, CoinScript, PlayerScript, PowerupScript } from './content/scripts'
+import { ParticleHandler } from './game-state/Particles'
+import {
+    AsteroidSpawnerScript,
+    BeamSpinnerScript,
+    BouncyBallScript,
+    BulletScript,
+    CoinScript,
+    PlayerScript,
+    PowerupScript
+} from './content/scripts'
+import {
+    BlastBeamParticle,
+    BlastCircleParticle,
+    ExplosionRedParticle,
+    ExplosionWhiteParticle,
+    JetParticle,
+    TelegraphBeamParticle,
+    TelegraphCircleParticle
+} from './content/particles'
 
 Action.register(SpawnActionHandler)
 
@@ -16,6 +34,16 @@ Script.register(
     AsteroidSpawnerScript,
     BouncyBallScript,
     BeamSpinnerScript,
+)
+
+ParticleHandler.register(
+    BlastBeamParticle,
+    BlastCircleParticle,
+    ExplosionRedParticle,
+    ExplosionWhiteParticle,
+    JetParticle,
+    TelegraphBeamParticle,
+    TelegraphCircleParticle,
 )
 
 function orError<T>(element: T | null, error: string, ifNull: (message: string) => void): T {

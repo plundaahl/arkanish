@@ -1,9 +1,10 @@
 import { GameEvent } from "../../game-state/GameEvent";
 import { Entity, EntityFlags, World } from "../../game-state/Entity";
 import { GameState } from "../../game-state/GameState";
-import { spawnBlastBeamParticle, spawnTelegraphBeamParticle } from "../../particles";
 import { Script } from "../../game-state/Script";
 import { ExtraMath } from "../../Math";
+import { BlastBeamParticle } from "../particles/BlastBeamParticle";
+import { TelegraphBeamParticle } from "../particles/TelegraphBeamParticle";
 
 const PREPARE_TIME = 800
 const TELEGRAPH_TIME = 2000
@@ -28,14 +29,14 @@ export const BeamSpinnerScript = {
             }
         } else if (entity.scriptState === BeamSpinnerScript.PREPARING) {
             if (timeInState > PREPARE_TIME) {
-                spawnTelegraphBeamParticle(state, entity, 0, 0, 50, 0, TELEGRAPH_TIME)
-                spawnTelegraphBeamParticle(state, entity, 0, 0, 50, Math.PI, TELEGRAPH_TIME)
+                TelegraphBeamParticle.spawn(state, entity, 0, 0, 50, 0, TELEGRAPH_TIME)
+                TelegraphBeamParticle.spawn(state, entity, 0, 0, 50, Math.PI, TELEGRAPH_TIME)
                 Script.transitionTo(state, entity, BeamSpinnerScript.TELEGRAPHING)
             }
         } else if (entity.scriptState === BeamSpinnerScript.TELEGRAPHING) {
             if (timeInState > TELEGRAPH_TIME) {
-                spawnBlastBeamParticle(state, entity, 0, 0, 50, 0, BLAST_PARTICLE_TIME)
-                spawnBlastBeamParticle(state, entity, 0, 0, 50, Math.PI, BLAST_PARTICLE_TIME)
+                BlastBeamParticle.spawn(state, entity, 0, 0, 50, 0, BLAST_PARTICLE_TIME)
+                BlastBeamParticle.spawn(state, entity, 0, 0, 50, Math.PI, BLAST_PARTICLE_TIME)
                 entity.flags |= EntityFlags.COLLIDER
                 Script.transitionTo(state, entity, BeamSpinnerScript.BLASTING)
                 const parent = World.getEntity(state, entity.parent)

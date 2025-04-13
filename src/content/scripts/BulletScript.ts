@@ -1,8 +1,8 @@
 import { GameEvent } from "../../game-state/GameEvent";
 import { Entity, EntityFlags, World } from "../../game-state/Entity";
 import { GameState } from "../../game-state/GameState";
-import { spawnExplosionRedParticle } from "../../particles";
 import { Flag } from "../../game-state/Flag";
+import { ExplosionRedParticle } from "../particles/ExplosionRedParticle";
 
 export const BulletScript = {
     id: 'Bullet',
@@ -29,7 +29,7 @@ export const BulletScript = {
 
                 const numParticles = Math.ceil(Math.random() * 10) + 5
                 for (let i = 0; i < numParticles; i++) {
-                    spawnExplosionRedParticle(gameState, target, 100)
+                    ExplosionRedParticle.spawn(gameState, target, 100)
                 }
 
                 gameState.score += 10

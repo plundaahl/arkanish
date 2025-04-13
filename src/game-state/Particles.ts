@@ -1,3 +1,6 @@
+import { RenderCommandBuffer } from "../RenderCommand"
+import { Entity } from "./Entity"
+
 export const ParticleTypes = Object.freeze({
     NULL: 0,
     JET: 1,
@@ -10,7 +13,7 @@ export const ParticleTypes = Object.freeze({
 })
 
 export type Particle = {
-    type: number,
+    type: string,
     variation: number,
     attachedToEntity: number,
     originX: number,
@@ -24,7 +27,7 @@ export type Particle = {
 }
 
 const NULL_PARTICLE: Particle = Object.freeze({
-    type: 0,
+    type: '',
     variation: 0,
     attachedToEntity: 0,
     originX: 0,
@@ -36,6 +39,29 @@ const NULL_PARTICLE: Particle = Object.freeze({
     startTime: 0,
     endTime: 0,
 })
+
+export interface ParticleHandler {
+    id: string
+    render(renderBuffer: RenderCommandBuffer, particle: Particle, time: number, entity?: Entity): void
+    spawn?(state: ParticleState, ...args: any[]): Particle
+}
+
+const particleHandlerRegistry: { [Name in string]: ParticleHandler } = {}
+
+export const ParticleHandler = {
+    register: (...handlers: ParticleHandler[]) => {
+        for (const handler of handlers) {
+            const existingHandler = particleHandlerRegistry[handler.id]
+            if (Object.is(handler, existingHandler)) {
+                console.warn(`Re-registering ParticleHandlers with id [${handler.id}].  This is probably a coding error.`)
+            } else if (existingHandler !== undefined) {
+                throw new Error(`Tried to register multiple ParticleHandlers with id [${handler.id}].`)
+            }
+            particleHandlerRegistry[handler.id] = handler
+        }
+    },
+    getHandlerForId: (id: string): ParticleHandler | undefined => particleHandlerRegistry[id],
+}
 
 export const Particle = {
     create: (): Particle => Object.assign({}, NULL_PARTICLE),
