@@ -1,12 +1,16 @@
 import { GameEvent } from "../game-state/GameEvent";
 import { Entity, EntityFlags, World } from "../game-state/Entity";
 import { GameState } from "../game-state/GameState";
-import { ParticleState, ParticleTypes } from "../game-state/Particles";
 import { spawnExplosionRedParticle } from "../particles";
+import { Flag } from "../game-state/Flag";
 
 export const BulletScript = {
     id: 'Bullet',
-    update: (world: GameState, entity: Entity): void => {},
+    update: (world: GameState, entity: Entity): void => {
+        if (entity.posY < (world.playArea.top)) {
+            Entity.killEntity(entity)
+        }
+    },
     handleEvent: (gameState: GameState, bullet: Entity, event: GameEvent): void => {
         if (GameEvent.isCollisionEvent(event)) {
             const target = World.getEntity(gameState, event.hitBy)
@@ -14,10 +18,13 @@ export const BulletScript = {
                 return
             }
 
-            if ((bullet.flags & EntityFlags.ROLE_PLAYER_BULLET)
-                && (target.flags & EntityFlags.ROLE_ENEMY)
-            ) {
+            if (Flag.hasBigintFlags(target.flags, EntityFlags.KILLS_PLAYER_BULLETS)) {
                 Entity.killEntity(bullet)
+            }
+
+            if ((bullet.flags & EntityFlags.ROLE_PLAYER_BULLET)
+                && (target.flags & EntityFlags.HURT_BY_PLAYER_BULLETS)
+            ) {
                 Entity.killEntity(target)
 
                 const numParticles = Math.ceil(Math.random() * 10) + 5

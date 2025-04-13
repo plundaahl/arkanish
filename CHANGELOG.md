@@ -1,6 +1,9 @@
 # Changelog
 
-## v0.2.1 (2025-05-10)
+## v0.2.2 (2025-04-13)
+- Added 'beam spinner' enemies.
+
+## v0.2.1 (2025-04-10)
 - Added spinning, multi-section plank enemies.
 - Made player bounding box more precise.
 - Tweaked enemy/obstacle spawn rates.

@@ -10,7 +10,9 @@ export const EntityFlags = Object.freeze({
     BOUNCE_IN_PLAY_SPACE: entityFlag(),
     ROLE_PLAYER: entityFlag(),
     ROLE_PLAYER_BULLET: entityFlag(),
-    ROLE_ENEMY: entityFlag(),
+    KILLS_PLAYER_BULLETS: entityFlag(),
+    HURT_BY_PLAYER_BULLETS: entityFlag(),
+    HURTS_PLAYER: entityFlag(),
     ROLE_PICKUP: entityFlag(),
     parse: (flags: string[] | undefined): bigint => {
         if (!flags) {

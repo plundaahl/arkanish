@@ -50,7 +50,7 @@ export const PlayerScript = {
                 return
             }
 
-            if (Flag.hasBigintFlags(other.flags, EntityFlags.ROLE_ENEMY) && entity.scriptState === PlayerScript.ACTIVE) {
+            if (Flag.hasBigintFlags(other.flags, EntityFlags.HURTS_PLAYER) && entity.scriptState === PlayerScript.ACTIVE) {
                 entity.hp -= 1
 
                 for (let i = 0; i < 10; i++) {

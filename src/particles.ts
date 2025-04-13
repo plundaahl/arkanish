@@ -55,3 +55,29 @@ export function spawnBlastCircleParticle(state: GameState, entity: Entity, radiu
     particle.vecX = radius
     particle.endTime = state.time + delay
 }
+
+export function spawnTelegraphBeamParticle(state: GameState, entity: Entity, x: number, y: number, w: number, r: number, delay: number) {
+    const particle = ParticleState.provisionParticle(state, state.time)
+    particle.type = ParticleTypes.TELEGRAPH_BEAM
+    particle.attachedToEntity = entity ? entity.id : 0
+    particle.originZ = -1
+    particle.originX = x
+    particle.originY = y
+    particle.variation = w
+    particle.vecX = Math.cos(r)
+    particle.vecY = Math.sin(r)
+    particle.endTime = state.time + delay
+}
+
+export function spawnBlastBeamParticle(state: GameState, entity: Entity, x: number, y: number, w: number, r: number, delay: number) {
+    const particle = ParticleState.provisionParticle(state, state.time)
+    particle.type = ParticleTypes.BLAST_BEAM
+    particle.attachedToEntity = entity ? entity.id : 0
+    particle.originZ = -1
+    particle.originX = x
+    particle.originY = y
+    particle.variation = w
+    particle.vecX = Math.cos(r)
+    particle.vecY = Math.sin(r)
+    particle.endTime = state.time + delay
+}

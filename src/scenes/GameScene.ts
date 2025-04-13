@@ -286,19 +286,3 @@ function spawnPlayerBullet(gameState: GameState, x: number, y: number) {
 
     bullet.colour = 'red'
 }
-
-function spawnBuoy(gameState: GameState, x: number, y: number) {
-    const entity = World.spawnEntity(gameState)
-
-    const halfSize = 20
-    const size = halfSize * 2
-
-    entity.posX = x
-    entity.posY = y
-
-    entity.flags |= EntityFlags.COLLIDER
-    entity.colliderBbSrc = [BoundingBox.createAabb(-halfSize, -halfSize, size, size)]
-    entity.colliderBbTransform = [BoundingBox.clone(entity.colliderBbSrc[0])]
-
-    entity.colour = 'purple'
-}

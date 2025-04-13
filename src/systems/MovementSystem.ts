@@ -80,20 +80,8 @@ export const MovementSystem = {
         // Update transforms
         const childEntities: Entity[] = []
         for (const entity of state.entities) {
-            if (entity.state !== EntityStates.ALIVE) {
-                continue
-            }
-            if (entity.parent !== 0) {
-                if (!World.getEntity(state, entity.parent)) {
-                    // If parent is missing, decouple child
-                    entity.posX = entity.transX
-                    entity.posY = entity.transY
-                    entity.posR = entity.transR
-                    entity.parent = 0
-                } else {
-                    childEntities.push(entity)
-                    continue
-                }
+            if (entity.state === EntityStates.ALIVE && entity.parent !== 0) {
+                childEntities.push(entity)
             }
 
             // Update parent transforms
@@ -107,13 +95,15 @@ export const MovementSystem = {
             }
         }
 
+        // Update child transforms
         childEntities.sort(byIdIndex)
         const vParent: Vector2 = Vector2.createFromCoordinates(0, 0)
         const vChild: Vector2 = Vector2.createFromCoordinates(0, 0)
         for (const entity of childEntities) {
             const parent = World.getEntity(state, entity.parent)
             if (!parent) {
-                throw new Error(`Should not happen (checked for this in previous loop).`)
+                console.warn(`Parent missing`)
+                continue
             }
 
             // Update child transforms

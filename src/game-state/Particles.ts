@@ -5,6 +5,8 @@ export const ParticleTypes = Object.freeze({
     EXPLOSION_WHITE: 3,
     TELEGRAPH_CIRCLE: 4,
     BLAST_CIRCLE: 5,
+    TELEGRAPH_BEAM: 6,
+    BLAST_BEAM: 7,
 })
 
 export type Particle = {

@@ -6,6 +6,8 @@ import { CoinScript } from "./CoinScript";
 import { PowerupScript } from "./PowerupScript";
 import { BouncyBallScript } from "./BouncyBallScript";
 import { Vector2 } from "../game-state/Vector";
+import { BeamSpinnerScript } from "./BeamSpinnerScript";
+import { ExtraMath } from "../Math";
 
 const TIME_BETWEEN_SPAWNS = 180
 
@@ -14,7 +16,8 @@ type SpawnFn = (state: GameState, x: number, y: number) => any
 const CHANCES: [number, SpawnFn][] = [
     [3, spawnCoin],
     [1, spawnShieldRecharge],
-    [15, spawnNothing],
+    [30, spawnNothing],
+    [5, spawnBeamSpinner],
     [2, spawnBouncyBall],
     [40, spawnAsteroid],
     [5, spawnPlank],
@@ -85,7 +88,9 @@ function spawnAsteroid(gameState: GameState, x: number, y: number) {
     entity.collidesWith = ColliderFlags.PLAYER | ColliderFlags.PLAYER_BULLET
 
     entity.colour = 'red'
-    entity.flags |= EntityFlags.ROLE_ENEMY
+    entity.flags |= EntityFlags.KILLS_PLAYER_BULLETS
+    entity.flags |= EntityFlags.HURTS_PLAYER
+    entity.flags |= EntityFlags.HURT_BY_PLAYER_BULLETS
 }
 
 function spawnShieldRecharge(gameState: GameState, x: number, y: number) {
@@ -155,7 +160,9 @@ export function spawnBouncyBall(gameState: GameState, x: number, y: number) {
     entity.hp = Math.ceil(Math.random() * 3) + 1
 
     entity.colour = 'red'
-    entity.flags |= EntityFlags.ROLE_ENEMY
+    entity.flags |= EntityFlags.KILLS_PLAYER_BULLETS
+    entity.flags |= EntityFlags.HURTS_PLAYER
+    entity.flags |= EntityFlags.HURT_BY_PLAYER_BULLETS
 }
 
 const PLANK_SECTION_SIZE = 50
@@ -164,11 +171,11 @@ function spawnPlank(gameState: GameState, x: number, y: number) {
     const center = World.spawnEntity(gameState)
     center.posX = x
     center.posY = y
-    center.velY = rollBetween(100, 250)
-    center.velR = rollBetween(0.25, 0.8) * Math.PI * positiveOrNegative()
+    center.velY = ExtraMath.rollBetween(100, 250)
+    center.velR = ExtraMath.rollBetween(0.25, 0.8) * Math.PI * positiveOrNegative()
     center.posR = Math.random() * Math.PI * 2
 
-    const numSections = Math.floor(rollBetween(3, 7))
+    const numSections = Math.floor(ExtraMath.rollBetween(3, 7))
     const halfWidth = PLANK_SECTION_SIZE * numSections * 0.5
 
     for (let i = 0; i < numSections; i++) {
@@ -188,16 +195,62 @@ function spawnPlank(gameState: GameState, x: number, y: number) {
         section.colliderBbTransform = [BoundingBox.clone(section.colliderBbSrc[0])]
 
         section.colour = 'red'
-        section.flags |= EntityFlags.ROLE_ENEMY
+        section.flags |= EntityFlags.KILLS_PLAYER_BULLETS
+        section.flags |= EntityFlags.HURTS_PLAYER
+        section.flags |= EntityFlags.HURT_BY_PLAYER_BULLETS
     }
+}
+
+const BEAM_LENGTH = 2000
+const BEAM_WIDTH = 50
+const BEAM_HALF_WIDTH = BEAM_WIDTH * 0.5
+function spawnBeamSpinner(gameState: GameState, x: number, y: number) {
+    // Spinner
+    const spinner = World.spawnEntity(gameState)
+
+    const size = 50
+    const halfSize = size * 0.5
+
+    const maxVel = gameState.playArea.height * 0.5
+    const minVel = gameState.playArea.height * 0.2
+
+    spinner.posX = x
+    spinner.posY = y - size
+    spinner.velY = ExtraMath.rollBetween(minVel, maxVel)
+    spinner.velR = ExtraMath.rollBetween(0, 0.15) * Math.PI * positiveOrNegative()
+    spinner.posR = Math.random() * Math.PI * 2
+
+    spinner.flags |= EntityFlags.COLLIDER
+    spinner.colliderBbSrc = [BoundingBox.createCircleBb(0, 0, halfSize)]
+    spinner.colliderBbTransform = [BoundingBox.clone(spinner.colliderBbSrc[0])]
+    spinner.colliderGroup = ColliderFlags.ENEMY
+    spinner.collidesWith = ColliderFlags.PLAYER | ColliderFlags.PLAYER_BULLET
+
+    spinner.colour = 'red'
+    spinner.flags |= EntityFlags.KILLS_PLAYER_BULLETS
+    spinner.flags |= EntityFlags.HURTS_PLAYER
+    spinner.flags |= EntityFlags.HURT_BY_PLAYER_BULLETS
+
+    // Hit box
+    const hitBox = World.spawnEntity(gameState)
+    hitBox.parent = spinner.id
+    hitBox.colliderBbSrc = [BoundingBox.createConvexPolyBb(
+        Vector2.createFromCoordinates(-BEAM_LENGTH, -BEAM_HALF_WIDTH),
+        Vector2.createFromCoordinates(BEAM_LENGTH, -BEAM_HALF_WIDTH),
+        Vector2.createFromCoordinates(BEAM_LENGTH, BEAM_HALF_WIDTH),
+        Vector2.createFromCoordinates(-BEAM_LENGTH, BEAM_HALF_WIDTH),
+    )]
+    hitBox.colliderBbTransform = [BoundingBox.clone(hitBox.colliderBbSrc[0])]
+    hitBox.colliderGroup = ColliderFlags.ENEMY
+    hitBox.collidesWith = ColliderFlags.PLAYER
+    hitBox.flags |= EntityFlags.HURTS_PLAYER
+    hitBox.colour = '#FFFFFF00'
+
+    Script.attachScript(gameState, hitBox, BeamSpinnerScript)
 }
 
 function spawnNothing(state: GameState, x: number, y: number) {
     
-}
-
-function rollBetween(from: number, to: number): number {
-    return (Math.random() * (to - from)) + from
 }
 
 function positiveOrNegative() {
