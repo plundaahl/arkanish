@@ -1,30 +1,24 @@
 import { CURSOR_DOWN, Scene, UiState } from './Scene'
 import { World } from '../game-state/Entity'
-import { ColliderFlags, Entity, EntityFlags } from '../game-state/Entity'
-import { BoundingBox } from '../game-state/BoundingBox'
 import { CollisionSystem } from '../systems/CollisionSystem'
 import { ScriptSystem } from '../systems/ScriptSystem'
 import { GameState } from '../game-state/GameState'
 import { SpawnSystem } from '../systems/SpawnSystem'
 import { MovementSystem } from '../systems/MovementSystem'
-import { Script } from '../game-state/Script'
 import { EventSystem } from '../systems/EventSystem'
 import { RenderCommandBuffer } from '../RenderCommand'
 import { RenderSystem } from '../systems/RenderSystem'
 import { ParticleSystem } from '../systems/ParticleSystem'
 import { Level, LevelState } from '../game-state/Level'
-import { SpawnActionHandler } from '../actions/SpawnAction'
+import { SpawnPrefabActionHandler } from '../content/actions/SpawnAction'
 import { LevelSystem } from '../systems/LevelSystem'
-import { Vector2 } from '../game-state/Vector'
-import { AsteroidSpawnerScript, BulletScript, PlayerScript } from '../content/scripts'
+import { PlayerScript } from '../content/scripts'
+import { Prefab } from '../game-state/Prefab'
 
 const STAR_TIME_SCALE = 1 / 5000
 const PLAYER_SCALE = 2
 const PLAYER_HEIGHT_HALF = PLAYER_SCALE * 15
-const PLAYER_WIDTH_HALF = PLAYER_SCALE * 10
-const PLAYER_OFFSET = PLAYER_HEIGHT_HALF / 2
 const PLAYER_RATE_OF_FIRE = 200
-const PLAYER_BULLET_SPEED = -500
 const MS_PER_SCORE_TICK = 800
 
 type State = GameState
@@ -35,18 +29,12 @@ const level: Level = {
         main: {
             contents: [
                 { when: { type: 'time', at: 2500 }, then: [
-                    SpawnActionHandler.create({
-                        posX: 0,
-                        posY: -450,
-                        script: AsteroidSpawnerScript.id,
-                    })
+                    SpawnPrefabActionHandler.create('AsteroidSpawner', 0, -450)
                 ]},
             ]
         }
     }
 }
-
-const BUOY_SCALE = 1
 
 export class GameScene implements Scene {
     private state: State;
@@ -60,7 +48,9 @@ export class GameScene implements Scene {
     update(time: number, canvas: CanvasRenderingContext2D, uiState: UiState): void {
         if (!this.state) {
             this.state = GameState.create(time)
-            this.state.playerId = spawnPlayer(this.state).id
+            const player = Prefab.spawn(this.state, 'Player')
+            player.posY = this.state.playArea.height / 4
+            this.state.playerId = player.id
             LevelState.loadLevel(this.state, level)
         }
 
@@ -170,7 +160,9 @@ export class GameScene implements Scene {
 
             if (fire && time > this.state.playerNextShotTime) {
                 this.state.playerNextShotTime = time + PLAYER_RATE_OF_FIRE
-                spawnPlayerBullet(this.state, player.posX, player.posY - PLAYER_HEIGHT_HALF)
+                const bullet = Prefab.spawn(this.state, 'PlayerBullet')
+                bullet.posX = player.posX
+                bullet.posY = player.posY - PLAYER_HEIGHT_HALF
             }
         }
     }
@@ -230,57 +222,4 @@ function renderText(ctx: CanvasRenderingContext2D, text: string[]) {
     }
 
     ctx.restore()
-}
-
-function spawnPlayer(gameState: GameState): Entity {
-    const player = World.spawnEntity(gameState)
-    player.flags |= EntityFlags.ROLE_PLAYER
-
-    player.flags |= EntityFlags.COLLIDER
-    player.colliderBbSrc = [
-        BoundingBox.createConvexPolyBb(
-            Vector2.createFromCoordinates(0, 0 - PLAYER_HEIGHT_HALF - PLAYER_OFFSET),
-            Vector2.createFromCoordinates(-PLAYER_WIDTH_HALF, PLAYER_HEIGHT_HALF - PLAYER_OFFSET),
-            Vector2.createFromCoordinates(0, (PLAYER_HEIGHT_HALF / 2) - PLAYER_OFFSET),
-        ),
-        BoundingBox.createConvexPolyBb(
-            Vector2.createFromCoordinates(0, 0 - PLAYER_HEIGHT_HALF - PLAYER_OFFSET),
-            Vector2.createFromCoordinates(0, (PLAYER_HEIGHT_HALF / 2) - PLAYER_OFFSET),
-            Vector2.createFromCoordinates(PLAYER_WIDTH_HALF, PLAYER_HEIGHT_HALF - PLAYER_OFFSET),
-        ),
-    ]
-    player.colliderBbTransform = player.colliderBbSrc.map(BoundingBox.clone)
-    player.colliderGroup = ColliderFlags.PLAYER
-    player.collidesWith = ColliderFlags.ENEMY | ColliderFlags.POWERUP
-    player.colour = 'green'
-
-    Script.attachScript(gameState, player, PlayerScript)
-
-    player.hp = 3
-
-    player.posZ = 1
-    player.posX = 0
-    player.posY = gameState.playArea.height / 4
-    player.flags |= EntityFlags.CONSTRAIN_TO_PLAY_SPACE
-
-    return player
-}
-
-function spawnPlayerBullet(gameState: GameState, x: number, y: number) {
-    const bullet = World.spawnEntity(gameState)
-    bullet.flags |= EntityFlags.ROLE_PLAYER_BULLET
-
-    bullet.posX = x
-    bullet.posY = y
-    bullet.velY = PLAYER_BULLET_SPEED
-
-    bullet.flags |= EntityFlags.COLLIDER
-    bullet.colliderBbSrc = [BoundingBox.createAabb(-5, -5, 10, 10)]
-    bullet.colliderBbTransform = [BoundingBox.createAabb(-5, -5, 10, 10)]
-    bullet.colliderGroup = ColliderFlags.PLAYER_BULLET
-    bullet.collidesWith = ColliderFlags.ENEMY
-
-    Script.attachScript(gameState, bullet, BulletScript)
-
-    bullet.colour = 'red'
 }

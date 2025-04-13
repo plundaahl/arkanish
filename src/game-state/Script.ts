@@ -10,18 +10,6 @@ export type Script = {
 
 const scriptRegistry: { [t in string]: Script } = {}
 export const Script = {
-    register: (...scripts: Script[]): void => {
-        for (const script of scripts) {
-            if (scriptRegistry[script.id]) {
-                if (Object.is(scriptRegistry[script.id], script)) {
-                    console.warn(`Script [${script.id}] has been registered multiple times.`)
-                } else {
-                    throw new Error(`Attempted to register script with duplicate ID [${script.id}]`)
-                }
-            }
-            scriptRegistry[script.id] = script
-        }
-    },
     getScriptById: (id: string): Script | undefined => scriptRegistry[id],
     transitionTo: (gameState: GameState, entity: Entity, state: number) => {
         if (entity.scriptState === state) {
@@ -40,4 +28,19 @@ export const Script = {
         entity.scriptState = 0
         entity.scriptTimeEnteredState = world.time
     }
+}
+
+export const ScriptRegistry = {
+    registerScripts: (...scripts: Script[]): void => {
+        for (const script of scripts) {
+            if (scriptRegistry[script.id]) {
+                if (Object.is(scriptRegistry[script.id], script)) {
+                    console.warn(`Script [${script.id}] has been registered multiple times.`)
+                } else {
+                    throw new Error(`Attempted to register script with duplicate ID [${script.id}]`)
+                }
+            }
+            scriptRegistry[script.id] = script
+        }
+    },
 }

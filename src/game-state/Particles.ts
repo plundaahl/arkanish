@@ -48,8 +48,8 @@ export interface ParticleHandler {
 
 const particleHandlerRegistry: { [Name in string]: ParticleHandler } = {}
 
-export const ParticleHandler = {
-    register: (...handlers: ParticleHandler[]) => {
+export const ParticleHandlerRegistry = {
+    registerParticleHandlers: (...handlers: ParticleHandler[]) => {
         for (const handler of handlers) {
             const existingHandler = particleHandlerRegistry[handler.id]
             if (Object.is(handler, existingHandler)) {
@@ -60,12 +60,12 @@ export const ParticleHandler = {
             particleHandlerRegistry[handler.id] = handler
         }
     },
-    getHandlerForId: (id: string): ParticleHandler | undefined => particleHandlerRegistry[id],
 }
 
 export const Particle = {
     create: (): Particle => Object.assign({}, NULL_PARTICLE),
-    reset: (particle: Particle) => { Object.assign(particle, NULL_PARTICLE) }
+    reset: (particle: Particle) => { Object.assign(particle, NULL_PARTICLE) },
+    getHandlerForId: (id: string): ParticleHandler | undefined => particleHandlerRegistry[id],
 }
 
 export type ParticleState = {

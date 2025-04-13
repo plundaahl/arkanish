@@ -1,10 +1,8 @@
 import { CURSOR_CLICK, CURSOR_DOWN, CURSOR_IDLE, Scene, UiState } from './scenes/Scene'
 import { MenuScene } from './scenes/MenuScene'
 import { GameScene } from './scenes/GameScene'
-import { Action } from './game-state/Level'
-import { SpawnActionHandler } from './actions/SpawnAction'
-import { Script } from './game-state/Script'
-import { ParticleHandler } from './game-state/Particles'
+import { Registry } from './game-state/Registry'
+import { SpawnPrefabActionHandler } from './content/actions/SpawnAction'
 import {
     AsteroidSpawnerScript,
     BeamSpinnerScript,
@@ -23,10 +21,22 @@ import {
     TelegraphBeamParticle,
     TelegraphCircleParticle
 } from './content/particles'
+import {
+    AsteroidPrefab,
+    AsteroidSpawnerPrefab,
+    BeamSpinnerPrefab,
+    BouncyBallPrefab,
+    CoinPrefab,
+    PlankPrefab,
+    PlayerBulletPrefab,
+    PlayerPrefab,
+    ShieldRechargePrefab,
+} from './content/prefabs'
 
-Action.register(SpawnActionHandler)
-
-Script.register(
+Registry.registerActions(
+    SpawnPrefabActionHandler,
+)
+Registry.registerScripts(
     PlayerScript,
     PowerupScript,
     CoinScript,
@@ -35,8 +45,7 @@ Script.register(
     BouncyBallScript,
     BeamSpinnerScript,
 )
-
-ParticleHandler.register(
+Registry.registerParticleHandlers(
     BlastBeamParticle,
     BlastCircleParticle,
     ExplosionRedParticle,
@@ -44,6 +53,17 @@ ParticleHandler.register(
     JetParticle,
     TelegraphBeamParticle,
     TelegraphCircleParticle,
+)
+Registry.registerPrefabs(
+    BeamSpinnerPrefab,
+    PlankPrefab,
+    BouncyBallPrefab,
+    CoinPrefab,
+    ShieldRechargePrefab,
+    AsteroidPrefab,
+    AsteroidSpawnerPrefab,
+    PlayerBulletPrefab,
+    PlayerPrefab,
 )
 
 function orError<T>(element: T | null, error: string, ifNull: (message: string) => void): T {

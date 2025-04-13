@@ -1,4 +1,4 @@
-import { ParticleHandler, ParticleState } from "../game-state/Particles";
+import { Particle, ParticleState } from "../game-state/Particles";
 import { GameState } from "../game-state/GameState";
 import { RenderCommandBuffer } from "../RenderCommand";
 import { World } from "../game-state/Entity";
@@ -18,7 +18,7 @@ export const ParticleSystem = {
         // Render
         for (const particle of state.liveParticles) {
             const attachedEntity = particle.attachedToEntity ? World.getEntity(state, particle.attachedToEntity) : undefined
-            const handler = ParticleHandler.getHandlerForId(particle.type)
+            const handler = Particle.getHandlerForId(particle.type)
             if (handler) {
                 handler.render(renderBuffer, particle, state.time, attachedEntity)
             }

@@ -43,14 +43,6 @@ export interface ActionHandler<T extends string, A extends Action<T>, S> {
 
 const actionHandlers: { [T in string]: ActionHandler<T, Action<T>, any> } = {}
 export const Action = {
-    register: (...handlers: ActionHandler<string, Action<string>, any>[]): void => {
-        for (const handler of handlers) {
-            if (actionHandlers[handler.type]) {
-                throw new Error(`Handler for action [${handler.type}] already registered.`)
-            }
-            actionHandlers[handler.type] = handler
-        }
-    },
     is: (obj: unknown): obj is Action<string> => {
         for (const handler of Object.values(actionHandlers)) {
             if (handler.is(obj)) {
@@ -68,6 +60,17 @@ export const Action = {
             throw new Error(`Action has type [${handler.type}], but handler failed to parse it.  Action: [${JSON.stringify(action)}]`)
         }
         handler.execute(state, action)
+    },
+}
+
+export const ActionHandlerRegistry = {
+    registerActions: (...handlers: ActionHandler<string, Action<string>, any>[]): void => {
+        for (const handler of handlers) {
+            if (actionHandlers[handler.type]) {
+                throw new Error(`Handler for action [${handler.type}] already registered.`)
+            }
+            actionHandlers[handler.type] = handler
+        }
     },
 }
 
