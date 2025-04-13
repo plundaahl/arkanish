@@ -3,8 +3,20 @@ import { MenuScene } from './scenes/MenuScene'
 import { GameScene } from './scenes/GameScene'
 import { Action } from './game-state/Level'
 import { SpawnActionHandler } from './actions/SpawnAction'
+import { Script } from './game-state/Script'
+import { AsteroidSpawnerScript, BeamSpinnerScript, BouncyBallScript, BulletScript, CoinScript, PlayerScript, PowerupScript } from './content/scripts'
 
 Action.register(SpawnActionHandler)
+
+Script.register(
+    PlayerScript,
+    PowerupScript,
+    CoinScript,
+    BulletScript,
+    AsteroidSpawnerScript,
+    BouncyBallScript,
+    BeamSpinnerScript,
+)
 
 function orError<T>(element: T | null, error: string, ifNull: (message: string) => void): T {
     if (element === null) {

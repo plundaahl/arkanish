@@ -1,8 +1,8 @@
-import { GameEvent } from "../game-state/GameEvent";
-import { Entity, EntityFlags, World } from "../game-state/Entity";
-import { GameState } from "../game-state/GameState";
-import { spawnExplosionRedParticle } from "../particles";
-import { Flag } from "../game-state/Flag";
+import { GameEvent } from "../../game-state/GameEvent";
+import { Entity, EntityFlags, World } from "../../game-state/Entity";
+import { GameState } from "../../game-state/GameState";
+import { spawnExplosionRedParticle } from "../../particles";
+import { Flag } from "../../game-state/Flag";
 
 export const BulletScript = {
     id: 'Bullet',

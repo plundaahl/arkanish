@@ -1,9 +1,9 @@
-import { GameEvent } from "../game-state/GameEvent";
-import { Entity } from "../game-state/Entity";
-import { GameState } from "../game-state/GameState";
-import { spawnBlastCircleParticle, spawnExplosionWhiteParticle, spawnTelegraphCircleParticle } from '../particles'
-import { ScriptSystem } from "../systems/ScriptSystem";
-import { BoundingBox } from "../game-state/BoundingBox";
+import { GameEvent } from "../../game-state/GameEvent";
+import { Entity } from "../../game-state/Entity";
+import { GameState } from "../../game-state/GameState";
+import { spawnBlastCircleParticle, spawnExplosionWhiteParticle, spawnTelegraphCircleParticle } from '../../particles'
+import { ScriptSystem } from "../../systems/ScriptSystem";
+import { BoundingBox } from "../../game-state/BoundingBox";
 
 const DETONATION_TIME = 1000
 const BLAST_RADIUS = 150

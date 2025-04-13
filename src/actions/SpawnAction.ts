@@ -1,7 +1,7 @@
 import { Action, ActionHandler } from '../game-state/Level'
 import { Entity, EntityTemplate, World } from '../game-state/Entity'
 import { GameState } from '../game-state/GameState'
-import { Script } from '../scripts/Script'
+import { Script } from '../game-state/Script'
 
 interface SpawnAction extends Action<'Spawn'> {
     overrides: EntityTemplate

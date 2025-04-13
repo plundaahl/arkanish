@@ -1,39 +1,8 @@
 import { Flag } from "../game-state/Flag";
 import { Entity, EntityFlags, EntityStates, World } from "../game-state/Entity";
-import { Script } from '../scripts/Script'
-import { PlayerScript } from "../scripts/PlayerScript";
+import { Script } from '../game-state/Script'
 import { GameEventType } from "../game-state/GameEvent";
-import { PowerupScript } from "../scripts/PowerupScript";
-import { BulletScript } from "../scripts/BulletScript";
 import { GameState } from '../game-state/GameState'
-import { AsteroidSpawnerScript } from "../scripts/AsteroidSpawnerScript";
-import { CoinScript } from "../scripts/CoinScript";
-import { BouncyBallScript } from "../scripts/BouncyBallScript";
-import { BeamSpinnerScript } from "../scripts/BeamSpinnerScript";
-
-const registeredScripts: [string, Script][] = []
-const findMachineById = (id: string) => registeredScripts.find(record => record[0] === id)?.[1]
-const findIdByMachine = (machine: Script) => registeredScripts.find(record => Object.is(record[1], machine))?.[0]
-const registerScripts = (...scripts: Script[]) => {
-    for (const script of scripts) {
-        for (const [_, mach] of registeredScripts) {
-            if (Object.is(mach, script)) {
-                throw new Error(`Tried to register the same machine twice`)
-            }
-        }
-        registeredScripts.push([script.id, script])
-    }
-}
-
-registerScripts(
-    PlayerScript,
-    PowerupScript,
-    CoinScript,
-    BulletScript,
-    AsteroidSpawnerScript,
-    BouncyBallScript,
-    BeamSpinnerScript,
-)
 
 export const ScriptSystem = {
     run: (state: GameState): void => {
@@ -44,7 +13,7 @@ export const ScriptSystem = {
                 continue
             }
             const entity = World.getEntity(state, event.entity)
-            const machine = entity && findMachineById(entity.script)
+            const machine = entity && Script.getScriptById(entity.script)
             if (entity && entity.state === EntityStates.ALIVE && Flag.hasBigintFlags(entity.flags, EntityFlags.SCRIPT) && machine) {
                 machine.handleEvent(state, entity, event)
             }
@@ -53,7 +22,7 @@ export const ScriptSystem = {
         // Run per-frame update
         for (let i = 0; i < state.entities.length; i++) {
             const entity = state.entities[i]
-            const machine = findMachineById(entity.script)
+            const machine = Script.getScriptById(entity.script)
 
             if (entity.state === EntityStates.ALIVE
                 && Flag.hasBigintFlags(entity.flags, EntityFlags.SCRIPT)
@@ -64,7 +33,7 @@ export const ScriptSystem = {
         }
     },
     enterState: (world: GameState, entity: Entity, machine: Script, state: number) => {
-        const machineId = findIdByMachine(machine)
+        const machineId = machine.id
         if (machineId && entity.state === EntityStates.ALIVE && Flag.hasBigintFlags(entity.flags, EntityFlags.SCRIPT)) {
             entity.script = machineId
             entity.scriptState = state

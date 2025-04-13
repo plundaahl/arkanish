@@ -1,6 +1,6 @@
-import { GameEvent } from "../game-state/GameEvent";
-import { Entity } from "../game-state/Entity";
-import { GameState } from "../game-state/GameState";
+import { GameEvent } from "../../game-state/GameEvent";
+import { Entity } from "../../game-state/Entity";
+import { GameState } from "../../game-state/GameState";
 
 export const PowerupScript = {
     id: 'Powerup',

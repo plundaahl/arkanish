@@ -1,9 +1,9 @@
-import { GameEvent } from "../game-state/GameEvent";
-import { Entity, EntityFlags, World } from "../game-state/Entity";
-import { GameState } from "../game-state/GameState";
-import { spawnBlastBeamParticle, spawnTelegraphBeamParticle } from "../particles";
-import { Script } from "./Script";
-import { ExtraMath } from "../Math";
+import { GameEvent } from "../../game-state/GameEvent";
+import { Entity, EntityFlags, World } from "../../game-state/Entity";
+import { GameState } from "../../game-state/GameState";
+import { spawnBlastBeamParticle, spawnTelegraphBeamParticle } from "../../particles";
+import { Script } from "../../game-state/Script";
+import { ExtraMath } from "../../Math";
 
 const PREPARE_TIME = 800
 const TELEGRAPH_TIME = 2000

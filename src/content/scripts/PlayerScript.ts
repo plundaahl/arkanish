@@ -1,9 +1,9 @@
-import { GameEvent } from "../game-state/GameEvent";
-import { Entity, EntityFlags, World } from "../game-state/Entity";
-import { GameState } from "../game-state/GameState";
-import { Script } from "./Script";
-import { Flag } from "../game-state/Flag";
-import { spawnExplosionWhiteParticle, spawnJetParticle } from '../particles'
+import { GameEvent } from "../../game-state/GameEvent";
+import { Entity, EntityFlags, World } from "../../game-state/Entity";
+import { GameState } from "../../game-state/GameState";
+import { Script } from "../../game-state/Script";
+import { Flag } from "../../game-state/Flag";
+import { spawnExplosionWhiteParticle, spawnJetParticle } from '../../particles'
 
 const TIME_INVULNERABLE_AFTER_HIT = 1000
 const TIME_DYING = 1500

@@ -41,7 +41,7 @@ export interface ActionHandler<T extends string, A extends Action<T>, S> {
     execute(state: S, action: A): void
 }
 
-let actionHandlers: { [T in string]: ActionHandler<T, Action<T>, any> } = {}
+const actionHandlers: { [T in string]: ActionHandler<T, Action<T>, any> } = {}
 export const Action = {
     register: (...handlers: ActionHandler<string, Action<string>, any>[]): void => {
         for (const handler of handlers) {

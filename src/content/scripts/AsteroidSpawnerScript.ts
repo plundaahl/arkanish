@@ -1,13 +1,13 @@
-import { ColliderFlags, Entity, EntityFlags, World } from "../game-state/Entity";
-import { GameState } from "../game-state/GameState";
-import { BoundingBox } from "../game-state/BoundingBox";
-import { Script } from "./Script";
+import { ColliderFlags, Entity, EntityFlags, World } from "../../game-state/Entity";
+import { GameState } from "../../game-state/GameState";
+import { BoundingBox } from "../../game-state/BoundingBox";
+import { Script } from "../../game-state/Script";
 import { CoinScript } from "./CoinScript";
 import { PowerupScript } from "./PowerupScript";
 import { BouncyBallScript } from "./BouncyBallScript";
-import { Vector2 } from "../game-state/Vector";
+import { Vector2 } from "../../game-state/Vector";
 import { BeamSpinnerScript } from "./BeamSpinnerScript";
-import { ExtraMath } from "../Math";
+import { ExtraMath } from "../../Math";
 
 const TIME_BETWEEN_SPAWNS = 180
 
