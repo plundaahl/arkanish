@@ -8,12 +8,12 @@ type NullGameEvent = {
     type: typeof GameEventType.NULL,
     entity: number,
 }
-type CollisionGameEvent = {
+export type CollisionGameEvent = {
     type: typeof GameEventType.COLLISION,
     entity: number,
     hitBy: number,
 }
-type BounceGameEvent = {
+export type BounceGameEvent = {
     type: typeof GameEventType.BOUNCE,
     entity: number,
 }

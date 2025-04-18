@@ -1,6 +1,5 @@
 import { Flag } from "../game-state/Flag";
-import { Entity, EntityFlags, EntityStates, World } from "../game-state/Entity";
-import { Script } from '../game-state/Script'
+import { EntityFlags, EntityStates, World } from "../game-state/Entity";
 import { GameEventType } from "../game-state/GameEvent";
 import { GameState } from '../game-state/GameState'
 
@@ -13,31 +12,26 @@ export const ScriptSystem = {
                 continue
             }
             const entity = World.getEntity(state, event.entity)
-            const machine = entity && Script.getScriptById(entity.script)
-            if (entity && entity.state === EntityStates.ALIVE && Flag.hasBigintFlags(entity.flags, EntityFlags.SCRIPT) && machine) {
-                machine.handleEvent(state, entity, event)
+            if (!entity || entity.state !== EntityStates.ALIVE || !Flag.hasBigintFlags(entity.flags, EntityFlags.SCRIPT)) {
+                continue
+            }
+
+            if (entity?.script?.onEvent && entity?.scriptData) {
+                entity.script.onEvent(state, entity as any, event)
             }
         }
 
         // Run per-frame update
         for (let i = 0; i < state.entities.length; i++) {
             const entity = state.entities[i]
-            const machine = Script.getScriptById(entity.script)
 
-            if (entity.state === EntityStates.ALIVE
-                && Flag.hasBigintFlags(entity.flags, EntityFlags.SCRIPT)
-                && machine
-            ) {
-                machine.update(state, entity)
+            if (entity.state !== EntityStates.ALIVE && !Flag.hasBigintFlags(entity.flags, EntityFlags.SCRIPT)) {
+                continue
             }
-        }
-    },
-    enterState: (world: GameState, entity: Entity, machine: Script, state: number) => {
-        const machineId = machine.id
-        if (machineId && entity.state === EntityStates.ALIVE && Flag.hasBigintFlags(entity.flags, EntityFlags.SCRIPT)) {
-            entity.script = machineId
-            entity.scriptState = state
-            entity.scriptTimeEnteredState = world.time
+
+            if (entity?.script?.onUpdate && entity?.scriptData) {
+                entity.script.onUpdate(state, entity as any)
+            }
         }
     },
 }

@@ -2,7 +2,7 @@ import { ColliderFlags, Entity, EntityFlags, World } from "../../game-state/Enti
 import { GameState } from "../../game-state/GameState";
 import { Prefab } from "../../game-state/Prefab";
 import { BoundingBox } from "../../game-state/BoundingBox";
-import { CoinScript } from "../scripts";
+import { CoinScriptHandler } from "../scripts";
 import { Script } from "../../game-state/Script";
 
 export const CoinPrefab: Prefab = {
@@ -21,7 +21,7 @@ export const CoinPrefab: Prefab = {
 
         entity.colour = 'yellow' 
 
-        Script.attachScript(gameState, entity, CoinScript.id)
+        Script.attach(entity, CoinScriptHandler)
 
         return entity
     }

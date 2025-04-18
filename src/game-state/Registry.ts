@@ -1,11 +1,11 @@
 import { ActionHandlerRegistry } from './Level'
 import { ParticleHandlerRegistry } from './Particles'
 import { PrefabRegistry } from './Prefab'
-import { ScriptRegistry } from './Script'
+import { ScriptHandlerRegistry } from './Script'
 
 export const Registry = {
     ...ActionHandlerRegistry,
-    ...ScriptRegistry,
+    ...ScriptHandlerRegistry,
     ...ParticleHandlerRegistry,
     ...PrefabRegistry,
 }

@@ -3,7 +3,7 @@ import { ColliderFlags, Entity, EntityFlags, World } from "../../game-state/Enti
 import { GameState } from "../../game-state/GameState";
 import { Prefab } from "../../game-state/Prefab";
 import { Vector2 } from "../../game-state/Vector";
-import { PlayerScript } from "../scripts";
+import { PlayerScriptHandler } from "../scripts";
 import { Script } from "../../game-state/Script";
 
 const PLAYER_SCALE = 2
@@ -35,7 +35,7 @@ export const PlayerPrefab: Prefab = {
         player.collidesWith = ColliderFlags.ENEMY | ColliderFlags.POWERUP
         player.colour = 'green'
 
-        Script.attachScript(gameState, player, PlayerScript.id)
+        Script.attach(player, PlayerScriptHandler)
 
         player.hp = 3
 

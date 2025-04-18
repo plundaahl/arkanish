@@ -2,7 +2,7 @@ import { ColliderFlags, Entity, EntityFlags, World } from "../../game-state/Enti
 import { GameState } from "../../game-state/GameState";
 import { Prefab } from "../../game-state/Prefab";
 import { BoundingBox } from "../../game-state/BoundingBox";
-import { BulletScript } from "../scripts";
+import { BulletScriptHandler } from "../scripts";
 import { Script } from "../../game-state/Script";
 
 const PLAYER_BULLET_SPEED = -500
@@ -21,7 +21,7 @@ export const PlayerBulletPrefab: Prefab = {
         bullet.colliderGroup = ColliderFlags.PLAYER_BULLET
         bullet.collidesWith = ColliderFlags.ENEMY
 
-        Script.attachScript(gameState, bullet, BulletScript.id)
+        Script.attach(bullet, BulletScriptHandler)
 
         bullet.colour = 'red'
         return bullet

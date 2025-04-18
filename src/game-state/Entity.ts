@@ -1,6 +1,7 @@
 import { BoundingBox } from './BoundingBox'
 import { Id } from './Id'
 import { Flag } from './Flag'
+import { Script } from './Script'
 
 const entityFlag = Flag.makeBigintFlagFactory()
 const entityFlagBitmasksToName = new Map<bigint, string>()
@@ -90,10 +91,9 @@ export interface Entity {
     collidesWith: number,
     invulnerableUntil: number,
     colour: string,
-    script: string,
-    scriptState: number,
-    scriptTimeEnteredState: number,
     hp: number,
+    script: Script<string, Object> | undefined
+    scriptData: Object | undefined
 }
 
 const NULL_ENTITY: Omit<Entity, 'id'> = Object.freeze({
@@ -116,10 +116,9 @@ const NULL_ENTITY: Omit<Entity, 'id'> = Object.freeze({
     collidesWith: 0,
     invulnerableUntil: 0,
     colour: '',
-    script: '',
-    scriptState: 0,
-    scriptTimeEnteredState: 0,
     hp: 0,
+    script: undefined,
+    scriptData: undefined,
 })
 
 const excludedKeys = [
@@ -132,7 +131,6 @@ const excludedKeys = [
     'transR',
     'colliderBbTransform',
     'invulnerableUntil',
-    'scriptTimeEnteredState',
 ] as const
 const assertExcludedKeys: readonly (keyof Entity)[] = excludedKeys
 
@@ -152,10 +150,10 @@ const entitySpecKeys = (() => {
         colliderGroup: 0,
         collidesWith: 0,
         colour: 0,
-        script: 0,
-        scriptState: 0,
         hp: 0,
-        flags: 0
+        flags: 0,
+        script: 0,
+        scriptData: 0,
     }
     return Object.keys(keyObj) as (keyof EntitySpec)[]
 })()
@@ -186,10 +184,8 @@ export const Entity = {
                 case 'velR':
                 case 'colliderGroup':
                 case 'collidesWith':
-                case 'scriptState':
                 case 'hp': if (spec[key] !== undefined) { entity[key] = spec[key] }; break;
-                case 'colour':
-                case 'script': if (spec[key] !== undefined) { entity[key] = spec[key] }; break;
+                case 'colour': if (spec[key] !== undefined) { entity[key] = spec[key] }; break;
                 case 'colliderBbSrc': if (spec[key] !== undefined) { entity[key] = spec[key].map(BoundingBox.clone) }; break;
                 default:
                     throw new Error(`Invalid key [${key}].`)
@@ -213,10 +209,8 @@ export const Entity = {
                 case 'velR':
                 case 'colliderGroup':
                 case 'collidesWith':
-                case 'scriptState':
                 case 'hp': spec[key] = entity[key]; break;
-                case 'colour':
-                case 'script': spec[key] = entity[key]; break;
+                case 'colour': spec[key] = entity[key]; break;
                 case 'colliderBbSrc': spec[key] = entity[key]; break;
                 default:
                     throw new Error(`Invalid key [${key}].`)

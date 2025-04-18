@@ -7,13 +7,13 @@ import {
     StartSectionActionHandler,
 } from './content/actions'
 import {
-    AsteroidSpawnerScript,
-    BeamSpinnerScript,
-    BouncyBallScript,
-    BulletScript,
-    CoinScript,
-    PlayerScript,
-    PowerupScript
+    AsteroidSpawnerScriptHandler,
+    BeamSpinnerScriptHandler,
+    BouncyBallScriptHandler,
+    BulletScriptHandler,
+    CoinScriptHandler,
+    PlayerScriptHandler,
+    PowerupScriptHandler,
 } from './content/scripts'
 import {
     BlastBeamParticle,
@@ -40,14 +40,14 @@ Registry.registerActions(
     SpawnPrefabActionHandler,
     StartSectionActionHandler,
 )
-Registry.registerScripts(
-    PlayerScript,
-    PowerupScript,
-    CoinScript,
-    BulletScript,
-    AsteroidSpawnerScript,
-    BouncyBallScript,
-    BeamSpinnerScript,
+Registry.registerScriptHandlers(
+    CoinScriptHandler,
+    PowerupScriptHandler,
+    BulletScriptHandler,
+    BeamSpinnerScriptHandler,
+    BouncyBallScriptHandler,
+    PlayerScriptHandler,
+    AsteroidSpawnerScriptHandler,
 )
 Registry.registerParticleHandlers(
     BlastBeamParticle,

@@ -3,7 +3,7 @@ import { GameState } from "../../game-state/GameState";
 import { Prefab } from "../../game-state/Prefab";
 import { Vector2 } from "../../game-state/Vector";
 import { BoundingBox } from "../../game-state/BoundingBox";
-import { BouncyBallScript } from "../scripts";
+import { BouncyBallScriptHandler } from "../scripts";
 import { Script } from "../../game-state/Script";
 
 export const BouncyBallPrefab: Prefab = {
@@ -31,7 +31,7 @@ export const BouncyBallPrefab: Prefab = {
         entity.colliderGroup = ColliderFlags.ENEMY
         entity.collidesWith = ColliderFlags.PLAYER | ColliderFlags.PLAYER_BULLET
 
-        Script.attachScript(gameState, entity, BouncyBallScript.id)
+        Script.attach(entity, BouncyBallScriptHandler)
         entity.flags |= EntityFlags.BOUNCE_IN_PLAY_SPACE
         entity.hp = Math.ceil(Math.random() * 3) + 1
 

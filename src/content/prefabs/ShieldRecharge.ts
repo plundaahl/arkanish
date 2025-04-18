@@ -2,7 +2,7 @@ import { ColliderFlags, Entity, EntityFlags, World } from "../../game-state/Enti
 import { GameState } from "../../game-state/GameState";
 import { Prefab } from "../../game-state/Prefab";
 import { BoundingBox } from "../../game-state/BoundingBox";
-import { PowerupScript } from "../scripts";
+import { PowerupScriptHandler } from "../scripts";
 import { Script } from "../../game-state/Script";
 
 export const ShieldRechargePrefab: Prefab = {
@@ -21,7 +21,7 @@ export const ShieldRechargePrefab: Prefab = {
 
         entity.colour = 'blue' 
 
-        Script.attachScript(gameState, entity, PowerupScript.id)
+        Script.attach(entity, PowerupScriptHandler)
         return entity
     }
 }

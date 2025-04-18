@@ -1,4 +1,4 @@
-import { BeamSpinnerScript } from "../scripts";
+import { BeamSpinnerScriptHandler } from "../scripts";
 import { BoundingBox } from "../../game-state/BoundingBox";
 import { ColliderFlags, Entity, EntityFlags, World } from "../../game-state/Entity";
 import { GameState } from "../../game-state/GameState";
@@ -54,7 +54,7 @@ export const BeamSpinnerPrefab: Prefab = {
         hitBox.flags |= EntityFlags.HURTS_PLAYER
         hitBox.colour = '#FFFFFF00'
     
-        Script.attachScript(gameState, hitBox, BeamSpinnerScript.id)
+        Script.attach(hitBox, BeamSpinnerScriptHandler)
 
         return spinner
     }

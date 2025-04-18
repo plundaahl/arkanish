@@ -11,14 +11,11 @@ import { RenderSystem } from '../systems/RenderSystem'
 import { ParticleSystem } from '../systems/ParticleSystem'
 import { Level, LevelState } from '../game-state/Level'
 import { LevelSystem } from '../systems/LevelSystem'
-import { PlayerScript } from '../content/scripts'
+import { CONTROLLER_FIRE } from '../content/scripts'
 import { Prefab } from '../game-state/Prefab'
 import { SpawnPrefabActionHandler, StartSectionActionHandler } from '../content/actions'
 
 const STAR_TIME_SCALE = 1 / 5000
-const PLAYER_SCALE = 2
-const PLAYER_HEIGHT_HALF = PLAYER_SCALE * 15
-const PLAYER_RATE_OF_FIRE = 200
 const MS_PER_SCORE_TICK = 800
 
 type State = GameState
@@ -132,23 +129,23 @@ export class GameScene implements Scene {
     }
 
     private handlePlayerInput(time: number, uiState: UiState) {
-        let moveImpulseX: number | undefined
-        let moveImpulseY: number | undefined
-        let fire: boolean = false
+        let moveImpulseX: number = 0
+        let moveImpulseY: number = 0
+        let controllerFlags: number = 0
+
+        const player = World.getEntity(this.state, this.state.playerId)
+        if (!player) {
+            return
+        }
 
         // Mouse
         if (uiState.cursorActive) {
-            const player = World.getEntity(this.state, this.state.playerId)
-            if (!player || player.scriptState === PlayerScript.DYING) {
-                return
-            }
-
             moveImpulseX = UiState.canvasXToGameX(this.state, uiState, uiState.cursorX)
             moveImpulseY = UiState.canvasYToGameY(this.state, uiState, uiState.cursorY)
-            fire = uiState.cursorState === CURSOR_DOWN
+            if (uiState.cursorState === CURSOR_DOWN) {
+                controllerFlags |= CONTROLLER_FIRE
+            }
         }
-
-        const player = World.getEntity(this.state, this.state.playerId)
 
         // Touch
         let shipTouch = uiState.touches.find(touch => touch.element === 1)
@@ -160,40 +157,16 @@ export class GameScene implements Scene {
                 shipTouch = touch
             }
         }
-
         if (shipTouch) {
             moveImpulseX = UiState.canvasXToGameX(this.state, uiState, shipTouch.x) + shipTouch.offsetX
             moveImpulseY = UiState.canvasYToGameY(this.state, uiState, shipTouch.y) + shipTouch.offsetY
-            fire = shipTouch.state === CURSOR_DOWN
+            if (shipTouch.state === CURSOR_DOWN) {
+                controllerFlags |= CONTROLLER_FIRE
+            }
         }
 
-        // Apply Input
-        if (player && player.scriptState !== PlayerScript.DYING) {
-            const PLAYER_MAX_VEL = 800
-            const MAX_MAGNITUDE = 10
-
-            if (moveImpulseX && moveImpulseY) {           
-                const offsetX = moveImpulseX - player.posX
-                const offsetY = moveImpulseY - player.posY
-                const offsetMagnitude = Math.sqrt((offsetX * offsetX) + (offsetY * offsetY))
-                const proportionX = offsetMagnitude !== 0 ? offsetX / offsetMagnitude : 0
-                const proportionY = offsetMagnitude !== 0 ? offsetY / offsetMagnitude : 0
-                const scaling = Math.min(offsetMagnitude / MAX_MAGNITUDE, 1)
-                const deltaPosThisTick = PLAYER_MAX_VEL * this.state.frameLength / 1000
-
-                player.velX = proportionX * scaling * PLAYER_MAX_VEL
-                player.velY = proportionY * scaling * PLAYER_MAX_VEL
-            } else {
-                player.velX = 0
-                player.velY = 0
-            }
-
-            if (fire && time > this.state.playerNextShotTime) {
-                this.state.playerNextShotTime = time + PLAYER_RATE_OF_FIRE
-                const bullet = Prefab.spawn(this.state, 'PlayerBullet')
-                bullet.posX = player.posX
-                bullet.posY = player.posY - PLAYER_HEIGHT_HALF
-            }
+        if (player.script?.onInput) {
+            player.script?.onInput(this.state, player as any, moveImpulseX, moveImpulseY, controllerFlags)
         }
     }
 
