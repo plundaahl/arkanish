@@ -1,15 +1,17 @@
 import { Action, ActionHandler } from '../../game-state/Level'
 import { GameState } from '../../game-state/GameState'
 import { Prefab } from '../../game-state/Prefab'
+import { Entity, EntitySpec } from '../../game-state/Entity'
 
 interface SpawnPrefabAction extends Action<'SpawnPrefab'> {
     prefabId: string,
+    overrides?: EntitySpec
     x?: number
     y?: number,
 }
 
 interface SpawnPrefabActionHandler extends ActionHandler<'SpawnPrefab', SpawnPrefabAction, GameState> {
-    create: (prefabId: string, x?: number | undefined, y?: number | undefined) => SpawnPrefabAction
+    create: (prefabId: string, overrides?: EntitySpec) => SpawnPrefabAction
 }
 
 export const SpawnPrefabActionHandler: SpawnPrefabActionHandler = {
@@ -22,14 +24,11 @@ export const SpawnPrefabActionHandler: SpawnPrefabActionHandler = {
     },
     execute: (state: GameState, action: SpawnPrefabAction): void => {
         const entity = Prefab.spawn(state, action.prefabId)
-        if (action.x !== undefined) {
-            entity.posX = action.x
-        }
-        if (action.y !== undefined) {
-            entity.posY = action.y
+        if (action.overrides) {
+            Entity.populateFromSpec(entity, action.overrides)
         }
     },
-    create: (prefabId: string, x?: number | undefined, y?: number | undefined): SpawnPrefabAction => {
-        return { type: 'SpawnPrefab', prefabId, x, y }
+    create: (prefabId: string, overrides?: EntitySpec): SpawnPrefabAction => {
+        return { type: 'SpawnPrefab', prefabId, overrides }
     }
 }

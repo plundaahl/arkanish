@@ -3,6 +3,7 @@ import { Id } from './Id'
 import { Flag } from './Flag'
 
 const entityFlag = Flag.makeBigintFlagFactory()
+const entityFlagBitmasksToName = new Map<bigint, string>()
 export const EntityFlags = Object.freeze({
     COLLIDER: entityFlag(),
     SCRIPT: entityFlag(),
@@ -29,7 +30,29 @@ export const EntityFlags = Object.freeze({
         }
         return bitfield
     },
+    serialize: (flags: bigint) => {
+        const flagNames: (Exclude<keyof typeof EntityFlags, 'parse' | 'serialize'>)[] = []
+        let mask = 1n
+        while (flags > 0n) {
+            const flagName = entityFlagBitmasksToName.get(flags & mask)
+            if (flagName && EntityFlags[flagName as keyof typeof EntityFlags] !== undefined) {
+                flagNames.push(flagName as Exclude<keyof typeof EntityFlags, 'parse' | 'serialize'>)
+            }
+
+            flags &= ~mask
+            mask = mask << 1n
+        }
+        return flagNames.length === 0 ? undefined : flagNames
+    },
 })
+{
+    const allEntityFlags = Object.entries(EntityFlags)
+        .filter(([_, value]) => typeof value === 'bigint') as [string, bigint][]
+
+    for (const [name, bitMask] of allEntityFlags) {
+        entityFlagBitmasksToName.set(bitMask, name)
+    }
+}
 
 export const EntityStates = Object.freeze({
     FREE: 0,
@@ -73,9 +96,7 @@ export interface Entity {
     hp: number,
 }
 
-export type EntitySpec = Omit<Entity, 'id'>
-
-export const NULL_ENTITY_SPEC: EntitySpec = Object.freeze({
+const NULL_ENTITY: Omit<Entity, 'id'> = Object.freeze({
     state: EntityStates.FREE,
     flags: 0n,
     parent: 0,
@@ -101,61 +122,110 @@ export const NULL_ENTITY_SPEC: EntitySpec = Object.freeze({
     hp: 0,
 })
 
+const excludedKeys = [
+    'id',
+    'parent',
+    'state',
+    'flags',
+    'transX',
+    'transY',
+    'transR',
+    'colliderBbTransform',
+    'invulnerableUntil',
+    'scriptTimeEnteredState',
+] as const
+const assertExcludedKeys: readonly (keyof Entity)[] = excludedKeys
+
+export type EntitySpec = Partial<Omit<Entity, typeof excludedKeys[number]> & {
+    flags: Exclude<keyof typeof EntityFlags, 'parse'>[],
+}>
+const entitySpecKeys = (() => {
+    const keyObj: { [key in keyof Required<EntitySpec>]: 0 } = {
+        posX: 0,
+        posY: 0,
+        posZ: 0,
+        posR: 0,
+        velX: 0,
+        velY: 0,
+        velR: 0,
+        colliderBbSrc: 0,
+        colliderGroup: 0,
+        collidesWith: 0,
+        colour: 0,
+        script: 0,
+        scriptState: 0,
+        hp: 0,
+        flags: 0
+    }
+    return Object.keys(keyObj) as (keyof EntitySpec)[]
+})()
+
 export const Entity = {
-    create: (idx: number, spec?: EntitySpec): Entity => {
-        const entity = Object.assign({ id: Id.init(idx) }, NULL_ENTITY_SPEC)
-        if (spec) {
-            Object.assign(entity, spec)
-        }
+    create: (idx: number): Entity => {
+        const entity = Object.assign({ id: Id.init(idx) }, NULL_ENTITY)
         return entity
     },
-    populate: (entity: Entity, spec: EntitySpec) => Object.assign(entity, spec), 
     release: (entity: Entity) => {
-        Object.assign(entity, NULL_ENTITY_SPEC)
+        Object.assign(entity, NULL_ENTITY)
         entity.id = Id.incrementGen(entity.id)
     },
     killEntity: (entity: Entity) => {
         entity.state = EntityStates.DYING
     },
-}
-
-export type EntityTemplate = Partial<Omit<Entity,
-    'id'
-    | 'state'
-    | 'flags'
-    | 'colliderBbTransfrom'
-    | 'invulnerableUntil'
-    | 'scriptState'
-    | 'scriptTimeEnteredState'
-> & { flags: string[] }>
-
-export const EntityTemplate = {
-    is: (obj: unknown): obj is EntityTemplate => {
-        if (typeof obj !== 'object' || obj === null) {
-            return false
+    populateFromSpec: (entity: Entity, spec: EntitySpec) => {
+        const specKeys = Object.keys(spec) as (keyof Required<EntitySpec>)[]
+        for (const key of specKeys) {
+            switch (key) {
+                case 'flags': entity.flags = EntityFlags.parse(spec.flags); break;
+                case 'posX':
+                case 'posY':
+                case 'posZ':
+                case 'posR':
+                case 'velX':
+                case 'velY':
+                case 'velR':
+                case 'colliderGroup':
+                case 'collidesWith':
+                case 'scriptState':
+                case 'hp': if (spec[key] !== undefined) { entity[key] = spec[key] }; break;
+                case 'colour':
+                case 'script': if (spec[key] !== undefined) { entity[key] = spec[key] }; break;
+                case 'colliderBbSrc': if (spec[key] !== undefined) { entity[key] = spec[key].map(BoundingBox.clone) }; break;
+                default:
+                    throw new Error(`Invalid key [${key}].`)
+            }
         }
-        const objAny = obj as any
-        return (
-            (Array.isArray(objAny['flags']) || objAny['flags'] === undefined)
-            && (typeof objAny['posX'] === 'number' || objAny['posX'] === undefined)
-            && (typeof objAny['posY'] === 'number' || objAny['posY'] === undefined)
-            && (typeof objAny['posZ'] === 'number' || objAny['posZ'] === undefined)
-            && (typeof objAny['velX'] === 'number' || objAny['velX'] === undefined)
-            && (typeof objAny['velY'] === 'number' || objAny['velY'] === undefined)
-            && (Array.isArray(objAny['colliderBbSrc']) || objAny['colliderBbSrc'] === undefined)
-            && (typeof objAny['colliderGroup'] === 'number' || objAny['colliderGroup'] === undefined)
-            && (typeof objAny['collidesWith'] === 'number' || objAny['collidesWith'] === undefined)
-            && (typeof objAny['colour'] === 'string' || objAny['colour'] === undefined)
-            && (typeof objAny['script'] === 'string' || objAny['script'] === undefined)
-            && (typeof objAny['hp'] === 'number' || objAny['hp'] === undefined)
-        )
     },
-    toEntitySpec: (template: EntityTemplate): EntitySpec => {
-        const spec = Object.assign({}, NULL_ENTITY_SPEC)
-        const { flags, ...rest } = template
-        Object.assign(spec, rest)
-        spec.flags = EntityFlags.parse(flags)
+    serialize: (entity: Entity): EntitySpec => {
+        const spec: EntitySpec = {}
+        for (const key of entitySpecKeys) {
+            if (entity[key] === NULL_ENTITY[key]) {
+                continue
+            }
+            switch (key) {
+                case 'flags': spec.flags = EntityFlags.serialize(entity.flags); break
+                case 'posX':
+                case 'posY':
+                case 'posZ':
+                case 'posR':
+                case 'velX':
+                case 'velY':
+                case 'velR':
+                case 'colliderGroup':
+                case 'collidesWith':
+                case 'scriptState':
+                case 'hp': spec[key] = entity[key]; break;
+                case 'colour':
+                case 'script': spec[key] = entity[key]; break;
+                case 'colliderBbSrc': spec[key] = entity[key]; break;
+                default:
+                    throw new Error(`Invalid key [${key}].`)
+            }
+        }
         return spec
+    },
+    deserialize: (obj: unknown): Entity | undefined => {
+        throw new Error('Not yet implemented')
     },
 }
 
@@ -199,7 +269,7 @@ export const World = {
         }
         return undefined
     },
-    spawnEntity: (world: World, spec?: EntitySpec): Entity => {
+    spawnEntity: (world: World): Entity => {
         let idx = world.freeList.pop()
         let entity: Entity
         if (idx === undefined) {
@@ -208,9 +278,6 @@ export const World = {
             world.entities[idx] = entity
         } else {
             entity = world.entities[idx]
-        }
-        if (spec) {
-            Entity.populate(entity, spec)
         }
         entity.state = EntityStates.SPAWNING
         return entity

@@ -36,7 +36,7 @@ const level: Level = {
         main1: {
             contents: [
                 { when: { type: 'init' }, then: [
-                    SpawnPrefabActionHandler.create('AsteroidSpawner', 0, -450)
+                    SpawnPrefabActionHandler.create('AsteroidSpawner', { posY: -450 })
                 ]},
                 { when: { type: 'time', at: 20000 }, then: [
                     StartSectionActionHandler.create('main2')
@@ -46,7 +46,7 @@ const level: Level = {
         main2: {
             contents: [
                 { when: { type: 'init' }, then: [
-                    SpawnPrefabActionHandler.create('AsteroidSpawner', 0, -450)
+                    SpawnPrefabActionHandler.create('AsteroidSpawner', { posY: -450 })
                 ]},
                 { when: { type: 'time', at: 20000 }, then: [
                     StartSectionActionHandler.create('main3')
@@ -56,7 +56,7 @@ const level: Level = {
         main3: {
             contents: [
                 { when: { type: 'init' }, then: [
-                    SpawnPrefabActionHandler.create('AsteroidSpawner', 0, -450)
+                    SpawnPrefabActionHandler.create('AsteroidSpawner', { posY: -450 })
                 ]},
                 { when: { type: 'time', at: 20000 }, then: [
                     StartSectionActionHandler.create('intermission')
