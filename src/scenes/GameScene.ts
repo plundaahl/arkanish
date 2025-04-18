@@ -10,10 +10,10 @@ import { RenderCommandBuffer } from '../RenderCommand'
 import { RenderSystem } from '../systems/RenderSystem'
 import { ParticleSystem } from '../systems/ParticleSystem'
 import { Level, LevelState } from '../game-state/Level'
-import { SpawnPrefabActionHandler } from '../content/actions/SpawnAction'
 import { LevelSystem } from '../systems/LevelSystem'
 import { PlayerScript } from '../content/scripts'
 import { Prefab } from '../game-state/Prefab'
+import { SpawnPrefabActionHandler, StartSectionActionHandler } from '../content/actions'
 
 const STAR_TIME_SCALE = 1 / 5000
 const PLAYER_SCALE = 2
@@ -24,15 +24,45 @@ const MS_PER_SCORE_TICK = 800
 type State = GameState
 
 const level: Level = {
-    initSection: 'main',
+    initSection: 'intermission',
     sections: {
-        main: {
+        intermission: {
             contents: [
                 { when: { type: 'time', at: 2500 }, then: [
-                    SpawnPrefabActionHandler.create('AsteroidSpawner', 0, -450)
+                    StartSectionActionHandler.create('main1')
                 ]},
             ]
-        }
+        },
+        main1: {
+            contents: [
+                { when: { type: 'init' }, then: [
+                    SpawnPrefabActionHandler.create('AsteroidSpawner', 0, -450)
+                ]},
+                { when: { type: 'time', at: 20000 }, then: [
+                    StartSectionActionHandler.create('main2')
+                ]}
+            ],
+        },
+        main2: {
+            contents: [
+                { when: { type: 'init' }, then: [
+                    SpawnPrefabActionHandler.create('AsteroidSpawner', 0, -450)
+                ]},
+                { when: { type: 'time', at: 20000 }, then: [
+                    StartSectionActionHandler.create('main3')
+                ]}
+            ],
+        },
+        main3: {
+            contents: [
+                { when: { type: 'init' }, then: [
+                    SpawnPrefabActionHandler.create('AsteroidSpawner', 0, -450)
+                ]},
+                { when: { type: 'time', at: 20000 }, then: [
+                    StartSectionActionHandler.create('intermission')
+                ]}
+            ],
+        },
     }
 }
 

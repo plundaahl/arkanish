@@ -14,6 +14,7 @@ export const EntityFlags = Object.freeze({
     HURT_BY_PLAYER_BULLETS: entityFlag(),
     HURTS_PLAYER: entityFlag(),
     ROLE_PICKUP: entityFlag(),
+    DESTROY_AFTER_SECTION: entityFlag(),
     parse: (flags: string[] | undefined): bigint => {
         if (!flags) {
             return 0n

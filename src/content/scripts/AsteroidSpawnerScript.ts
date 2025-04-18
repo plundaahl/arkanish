@@ -2,48 +2,58 @@ import { Entity } from "../../game-state/Entity";
 import { GameState } from "../../game-state/GameState";
 import { Script } from "../../game-state/Script";
 import { Prefab } from "../../game-state/Prefab";
-
-const TIME_BETWEEN_SPAWNS = 180
+import { ExtraMath } from "../../Math";
 
 const NOTHING = 'N/A'
 
-const CHANCES: [number, string][] = [
-    [30, NOTHING],
-    [3, 'Coin'],
-    [1, 'ShieldRecharge'],
-    [5, 'BeamSpinner'],
-    [2, 'BouncyBall'],
-    [40, 'Asteroid'],
-    [5, 'Plank'],
+const SPAWN_LISTS: [string, number][][] = [
+    [
+        [NOTHING, 30],
+        ['Coin', 3],
+        ['ShieldRecharge', 1],
+        ['BeamSpinner', 5],
+        ['BouncyBall', 2],
+        ['Asteroid', 40],
+        ['Plank', 5],
+    ],
+    [
+        [NOTHING, 30],
+        ['BeamSpinner', 10],
+    ],
+    [
+        [NOTHING, 20],
+        ['BeamSpinner', 5],
+        ['Asteroid', 40],
+        ['Plank', 8],
+    ],
 ]
-const TOTAL = CHANCES.map(([chance]) => chance).reduce((prev, total) => prev + total, 0)
+
+const IDLE_TIME = 180
 
 export const AsteroidSpawnerScript = {
     id: 'AsteroidSpawner',
-    IDLE: 0,
-    SPAWNING: 1,
+    INIT: 0,
+    IDLE: 1,
+    SPAWNING: 2,
     update: (gameState: GameState, entity: Entity): void => {
-        if (entity.scriptState === AsteroidSpawnerScript.IDLE) {
-            if (gameState.time > entity.scriptTimeEnteredState + TIME_BETWEEN_SPAWNS) {
-                Script.transitionTo(gameState, entity, AsteroidSpawnerScript.SPAWNING)
-            }
-        } else if (entity.scriptState === AsteroidSpawnerScript.SPAWNING) {
-            const x = Math.ceil(Math.random() * gameState.playArea.width) + gameState.playArea.left + entity.posX
-            const y = entity.posY
-            const roll = Math.floor(Math.random() * TOTAL)
+        const sectionTime = gameState.time - entity.scriptTimeEnteredState
 
-            let soFar = 0
-            for (let i = 0; i < CHANCES.length; i++) {
-                const [weight, prefabName] = CHANCES[i]
-                soFar += weight
-                if (roll <= soFar) {
-                    if (prefabName !== NOTHING) {
-                        const entity = Prefab.spawn(gameState, prefabName)
-                        entity.posX = clampToPlaySpace(gameState, x, 40)
-                        entity.posY += y
-                    }
-                    break
-                }
+        if (entity.scriptState === AsteroidSpawnerScript.INIT) {
+            entity.hp = Math.round(ExtraMath.rollBetween(0, SPAWN_LISTS.length - 1))
+            Script.transitionTo(gameState, entity, AsteroidSpawnerScript.SPAWNING)
+
+        } else if (entity.scriptState === AsteroidSpawnerScript.IDLE && sectionTime > IDLE_TIME) { 
+            Script.transitionTo(gameState, entity, AsteroidSpawnerScript.SPAWNING)
+
+        } else if (entity.scriptState === AsteroidSpawnerScript.SPAWNING) {
+            const spawnList = SPAWN_LISTS[entity.hp]
+
+            const prefabName = ExtraMath.rollOneOf(...spawnList)
+            if (prefabName !== NOTHING) {
+                const spawnedEntity = Prefab.spawn(gameState, prefabName)
+                const x = Math.ceil(Math.random() * gameState.playArea.width) + gameState.playArea.left + entity.posX
+                spawnedEntity.posX = clampToPlaySpace(gameState, x, 40)
+                spawnedEntity.posY += entity.posY
             }
             Script.transitionTo(gameState, entity, AsteroidSpawnerScript.IDLE)
         }

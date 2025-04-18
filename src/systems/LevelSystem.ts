@@ -1,11 +1,32 @@
+import { Entity, EntityFlags, EntityStates } from '../game-state/Entity'
 import { GameState } from '../game-state/GameState'
 import { Action, InitCondition, LevelState, Statement } from '../game-state/Level'
+import { Flag } from '../game-state/Flag'
 
 export const LevelSystem = {
     run: (state: GameState) => {
-        // Load pending level
+        // Load pending level or section
+        let changedSections = false
+
         if (state.levelPending) {
+            changedSections = true
             LevelState.startNextLevel(state)
+        } else if (state.levelPendingSection) {
+            changedSections = true
+            LevelState.startSection(state, state.levelPendingSection)
+        }
+
+        if (changedSections) {
+            for (const entity of state.entities) {
+                if ((entity.state === EntityStates.ALIVE
+                    || entity.state === EntityStates.SPAWNING)
+                    && Flag.hasBigintFlags(entity.flags, EntityFlags.DESTROY_AFTER_SECTION)
+                ) {
+                    console.log('killed entity')
+                    Entity.killEntity(entity)
+                }
+            }
+
             const section = LevelState.currentSection(state)
             if (section) {
                 for (const statement of section.contents) {

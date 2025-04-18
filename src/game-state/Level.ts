@@ -108,6 +108,7 @@ export const Level = {
 export type LevelState = {
     level: Level | undefined
     levelPending: Level | undefined
+    levelPendingSection: string | undefined
     levelCurrentSection: string
     levelSectionTimeStart: number 
     levelSectionTimeStatements: Statement<TimeCondition>[]
@@ -117,6 +118,7 @@ export const LevelState = {
     create: (): LevelState => ({
         level: undefined,
         levelPending: undefined,
+        levelPendingSection: undefined,
         levelCurrentSection: '',
         levelSectionTimeStart: 0,
         levelSectionTimeStatements: [],
@@ -137,6 +139,7 @@ export const LevelState = {
         if (!state.level || !section) {
             return
         }
+        state.levelPendingSection = undefined
         state.levelCurrentSection = section
         state.levelSectionTimeStart = state.time
         state.levelSectionTimeNextIdx = 0

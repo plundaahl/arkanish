@@ -2,7 +2,10 @@ import { CURSOR_CLICK, CURSOR_DOWN, CURSOR_IDLE, Scene, UiState } from './scenes
 import { MenuScene } from './scenes/MenuScene'
 import { GameScene } from './scenes/GameScene'
 import { Registry } from './game-state/Registry'
-import { SpawnPrefabActionHandler } from './content/actions/SpawnAction'
+import {
+    SpawnPrefabActionHandler,
+    StartSectionActionHandler,
+} from './content/actions'
 import {
     AsteroidSpawnerScript,
     BeamSpinnerScript,
@@ -35,6 +38,7 @@ import {
 
 Registry.registerActions(
     SpawnPrefabActionHandler,
+    StartSectionActionHandler,
 )
 Registry.registerScripts(
     PlayerScript,
