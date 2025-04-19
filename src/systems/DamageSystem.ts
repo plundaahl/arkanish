@@ -21,9 +21,15 @@ export const DamageSystem = {
                 && entity.hurtBy & hitBy.flags
             ) {
                 entity.hp = Math.max(entity.hp - 1, 0)
-                GameEventBuffer.addDamageEvent(gameState, entity.id)
-                if (entity.hp <= 0 && Flag.hasBigintFlags(entity.flags, EntityFlags.DESTROY_AT_0_HP)) {
+                const killingHit = entity.hp <= 0 && Flag.hasBigintFlags(entity.flags, EntityFlags.DESTROY_AT_0_HP)
+
+                GameEventBuffer.addDamageEvent(gameState, entity.id, killingHit)
+                if (killingHit) {
                     Entity.killEntity(entity)
+                    if (entity.scoreValue > 0 && hitBy.flags & EntityFlags.ROLE_PLAYER_BULLET) {
+                        gameState.score += entity.scoreValue
+                        entity.scoreValue = 0
+                    }
                 }
             }
         }

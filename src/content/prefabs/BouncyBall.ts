@@ -42,6 +42,7 @@ export const BouncyBallPrefab: Prefab = {
         entity.flags |= EntityFlags.ROLE_OBSTACLE
         entity.flags |= EntityFlags.DESTROY_AT_0_HP
         entity.hurtBy |= EntityFlags.ROLE_PLAYER_BULLET
+        entity.scoreValue = 20
 
         return entity
     }

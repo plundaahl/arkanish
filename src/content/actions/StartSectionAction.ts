@@ -1,7 +1,5 @@
-import { Action, ActionHandler, LevelState } from '../../game-state/Level'
+import { Action, ActionHandler } from '../../game-state/Level'
 import { GameState } from '../../game-state/GameState'
-import { Flag } from '../../game-state/Flag'
-import { Entity, EntityFlags, EntityStates } from '../../game-state/Entity'
 
 interface StartSectionAction extends Action<'StartSection'> {
     section: string,
@@ -22,6 +20,7 @@ export const StartSectionActionHandler: StartSectionActionHandler = {
             && typeof (obj as any).section === 'string'
     },
     execute: (state: GameState, action: StartSectionAction): void => {
+        console.log(`Starting section [${action.section}].`)
         state.levelPendingSection = action.section
     },
 }

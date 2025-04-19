@@ -6,8 +6,8 @@ import { createStateMachineHandler, StateMachineScript, transitionScript } from 
 
 const PREPARE_TIME = 800
 const TELEGRAPH_TIME = 2000
-const BLAST_TIME = 300
-const BLAST_PARTICLE_TIME = BLAST_TIME * 2
+const BLAST_TIME = 150
+const BLAST_PARTICLE_TIME = BLAST_TIME * 4
 const LINGER_TIME = BLAST_PARTICLE_TIME - BLAST_TIME
 
 const stateIdle: StateMachineScript<'BeamSpinner'> = {

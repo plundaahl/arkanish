@@ -21,6 +21,7 @@ export const GunshipPrefab: Prefab = {
         entity.collidesWith |= EntityFlags.ROLE_PLAYER_BULLET | EntityFlags.ROLE_PLAYER
         entity.hurtBy |= EntityFlags.ROLE_PLAYER_BULLET
         entity.hp = 10
+        entity.scoreValue = 100
 
         entity.colour = 'red'
 

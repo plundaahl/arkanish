@@ -36,6 +36,7 @@ export const PlankPrefab: Prefab = {
             section.flags |= EntityFlags.ROLE_OBSTACLE
             section.flags |= EntityFlags.DESTROY_AT_0_HP
             section.hurtBy |= EntityFlags.ROLE_PLAYER_BULLET
+            section.scoreValue = 5
         }
 
         return center

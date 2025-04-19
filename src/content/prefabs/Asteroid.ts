@@ -29,6 +29,8 @@ export const AsteroidPrefab: Prefab = {
         entity.flags |= EntityFlags.DESTROY_AT_0_HP
         entity.hurtBy |= EntityFlags.ROLE_PLAYER_BULLET
 
+        entity.scoreValue = 10
+
         return entity
     }
 }

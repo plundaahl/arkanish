@@ -12,7 +12,7 @@ export const EnemyBulletPrefab: Prefab = {
         entity.collidesWith |= EntityFlags.ROLE_PLAYER
         entity.hurtBy |= EntityFlags.ROLE_PLAYER
 
-        entity.colour = 'red'
+        entity.colour = '#F0E'
 
         entity.flags |= EntityFlags.COLLIDER
         entity.colliderBbSrc = [

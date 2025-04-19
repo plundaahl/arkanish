@@ -21,6 +21,7 @@ export type BounceGameEvent = {
 export type DamageGameEvent = {
     type: typeof GameEventType.DAMAGE,
     entity: number,
+    dead: boolean,
 }
 
 export type GameEvent = NullGameEvent
@@ -78,10 +79,11 @@ export const GameEventBuffer = {
         event.entity = entity
         return event
     },
-    addDamageEvent: (buffer: GameEventBuffer, entity: number) => {
-        const event = provisionEvent(buffer) as CollisionGameEvent
+    addDamageEvent: (buffer: GameEventBuffer, entity: number, dead: boolean = false) => {
+        const event = provisionEvent(buffer) as DamageGameEvent
         event.type = GameEventType.DAMAGE
         event.entity = entity
+        event.dead = dead
         return event
     },
 }

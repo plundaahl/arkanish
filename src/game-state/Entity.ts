@@ -100,6 +100,7 @@ export interface Entity {
     invulnerableUntil: number,
     colour: string,
     hp: number,
+    scoreValue: number,
     script: Script<string, Object> | undefined
     scriptData: Object | undefined
 }
@@ -123,6 +124,7 @@ const NULL_ENTITY: Omit<Entity, 'id' | 'colliderBbSrc' | 'colliderBbTransform'> 
     invulnerableUntil: 0,
     colour: '',
     hp: 0,
+    scoreValue: 0,
     script: undefined,
     scriptData: undefined,
 })
@@ -158,6 +160,7 @@ const entitySpecKeys = (() => {
         colliderBbSrc: 0,
         colour: 0,
         hp: 0,
+        scoreValue: 0,
         flags: 0,
         hurtBy: 0,
         collidesWith: 0,

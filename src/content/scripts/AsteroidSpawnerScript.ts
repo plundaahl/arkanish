@@ -15,11 +15,10 @@ const SPAWN_LISTS: [string, number][][] = [
         ['BeamSpinner', 5],
         ['BouncyBall', 2],
         ['Asteroid', 40],
-        ['Plank', 5],
     ],
     [
         [NOTHING, 20],
-        ['BeamSpinner', 5],
+        ['BouncyBall', 5],
         ['Asteroid', 40],
         ['Plank', 8],
         ['Coin', 3],
@@ -27,7 +26,7 @@ const SPAWN_LISTS: [string, number][][] = [
     [
         [NOTHING, 40],
         ['Gunship', 2],
-        ['BeamSpinner', 5],
+        ['BeamSpinner', 6],
         ['Coin', 2],
     ],
 ]

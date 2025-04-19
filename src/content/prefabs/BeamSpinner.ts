@@ -36,6 +36,7 @@ export const BeamSpinnerPrefab: Prefab = {
         spinner.flags |= EntityFlags.ROLE_OBSTACLE
         spinner.flags |= EntityFlags.DESTROY_AT_0_HP
         spinner.hp = 1
+        spinner.scoreValue = 15
 
         spinner.colour = 'red'
     
