@@ -1,4 +1,4 @@
-import { CURSOR_DOWN, Scene, UiState } from './Scene'
+import { Scene, UiState } from './Scene'
 import { World } from '../game-state/Entity'
 import { CollisionSystem } from '../systems/CollisionSystem'
 import { ScriptSystem } from '../systems/ScriptSystem'
@@ -11,9 +11,9 @@ import { RenderSystem } from '../systems/RenderSystem'
 import { ParticleSystem } from '../systems/ParticleSystem'
 import { Level, LevelState } from '../game-state/Level'
 import { LevelSystem } from '../systems/LevelSystem'
-import { CONTROLLER_FIRE } from '../content/scripts'
 import { Prefab } from '../game-state/Prefab'
 import { SpawnPrefabActionHandler, StartSectionActionHandler } from '../content/actions'
+import { InputSystem } from '../systems/InputSystem'
 
 const STAR_TIME_SCALE = 1 / 5000
 const MS_PER_SCORE_TICK = 800
@@ -86,20 +86,19 @@ export class GameScene implements Scene {
 
         this.calculatePlayAreaProjection(uiState)
         this.incrementScoreForTime(time)
+
         LevelSystem.run(this.state)
         SpawnSystem.runSpawn(this.state)
-        
-        this.handlePlayerInput(time, uiState)
+        InputSystem.run(this.state, uiState)
         MovementSystem.run(this.state)
         CollisionSystem.run(this.state)
-        
         EventSystem.run(this.state)
         ScriptSystem.run(this.state)
-
         SpawnSystem.runDespawn(this.state)
 
         this.renderBackground(time, canvas, uiState)
         this.renderUi(this.uiRenderCommandBuffer)
+
         ParticleSystem.render(this.state, this.gameRenderCommandBuffer)
         RenderSystem.render(this.state, uiState, this.gameRenderCommandBuffer, this.uiRenderCommandBuffer, canvas)
 
@@ -126,48 +125,6 @@ export class GameScene implements Scene {
         ui.playArea.top = Math.max(ui.height - projectionHeight, 0) * 0.5
         ui.playArea.width = projectionWidth
         ui.playArea.height = projectionHeight
-    }
-
-    private handlePlayerInput(time: number, uiState: UiState) {
-        let moveImpulseX: number = 0
-        let moveImpulseY: number = 0
-        let controllerFlags: number = 0
-
-        const player = World.getEntity(this.state, this.state.playerId)
-        if (!player) {
-            return
-        }
-
-        // Mouse
-        if (uiState.cursorActive) {
-            moveImpulseX = UiState.canvasXToGameX(this.state, uiState, uiState.cursorX)
-            moveImpulseY = UiState.canvasYToGameY(this.state, uiState, uiState.cursorY)
-            if (uiState.cursorState === CURSOR_DOWN) {
-                controllerFlags |= CONTROLLER_FIRE
-            }
-        }
-
-        // Touch
-        let shipTouch = uiState.touches.find(touch => touch.element === 1)
-        for (const touch of uiState.touches) {
-            if (!shipTouch && touch.element === 0) {
-                touch.element = 1
-                touch.offsetX = (player?.posX || 0) - UiState.canvasXToGameX(this.state, uiState, touch.x)
-                touch.offsetY = (player?.posY || 0) - UiState.canvasYToGameY(this.state, uiState, touch.y)
-                shipTouch = touch
-            }
-        }
-        if (shipTouch) {
-            moveImpulseX = UiState.canvasXToGameX(this.state, uiState, shipTouch.x) + shipTouch.offsetX
-            moveImpulseY = UiState.canvasYToGameY(this.state, uiState, shipTouch.y) + shipTouch.offsetY
-            if (shipTouch.state === CURSOR_DOWN) {
-                controllerFlags |= CONTROLLER_FIRE
-            }
-        }
-
-        if (player.script?.onInput) {
-            player.script?.onInput(this.state, player as any, moveImpulseX, moveImpulseY, controllerFlags)
-        }
     }
 
     private incrementScoreForTime(time: number) {

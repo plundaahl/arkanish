@@ -2,6 +2,8 @@ import { GameEvent } from "./GameEvent";
 import { Entity, EntityFlags } from "./Entity";
 import { GameState } from "./GameState";
 
+export const CONTROLLER_FIRE = 1
+
 export interface Script<T extends string, D extends Object> {
     type: T
     onUpdate?(gameState: GameState, entity: Entity & { scriptData: D }): void

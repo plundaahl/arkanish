@@ -6,6 +6,7 @@ import { ExplosionWhiteParticle } from "../../content/particles/ExplosionWhitePa
 import { JetParticle } from "../particles/JetParticle";
 import { createStateMachineHandler, StateMachineData, StateMachineScript, transitionScript } from "./StateMachineScript";
 import { Prefab } from "../../game-state/Prefab";
+import { CONTROLLER_FIRE } from "../../game-state/Script";
 
 const TIME_INVULNERABLE_AFTER_HIT = 1000
 const TIME_DYING = 1500
@@ -17,8 +18,6 @@ const PLAYER_SCALE = 2
 const PLAYER_HEIGHT_HALF = PLAYER_SCALE * 15
 const PLAYER_MAX_VEL = 800
 const MAX_MAGNITUDE = 10
-
-export const CONTROLLER_FIRE = 1
 
 interface PlayerScriptData extends StateMachineData {
     nextParticleSpawnTime: number,
