@@ -30,7 +30,6 @@ export const PlayerPrefab: Prefab = {
                 Vector2.createFromCoordinates(PLAYER_WIDTH_HALF, PLAYER_HEIGHT_HALF - PLAYER_OFFSET),
             ),
         ]
-        player.colliderBbTransform = player.colliderBbSrc.map(BoundingBox.clone)
         player.collidesWith = EntityFlags.ROLE_OBSTACLE
         player.hurtBy = EntityFlags.ROLE_OBSTACLE
         player.colour = 'green'

@@ -19,7 +19,6 @@ export const ShieldRechargePrefab: Prefab = {
         entity.hurtBy = EntityFlags.ROLE_PLAYER
         entity.collidesWith = EntityFlags.ROLE_PLAYER
         entity.colliderBbSrc = [BoundingBox.createAabb(-20, -20, 40, 40)]
-        entity.colliderBbTransform = [BoundingBox.clone(entity.colliderBbSrc[0])]
 
         entity.colour = 'blue' 
 

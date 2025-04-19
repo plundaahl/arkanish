@@ -19,7 +19,6 @@ export const PlayerBulletPrefab: Prefab = {
         bullet.flags |= EntityFlags.DESTROY_AT_0_HP
         bullet.hp = 1
         bullet.colliderBbSrc = [BoundingBox.createAabb(-5, -5, 10, 10)]
-        bullet.colliderBbTransform = [BoundingBox.createAabb(-5, -5, 10, 10)]
         bullet.collidesWith = EntityFlags.ROLE_OBSTACLE
 
         Script.attach(bullet, BulletScriptHandler)

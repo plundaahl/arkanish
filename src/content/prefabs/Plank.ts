@@ -31,7 +31,6 @@ export const PlankPrefab: Prefab = {
                 Vector2.createFromCoordinates(25, 25),
                 Vector2.createFromCoordinates(-25, 25),
             )]
-            section.colliderBbTransform = [BoundingBox.clone(section.colliderBbSrc[0])]
 
             section.colour = 'red'
             section.flags |= EntityFlags.ROLE_OBSTACLE

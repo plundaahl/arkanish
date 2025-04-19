@@ -90,7 +90,8 @@ export const MovementSystem = {
             entity.transR = entity.posR
             for (let i = 0; i < entity.colliderBbSrc.length; i++) {
                 const src = entity.colliderBbSrc[i]
-                const dest = entity.colliderBbTransform[i]
+                const dest = entity.colliderBbTransform[i] || BoundingBox.clone(src)
+                entity.colliderBbTransform[i] = dest
                 BoundingBox.transform(src, dest, entity.posX, entity.posY, entity.posR)
             }
         }

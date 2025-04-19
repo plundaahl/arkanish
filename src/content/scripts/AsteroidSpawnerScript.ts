@@ -7,15 +7,15 @@ const NOTHING = 'N/A'
 const IDLE_TIME = 180
 
 const SPAWN_LISTS: [string, number][][] = [
-    // [
-    //     [NOTHING, 30],
-    //     ['Coin', 3],
-    //     ['ShieldRecharge', 1],
-    //     ['BeamSpinner', 5],
-    //     ['BouncyBall', 2],
-    //     ['Asteroid', 40],
-    //     ['Plank', 5],
-    // ],
+    [
+        [NOTHING, 30],
+        ['Coin', 3],
+        ['ShieldRecharge', 1],
+        ['BeamSpinner', 5],
+        ['BouncyBall', 2],
+        ['Asteroid', 40],
+        ['Plank', 5],
+    ],
     // [
     //     [NOTHING, 30],
     //     ['BouncyBall', 10],
@@ -26,11 +26,11 @@ const SPAWN_LISTS: [string, number][][] = [
     //     ['Asteroid', 40],
     //     ['Plank', 8],
     // ],
-    [
-        [NOTHING, 20],
-        ['ShieldRecharge', 5],
-        ['Asteroid', 10],
-    ],
+    // [
+    //     [NOTHING, 20],
+    //     ['ShieldRecharge', 5],
+    //     ['Asteroid', 10],
+    // ],
 ]
 
 const stateInit: StateMachineScript<'AsteroidSpawner'> = {

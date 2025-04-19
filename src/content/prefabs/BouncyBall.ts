@@ -1,10 +1,11 @@
-import { ColliderFlags, Entity, EntityFlags, World } from "../../game-state/Entity";
+import { Entity, EntityFlags, World } from "../../game-state/Entity";
 import { GameState } from "../../game-state/GameState";
 import { Prefab } from "../../game-state/Prefab";
 import { Vector2 } from "../../game-state/Vector";
 import { BoundingBox } from "../../game-state/BoundingBox";
-import { BouncyBallScriptHandler } from "../scripts";
+import { BouncyBallScriptHandler, BouncyBallData } from "../scripts";
 import { Script } from "../../game-state/Script";
+import { ExtraMath } from "../../Math";
 
 export const BouncyBallPrefab: Prefab = {
     id: "BouncyBall",
@@ -27,12 +28,15 @@ export const BouncyBallPrefab: Prefab = {
 
         entity.flags |= EntityFlags.COLLIDER
         entity.colliderBbSrc = [BoundingBox.createCircleBb(0, 0, halfSize)]
-        entity.colliderBbTransform = [BoundingBox.clone(entity.colliderBbSrc[0])]
         entity.collidesWith = EntityFlags.ROLE_PLAYER | EntityFlags.ROLE_PLAYER_BULLET
 
         Script.attach(entity, BouncyBallScriptHandler)
         entity.flags |= EntityFlags.BOUNCE_IN_PLAY_SPACE
-        entity.hp = Math.ceil(Math.random() * 3) + 1
+        const scriptData: BouncyBallData = {
+            bouncesRemaining: ExtraMath.rollBetween(0, 3),
+            timeEnteredState: 0
+        }
+        entity.scriptData = scriptData
 
         entity.colour = 'red'
         entity.flags |= EntityFlags.ROLE_OBSTACLE

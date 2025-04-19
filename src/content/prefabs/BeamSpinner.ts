@@ -48,7 +48,6 @@ export const BeamSpinnerPrefab: Prefab = {
             Vector2.createFromCoordinates(BEAM_LENGTH, BEAM_HALF_WIDTH),
             Vector2.createFromCoordinates(-BEAM_LENGTH, BEAM_HALF_WIDTH),
         )]
-        hitBox.colliderBbTransform = [BoundingBox.clone(hitBox.colliderBbSrc[0])]
         hitBox.collidesWith = EntityFlags.ROLE_PLAYER
         hitBox.flags |= EntityFlags.ROLE_OBSTACLE
         hitBox.colour = '#FFFFFF00'

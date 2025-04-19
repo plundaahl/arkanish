@@ -22,7 +22,6 @@ export const AsteroidPrefab: Prefab = {
 
         entity.flags |= EntityFlags.COLLIDER
         entity.colliderBbSrc = [BoundingBox.createAabb(-halfSize, -halfSize, size, size)]
-        entity.colliderBbTransform = [BoundingBox.clone(entity.colliderBbSrc[0])]
         entity.collidesWith = EntityFlags.ROLE_PLAYER | EntityFlags.ROLE_PLAYER_BULLET
 
         entity.colour = 'red'

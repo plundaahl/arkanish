@@ -102,7 +102,7 @@ export interface Entity {
     scriptData: Object | undefined
 }
 
-const NULL_ENTITY: Omit<Entity, 'id'> = Object.freeze({
+const NULL_ENTITY: Omit<Entity, 'id' | 'colliderBbSrc' | 'colliderBbTransform'> = Object.freeze({
     state: EntityStates.FREE,
     flags: 0n,
     parent: 0,
@@ -117,8 +117,6 @@ const NULL_ENTITY: Omit<Entity, 'id'> = Object.freeze({
     transX: 0,
     transY: 0,
     transR: 0,
-    colliderBbSrc: [],
-    colliderBbTransform: [],
     collidesWith: 0n,
     invulnerableUntil: 0,
     colour: '',
@@ -169,11 +167,15 @@ const entitySpecKeys = (() => {
 
 export const Entity = {
     create: (idx: number): Entity => {
-        const entity = Object.assign({ id: Id.init(idx) }, NULL_ENTITY)
+        const entity = Object.assign({ id: Id.init(idx) }, NULL_ENTITY) as Entity
+        entity.colliderBbSrc = []
+        entity.colliderBbTransform = []
         return entity
     },
     release: (entity: Entity) => {
         Object.assign(entity, NULL_ENTITY)
+        entity.colliderBbSrc.length = 0
+        entity.colliderBbTransform.length = 0
         entity.id = Id.incrementGen(entity.id)
     },
     killEntity: (entity: Entity) => {
@@ -204,7 +206,7 @@ export const Entity = {
     serialize: (entity: Entity): EntitySpec => {
         const spec: EntitySpec = {}
         for (const key of entitySpecKeys) {
-            if (entity[key] === NULL_ENTITY[key]) {
+            if (entity[key] === (NULL_ENTITY as any)[key]) {
                 continue
             }
             switch (key) {
