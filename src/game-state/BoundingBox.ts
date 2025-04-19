@@ -1,4 +1,4 @@
-import { modulo, Vector2 } from "./Vector"
+import { Vector2 } from "./Vector"
 
 const TypeNullBB = 0 as const
 const TypeAABB = 1 as const

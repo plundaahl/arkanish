@@ -71,12 +71,11 @@ function spawnJet(
 const stateActive: StateMachineScript<'Player', PlayerScriptData> = {
     type: "Player",
     onInput,
-    onEnterState(_, entity) {
+    onInit(_, entity) {
         entity.colour = 'green'
         entity.flags &= ~EntityFlags.INVULNERABLE
     },
     onEvent(gameState, entity, event) {
-        console.log(event)
         if (GameEvent.isDamageEvent(event)) {
             for (let i = 0; i < 10; i++) {
                 ExplosionWhiteParticle.spawn(gameState, entity, PLAYER_BLAST_RADIUS)
@@ -97,7 +96,7 @@ const stateActive: StateMachineScript<'Player', PlayerScriptData> = {
 const stateInvulnerable: StateMachineScript<'Player', PlayerScriptData> = {
     type: "Player",
     onInput,
-    onEnterState(_, entity) {
+    onInit(_, entity) {
         entity.colour = 'white'
         entity.flags |= EntityFlags.INVULNERABLE
     },
@@ -111,7 +110,7 @@ const stateInvulnerable: StateMachineScript<'Player', PlayerScriptData> = {
 
 const stateDying: StateMachineScript<'Player', PlayerScriptData> = {
     type: "Player",
-    onEnterState(_, entity) {
+    onInit(_, entity) {
         entity.colour = 'white'
         entity.collidesWith = 0n
         entity.flags |= EntityFlags.INVULNERABLE

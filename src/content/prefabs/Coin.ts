@@ -21,7 +21,7 @@ export const CoinPrefab: Prefab = {
 
         entity.colour = 'yellow' 
 
-        Script.attach(entity, CoinScriptHandler)
+        Script.attach(gameState, entity, CoinScriptHandler)
 
         return entity
     }

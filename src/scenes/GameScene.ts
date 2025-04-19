@@ -22,11 +22,11 @@ const MS_PER_SCORE_TICK = 800
 type State = GameState
 
 const level: Level = {
-    initSection: 'intermission',
+    initSection: 'start',
     sections: {
-        intermission: {
+        start: {
             contents: [
-                { when: { type: 'time', at: 2500 }, then: [
+                { when: { type: 'time', at: 2000 }, then: [
                     StartSectionActionHandler.create('main1')
                 ]},
             ]
@@ -60,6 +60,16 @@ const level: Level = {
                     StartSectionActionHandler.create('intermission')
                 ]}
             ],
+        },
+        intermission: {
+            contents: [
+                { when: { type: 'time', at: 2500 }, then: [
+                    SpawnPrefabActionHandler.create('ShieldRecharge', { posY: -475 })
+                ]},
+                { when: { type: 'time', at: 5000 }, then: [
+                    StartSectionActionHandler.create('main1')
+                ]},
+            ]
         },
     }
 }

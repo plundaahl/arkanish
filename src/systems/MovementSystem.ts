@@ -3,8 +3,9 @@ import { BoundingBox } from "../game-state/BoundingBox";
 import { Entity, EntityFlags, EntityStates, World } from "../game-state/Entity";
 import { GameState } from "../game-state/GameState";
 import { GameEventBuffer } from "../game-state/GameEvent";
-import { modulo, Vector2 } from "../game-state/Vector";
+import { Vector2 } from "../game-state/Vector";
 import { Id } from "../game-state/Id";
+import { ExtraMath } from "../Math";
 
 const MS_PER_SEC = 1000
 const FULL_CIRCLE = Math.PI * 2
@@ -19,7 +20,7 @@ export const MovementSystem = {
             if (entity.state === EntityStates.ALIVE) {
                 entity.posY += (entity.velY * deltaT) / MS_PER_SEC
                 entity.posX += (entity.velX * deltaT) / MS_PER_SEC
-                entity.posR += modulo((entity.velR * deltaT) / MS_PER_SEC, FULL_CIRCLE)
+                entity.posR += ExtraMath.modulo((entity.velR * deltaT) / MS_PER_SEC, FULL_CIRCLE)
             }
         }
 

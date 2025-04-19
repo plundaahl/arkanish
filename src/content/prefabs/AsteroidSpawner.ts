@@ -9,7 +9,7 @@ export const AsteroidSpawnerPrefab: Prefab = {
     spawn: (gameState: GameState): Entity => {
         const entity = World.spawnEntity(gameState)
         entity.flags |= EntityFlags.DESTROY_AFTER_SECTION
-        Script.attach(entity, AsteroidSpawnerScriptHandler)
+        Script.attach(gameState, entity, AsteroidSpawnerScriptHandler)
         return entity
     }
 }

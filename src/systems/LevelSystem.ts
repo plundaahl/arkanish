@@ -22,7 +22,6 @@ export const LevelSystem = {
                     || entity.state === EntityStates.SPAWNING)
                     && Flag.hasBigintFlags(entity.flags, EntityFlags.DESTROY_AFTER_SECTION)
                 ) {
-                    console.log('killed entity')
                     Entity.killEntity(entity)
                 }
             }

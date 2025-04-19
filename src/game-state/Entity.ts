@@ -14,6 +14,7 @@ export const EntityFlags = Object.freeze({
     ROLE_PLAYER: entityFlag(),
     ROLE_PLAYER_BULLET: entityFlag(),
     ROLE_OBSTACLE: entityFlag(),
+    ROLE_ENEMY_BULLET: entityFlag(),
     ROLE_POWERUP: entityFlag(),
 
     HURT_BY_PLAYER_BULLETS: entityFlag(),
@@ -23,6 +24,7 @@ export const EntityFlags = Object.freeze({
     INVULNERABLE: entityFlag(),
     DESTROY_AFTER_SECTION: entityFlag(),
     DESTROY_AT_0_HP: entityFlag(),
+    DO_NOT_CLAMP_TO_WIDTH_ON_SPAWN: entityFlag(),
     parse: (flags: string[] | undefined): bigint => {
         if (!flags) {
             return 0n

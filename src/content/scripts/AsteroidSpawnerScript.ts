@@ -1,3 +1,4 @@
+import { EntityFlags } from "../../game-state/Entity";
 import { GameState } from "../../game-state/GameState";
 import { Prefab } from "../../game-state/Prefab";
 import { ExtraMath } from "../../Math";
@@ -8,7 +9,7 @@ const IDLE_TIME = 180
 
 const SPAWN_LISTS: [string, number][][] = [
     [
-        [NOTHING, 30],
+        [NOTHING, 40],
         ['Coin', 3],
         ['ShieldRecharge', 1],
         ['BeamSpinner', 5],
@@ -16,21 +17,19 @@ const SPAWN_LISTS: [string, number][][] = [
         ['Asteroid', 40],
         ['Plank', 5],
     ],
-    // [
-    //     [NOTHING, 30],
-    //     ['BouncyBall', 10],
-    // ],
-    // [
-    //     [NOTHING, 20],
-    //     ['BeamSpinner', 5],
-    //     ['Asteroid', 40],
-    //     ['Plank', 8],
-    // ],
-    // [
-    //     [NOTHING, 20],
-    //     ['ShieldRecharge', 5],
-    //     ['Asteroid', 10],
-    // ],
+    [
+        [NOTHING, 20],
+        ['BeamSpinner', 5],
+        ['Asteroid', 40],
+        ['Plank', 8],
+        ['Coin', 3],
+    ],
+    [
+        [NOTHING, 40],
+        ['Gunship', 2],
+        ['BeamSpinner', 5],
+        ['Coin', 2],
+    ],
 ]
 
 const stateInit: StateMachineScript<'AsteroidSpawner'> = {
@@ -60,7 +59,9 @@ const stateSpawning: StateMachineScript<'AsteroidSpawner'> = {
         if (prefabName !== NOTHING) {
             const spawnedEntity = Prefab.spawn(gameState, prefabName)
             const x = Math.ceil(Math.random() * gameState.playArea.width) + gameState.playArea.left + entity.posX
-            spawnedEntity.posX = clampToPlaySpace(gameState, x, 40)
+            if (!(spawnedEntity.flags & EntityFlags.DO_NOT_CLAMP_TO_WIDTH_ON_SPAWN)) {
+                spawnedEntity.posX = clampToPlaySpace(gameState, x, 40)
+            }
             spawnedEntity.posY += entity.posY
         }
         transitionScript(gameState, entity, stateIdle)

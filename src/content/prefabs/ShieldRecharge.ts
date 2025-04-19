@@ -22,7 +22,7 @@ export const ShieldRechargePrefab: Prefab = {
 
         entity.colour = 'blue' 
 
-        Script.attach(entity, PowerupScriptHandler)
+        Script.attach(gameState, entity, PowerupScriptHandler)
         return entity
     }
 }

@@ -52,7 +52,7 @@ export const BeamSpinnerPrefab: Prefab = {
         hitBox.flags |= EntityFlags.ROLE_OBSTACLE
         hitBox.colour = '#FFFFFF00'
     
-        Script.attach(hitBox, BeamSpinnerScriptHandler)
+        Script.attach(gameState, hitBox, BeamSpinnerScriptHandler)
 
         return spinner
     }

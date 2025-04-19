@@ -20,8 +20,9 @@ export const PlayerBulletPrefab: Prefab = {
         bullet.hp = 1
         bullet.colliderBbSrc = [BoundingBox.createAabb(-5, -5, 10, 10)]
         bullet.collidesWith = EntityFlags.ROLE_OBSTACLE
+        bullet.hurtBy = EntityFlags.ROLE_OBSTACLE
 
-        Script.attach(bullet, BulletScriptHandler)
+        Script.attach(gameState, bullet, BulletScriptHandler)
 
         bullet.colour = 'red'
         return bullet

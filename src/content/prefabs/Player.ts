@@ -30,11 +30,11 @@ export const PlayerPrefab: Prefab = {
                 Vector2.createFromCoordinates(PLAYER_WIDTH_HALF, PLAYER_HEIGHT_HALF - PLAYER_OFFSET),
             ),
         ]
-        player.collidesWith = EntityFlags.ROLE_OBSTACLE
-        player.hurtBy = EntityFlags.ROLE_OBSTACLE
+        player.collidesWith = EntityFlags.ROLE_OBSTACLE | EntityFlags.ROLE_ENEMY_BULLET
+        player.hurtBy = EntityFlags.ROLE_OBSTACLE | EntityFlags.ROLE_ENEMY_BULLET
         player.colour = 'green'
 
-        Script.attach(player, PlayerScriptHandler)
+        Script.attach(gameState, player, PlayerScriptHandler)
 
         player.hp = 3
 

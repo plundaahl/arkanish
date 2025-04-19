@@ -33,7 +33,7 @@ export const stateBouncing: StateMachineScript<'BouncyBall'> = {
 
 export const stateTelegraphing: StateMachineScript<'BouncyBall'> = {
     type: "BouncyBall",
-    onEnterState(gameState, entity) {
+    onInit(gameState, entity) {
         TelegraphCircleParticle.spawn(gameState, entity, BLAST_RADIUS, DETONATION_TIME)
     },
     onUpdate(gameState, entity) {
@@ -47,7 +47,7 @@ export const stateTelegraphing: StateMachineScript<'BouncyBall'> = {
 
 export const stateDetonating: StateMachineScript<'BouncyBall'> = {
     type: "BouncyBall",
-    onEnterState(gameState, entity) {
+    onInit(gameState, entity) {
         entity.colliderBbSrc[0] = BoundingBox.createCircleBb(0, 0, BLAST_RADIUS)
 
         BlastCircleParticle.spawn(gameState, entity, BLAST_RADIUS, BLAST_FADE)

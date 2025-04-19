@@ -1,3 +1,5 @@
+import { ExtraMath } from "../Math"
+
 const VEC2_X = 0
 const VEC2_Y = 1
 export type Vector2 = [number, number]
@@ -35,8 +37,21 @@ export const Vector2 = {
     xOf: (vec: Vector2): number => vec[VEC2_X],
     yOf: (vec: Vector2): number => vec[VEC2_Y],
     magnitudeOf: (vec: Vector2): number => Math.sqrt((vec[VEC2_X] * vec[VEC2_X]) + (vec[VEC2_Y] * vec[VEC2_Y])),
-    angleOf: (vec: Vector2): number => modulo(Math.atan2(vec[VEC2_Y], vec[VEC2_X]), FULL_CIRCLE),
-    angleBetween: (a: Vector2, b: Vector2): number => modulo(Vector2.angleOf(b) - Vector2.angleOf(a), FULL_CIRCLE),
+    magnitudeAdd: (vec: Vector2, amount: number) => {
+        const angle = Vector2.angleOf(vec)
+        let xAmount = Math.cos(angle) * amount
+        let yAmount = Math.sin(angle) * amount
+        if (vec[VEC2_X] < 0) {
+            xAmount *= -1
+        } 
+        if (vec[VEC2_Y] < 0) {
+            yAmount *= -1
+        } 
+        vec[VEC2_X] += xAmount
+        vec[VEC2_Y] += yAmount
+    },
+    angleOf: (vec: Vector2): number => ExtraMath.modulo(Math.atan2(vec[VEC2_Y], vec[VEC2_X]), FULL_CIRCLE),
+    angleBetween: (a: Vector2, b: Vector2): number => ExtraMath.modulo(Vector2.angleOf(b) - Vector2.angleOf(a), FULL_CIRCLE),
     distanceBetween: (a: Vector2, b: Vector2): number => {
         const xDist = a[VEC2_X] - b[VEC2_X]
         const yDist = a[VEC2_Y] - b[VEC2_Y]
@@ -80,11 +95,4 @@ export const Vector2 = {
         const sum = vectors.reduce(Vector2.added, Vector2.createFromCoordinates(0, 0))
         return [sum[VEC2_X] / vectors.length, sum[VEC2_Y] / vectors.length]
     },
-}
-
-export function modulo(value: number, cap: number): number {
-    let result = value % cap
-    return result < 0
-        ? cap + result
-        : result
 }

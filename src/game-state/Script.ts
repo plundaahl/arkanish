@@ -6,6 +6,7 @@ export const CONTROLLER_FIRE = 1
 
 export interface Script<T extends string, D extends Object> {
     type: T
+    onInit?(gameState: GameState, entity: Entity & { scriptData: D }): void
     onUpdate?(gameState: GameState, entity: Entity & { scriptData: D }): void
     onEvent?(gameState: GameState, entity: Entity & { scriptData: D }, event: GameEvent): void
     onInput?(gameState: GameState, entity: Entity & { scriptData: D }, xImpulse: number, yImpulse: number, controllerFlags: number): void
@@ -20,10 +21,13 @@ export interface ScriptHandler<T extends string, D extends Object> {
 }
 
 export const Script = {
-    attach<D extends Object>(entity: Entity, scriptHandler: ScriptHandler<string, D>, data?: D): void {
+    attach<D extends Object>(gameState: GameState, entity: Entity, scriptHandler: ScriptHandler<string, D>, data?: D): void {
         entity.flags |= EntityFlags.SCRIPT
         entity.script = scriptHandler.script
         entity.scriptData = { ...(data || scriptHandler.nullData) }
+        if (entity.script.onInit) {
+            entity.script.onInit(gameState, entity as any)
+        }
     },
 }
 

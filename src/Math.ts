@@ -17,4 +17,10 @@ export const ExtraMath = {
         }
         throw new Error(`Should not get here.  Total was [${total}] but rolled [${roll}].`)
     },
+    modulo(value: number, cap: number): number {
+        let result = value % cap
+        return result < 0
+            ? cap + result
+            : result
+    },
 }

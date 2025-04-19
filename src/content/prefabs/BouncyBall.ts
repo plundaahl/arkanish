@@ -30,7 +30,7 @@ export const BouncyBallPrefab: Prefab = {
         entity.colliderBbSrc = [BoundingBox.createCircleBb(0, 0, halfSize)]
         entity.collidesWith = EntityFlags.ROLE_PLAYER | EntityFlags.ROLE_PLAYER_BULLET
 
-        Script.attach(entity, BouncyBallScriptHandler)
+        Script.attach(gameState, entity, BouncyBallScriptHandler)
         entity.flags |= EntityFlags.BOUNCE_IN_PLAY_SPACE
         const scriptData: BouncyBallData = {
             bouncesRemaining: ExtraMath.rollBetween(0, 3),
