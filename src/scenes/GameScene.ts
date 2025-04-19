@@ -14,6 +14,7 @@ import { LevelSystem } from '../systems/LevelSystem'
 import { Prefab } from '../game-state/Prefab'
 import { SpawnPrefabActionHandler, StartSectionActionHandler } from '../content/actions'
 import { InputSystem } from '../systems/InputSystem'
+import { DamageSystem } from '../systems/DamageSystem'
 
 const STAR_TIME_SCALE = 1 / 5000
 const MS_PER_SCORE_TICK = 800
@@ -93,6 +94,7 @@ export class GameScene implements Scene {
         MovementSystem.run(this.state)
         CollisionSystem.run(this.state)
         EventSystem.run(this.state)
+        DamageSystem.run(this.state)
         ScriptSystem.run(this.state)
         SpawnSystem.runDespawn(this.state)
 

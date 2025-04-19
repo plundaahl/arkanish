@@ -1,7 +1,6 @@
 import { GameEvent } from "../../game-state/GameEvent";
 import { Entity, EntityFlags, World } from "../../game-state/Entity";
 import { GameState } from "../../game-state/GameState";
-import { Flag } from "../../game-state/Flag";
 import { ExplosionWhiteParticle } from "../../content/particles/ExplosionWhiteParticle";
 import { JetParticle } from "../particles/JetParticle";
 import { createStateMachineHandler, StateMachineData, StateMachineScript, transitionScript } from "./StateMachineScript";
@@ -10,7 +9,6 @@ import { CONTROLLER_FIRE } from "../../game-state/Script";
 
 const TIME_INVULNERABLE_AFTER_HIT = 1000
 const TIME_DYING = 1500
-const PLAYER_MAX_HP = 3
 const MS_PER_JET_PARTICLE = 50
 const PLAYER_BLAST_RADIUS = 100
 const PLAYER_RATE_OF_FIRE = 200
@@ -60,37 +58,6 @@ function onInput(
     }
 }
 
-function handleEnemyCollision(
-    gameState: GameState,
-    entity: Entity & { scriptData: PlayerScriptData },
-    other: Entity,
-): void {
-    if (Flag.hasBigintFlags(other.flags, EntityFlags.HURTS_PLAYER)) {
-        entity.hp -= 1
-
-        for (let i = 0; i < 10; i++) {
-            ExplosionWhiteParticle.spawn(gameState, entity, PLAYER_BLAST_RADIUS)
-        }
-
-        entity.colour = 'white'
-        if (entity.hp > 0) {
-            transitionScript(gameState, entity, stateInvulnerable)
-        } else {
-            entity.velR = (Math.random() * (Math.PI * 4)) - (Math.PI * 2)
-            transitionScript(gameState, entity, stateDying)
-        }
-    }
-}
-
-function handlePickupCollision(
-    entity: Entity & { scriptData: PlayerScriptData },
-    other: Entity,
-): void {
-    if (Flag.hasBigintFlags(other.flags, EntityFlags.ROLE_PICKUP)) {
-        entity.hp = Math.min(entity.hp + 1, PLAYER_MAX_HP)
-    }
-}
-
 function spawnJet(
     gameState: GameState,
     entity: Entity & { scriptData: PlayerScriptData },
@@ -104,12 +71,21 @@ function spawnJet(
 const stateActive: StateMachineScript<'Player', PlayerScriptData> = {
     type: "Player",
     onInput,
+    onEnterState(_, entity) {
+        entity.colour = 'green'
+        entity.flags &= ~EntityFlags.INVULNERABLE
+    },
     onEvent(gameState, entity, event) {
-        if (GameEvent.isCollisionEvent(event)) {
-            const other = World.getEntity(gameState, event.hitBy)
-            if (other) {
-                handleEnemyCollision(gameState, entity, other)
-                handlePickupCollision(entity, other)
+        console.log(event)
+        if (GameEvent.isDamageEvent(event)) {
+            for (let i = 0; i < 10; i++) {
+                ExplosionWhiteParticle.spawn(gameState, entity, PLAYER_BLAST_RADIUS)
+            }
+            if (entity.hp > 0) {
+                transitionScript(gameState, entity, stateInvulnerable)
+            } else {
+                entity.velR = (Math.random() * (Math.PI * 4)) - (Math.PI * 2)
+                transitionScript(gameState, entity, stateDying)
             }
         }
     },
@@ -121,18 +97,13 @@ const stateActive: StateMachineScript<'Player', PlayerScriptData> = {
 const stateInvulnerable: StateMachineScript<'Player', PlayerScriptData> = {
     type: "Player",
     onInput,
-    onEvent(gameState, entity, event) {
-        if (GameEvent.isCollisionEvent(event)) {
-            const other = World.getEntity(gameState, event.hitBy)
-            if (other) {
-                handlePickupCollision(entity, other)
-            }
-        }
+    onEnterState(_, entity) {
+        entity.colour = 'white'
+        entity.flags |= EntityFlags.INVULNERABLE
     },
     onUpdate(gameState, entity) {
         spawnJet(gameState, entity)
         if (gameState.time - entity.scriptData.timeEnteredState > TIME_INVULNERABLE_AFTER_HIT) {
-            entity.colour = 'green'
             transitionScript(gameState, entity, stateActive)
         }
     },
@@ -140,6 +111,11 @@ const stateInvulnerable: StateMachineScript<'Player', PlayerScriptData> = {
 
 const stateDying: StateMachineScript<'Player', PlayerScriptData> = {
     type: "Player",
+    onEnterState(_, entity) {
+        entity.colour = 'white'
+        entity.collidesWith = 0n
+        entity.flags |= EntityFlags.INVULNERABLE
+    },
     onUpdate(gameState, entity) {
         if (entity.scriptData.nextParticleSpawnTime < gameState.time) {
             ExplosionWhiteParticle.spawn(gameState, entity, PLAYER_BLAST_RADIUS)

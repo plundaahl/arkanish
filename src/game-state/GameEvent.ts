@@ -2,6 +2,7 @@ export const GameEventType = {
     NULL: 0,
     COLLISION: 1,
     BOUNCE: 2,
+    DAMAGE: 3,
 }
 
 type NullGameEvent = {
@@ -17,10 +18,15 @@ export type BounceGameEvent = {
     type: typeof GameEventType.BOUNCE,
     entity: number,
 }
+export type DamageGameEvent = {
+    type: typeof GameEventType.DAMAGE,
+    entity: number,
+}
 
 export type GameEvent = NullGameEvent
     | CollisionGameEvent
     | BounceGameEvent
+    | DamageGameEvent
 
 function reset(obj: Object): any {
     for (const prop of Object.getOwnPropertyNames(obj)) {
@@ -38,6 +44,7 @@ export const GameEvent = {
     },
     isCollisionEvent: (event: GameEvent): event is CollisionGameEvent => event.type === GameEventType.COLLISION,
     isBounceEvent: (event: GameEvent): event is BounceGameEvent => event.type === GameEventType.BOUNCE,
+    isDamageEvent: (event: GameEvent): event is DamageGameEvent => event.type === GameEventType.DAMAGE,
 }
 
 export type GameEventBuffer = {
@@ -68,6 +75,12 @@ export const GameEventBuffer = {
     addBounceEvent: (buffer: GameEventBuffer, entity: number) => {
         const event = provisionEvent(buffer) as CollisionGameEvent
         event.type = GameEventType.BOUNCE
+        event.entity = entity
+        return event
+    },
+    addDamageEvent: (buffer: GameEventBuffer, entity: number) => {
+        const event = provisionEvent(buffer) as CollisionGameEvent
+        event.type = GameEventType.DAMAGE
         event.entity = entity
         return event
     },

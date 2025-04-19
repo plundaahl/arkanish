@@ -24,8 +24,7 @@ export const PlankPrefab: Prefab = {
             section.posX = (PLANK_SECTION_SIZE * i) - halfWidth
 
             section.flags |= EntityFlags.COLLIDER
-            section.colliderGroup = ColliderFlags.ENEMY
-            section.collidesWith = ColliderFlags.PLAYER | ColliderFlags.PLAYER_BULLET
+            section.collidesWith = EntityFlags.ROLE_PLAYER | EntityFlags.ROLE_PLAYER_BULLET
             section.colliderBbSrc = [BoundingBox.createConvexPolyBb(
                 Vector2.createFromCoordinates(-25, -25),
                 Vector2.createFromCoordinates(25, -25),
@@ -35,9 +34,9 @@ export const PlankPrefab: Prefab = {
             section.colliderBbTransform = [BoundingBox.clone(section.colliderBbSrc[0])]
 
             section.colour = 'red'
-            section.flags |= EntityFlags.KILLS_PLAYER_BULLETS
-            section.flags |= EntityFlags.HURTS_PLAYER
-            section.flags |= EntityFlags.HURT_BY_PLAYER_BULLETS
+            section.flags |= EntityFlags.ROLE_OBSTACLE
+            section.flags |= EntityFlags.DESTROY_AT_0_HP
+            section.hurtBy |= EntityFlags.ROLE_PLAYER_BULLET
         }
 
         return center

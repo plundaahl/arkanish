@@ -14,10 +14,11 @@ export const CoinPrefab: Prefab = {
         entity.velY = 350
 
         entity.flags |= EntityFlags.COLLIDER
+        entity.flags |= EntityFlags.DESTROY_AT_0_HP
+        entity.hurtBy = EntityFlags.ROLE_PLAYER
+        entity.collidesWith = EntityFlags.ROLE_PLAYER
         entity.colliderBbSrc = [BoundingBox.createAabb(-20, -20, 40, 40)]
         entity.colliderBbTransform = [BoundingBox.clone(entity.colliderBbSrc[0])]
-        entity.colliderGroup = ColliderFlags.POWERUP
-        entity.collidesWith = ColliderFlags.PLAYER
 
         entity.colour = 'yellow' 
 

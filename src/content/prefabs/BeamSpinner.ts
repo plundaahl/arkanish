@@ -31,13 +31,13 @@ export const BeamSpinnerPrefab: Prefab = {
         spinner.flags |= EntityFlags.COLLIDER
         spinner.colliderBbSrc = [BoundingBox.createCircleBb(0, 0, halfSize)]
         spinner.colliderBbTransform = [BoundingBox.clone(spinner.colliderBbSrc[0])]
-        spinner.colliderGroup = ColliderFlags.ENEMY
-        spinner.collidesWith = ColliderFlags.PLAYER | ColliderFlags.PLAYER_BULLET
-    
+        spinner.collidesWith = EntityFlags.ROLE_PLAYER | EntityFlags.ROLE_PLAYER_BULLET
+        spinner.hurtBy |= EntityFlags.ROLE_PLAYER | EntityFlags.ROLE_PLAYER_BULLET
+        spinner.flags |= EntityFlags.ROLE_OBSTACLE
+        spinner.flags |= EntityFlags.DESTROY_AT_0_HP
+        spinner.hp = 1
+
         spinner.colour = 'red'
-        spinner.flags |= EntityFlags.KILLS_PLAYER_BULLETS
-        spinner.flags |= EntityFlags.HURTS_PLAYER
-        spinner.flags |= EntityFlags.HURT_BY_PLAYER_BULLETS
     
         // Hit box
         const hitBox = World.spawnEntity(gameState)
@@ -49,9 +49,8 @@ export const BeamSpinnerPrefab: Prefab = {
             Vector2.createFromCoordinates(-BEAM_LENGTH, BEAM_HALF_WIDTH),
         )]
         hitBox.colliderBbTransform = [BoundingBox.clone(hitBox.colliderBbSrc[0])]
-        hitBox.colliderGroup = ColliderFlags.ENEMY
-        hitBox.collidesWith = ColliderFlags.PLAYER
-        hitBox.flags |= EntityFlags.HURTS_PLAYER
+        hitBox.collidesWith = EntityFlags.ROLE_PLAYER
+        hitBox.flags |= EntityFlags.ROLE_OBSTACLE
         hitBox.colour = '#FFFFFF00'
     
         Script.attach(hitBox, BeamSpinnerScriptHandler)

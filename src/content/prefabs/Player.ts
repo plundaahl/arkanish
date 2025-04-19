@@ -1,5 +1,5 @@
 import { BoundingBox } from "../../game-state/BoundingBox";
-import { ColliderFlags, Entity, EntityFlags, World } from "../../game-state/Entity";
+import { Entity, EntityFlags, World } from "../../game-state/Entity";
 import { GameState } from "../../game-state/GameState";
 import { Prefab } from "../../game-state/Prefab";
 import { Vector2 } from "../../game-state/Vector";
@@ -31,8 +31,8 @@ export const PlayerPrefab: Prefab = {
             ),
         ]
         player.colliderBbTransform = player.colliderBbSrc.map(BoundingBox.clone)
-        player.colliderGroup = ColliderFlags.PLAYER
-        player.collidesWith = ColliderFlags.ENEMY | ColliderFlags.POWERUP
+        player.collidesWith = EntityFlags.ROLE_OBSTACLE
+        player.hurtBy = EntityFlags.ROLE_OBSTACLE
         player.colour = 'green'
 
         Script.attach(player, PlayerScriptHandler)

@@ -21,14 +21,14 @@ export const CollisionSystem = {
                     continue
                 }
 
-                const entityIListens = (entityI.collidesWith & entityJ.colliderGroup)
-                const entityJListens = (entityJ.collidesWith & entityI.colliderGroup)
+                const entityIListens = (entityI.collidesWith & entityJ.flags)
+                const entityJListens = (entityJ.collidesWith & entityI.flags)
 
                 if (!(entityIListens || entityJListens)) {
                     continue
                 }
 
-                for (const a of entityI.colliderBbTransform) {
+                boundingBoxCheck: for (const a of entityI.colliderBbTransform) {
                     for (const b of entityJ.colliderBbTransform) {
                         if (BoundingBox.intersects(a, b)) {
                             if (entityIListens) {
@@ -39,6 +39,7 @@ export const CollisionSystem = {
                                 gameState.collidedEntities.add(entityJ.id)
                                 GameEventBuffer.addCollisionEvent(gameState, entityJ.id, entityI.id)
                             }
+                            break boundingBoxCheck;
                         }
                     }
                 }

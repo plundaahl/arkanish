@@ -28,17 +28,16 @@ export const BouncyBallPrefab: Prefab = {
         entity.flags |= EntityFlags.COLLIDER
         entity.colliderBbSrc = [BoundingBox.createCircleBb(0, 0, halfSize)]
         entity.colliderBbTransform = [BoundingBox.clone(entity.colliderBbSrc[0])]
-        entity.colliderGroup = ColliderFlags.ENEMY
-        entity.collidesWith = ColliderFlags.PLAYER | ColliderFlags.PLAYER_BULLET
+        entity.collidesWith = EntityFlags.ROLE_PLAYER | EntityFlags.ROLE_PLAYER_BULLET
 
         Script.attach(entity, BouncyBallScriptHandler)
         entity.flags |= EntityFlags.BOUNCE_IN_PLAY_SPACE
         entity.hp = Math.ceil(Math.random() * 3) + 1
 
         entity.colour = 'red'
-        entity.flags |= EntityFlags.KILLS_PLAYER_BULLETS
-        entity.flags |= EntityFlags.HURTS_PLAYER
-        entity.flags |= EntityFlags.HURT_BY_PLAYER_BULLETS
+        entity.flags |= EntityFlags.ROLE_OBSTACLE
+        entity.flags |= EntityFlags.DESTROY_AT_0_HP
+        entity.hurtBy |= EntityFlags.ROLE_PLAYER_BULLET
 
         return entity
     }

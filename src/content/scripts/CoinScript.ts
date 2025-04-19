@@ -9,9 +9,8 @@ export const CoinScriptHandler: ScriptHandler<'Coin', {}> = {
     script: {
         type: 'Coin',
         onEvent(state: GameState, entity: Entity, event: GameEvent): void {
-            if (GameEvent.isCollisionEvent(event)) {
+            if (GameEvent.isCollisionEvent(event) && event.hitBy === state.playerId) {
                 state.score += 250
-                Entity.killEntity(entity)
             }
         },
     },

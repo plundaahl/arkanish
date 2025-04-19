@@ -2,9 +2,16 @@ import { Entity } from '../../game-state/Entity'
 import { GameState } from '../../game-state/GameState'
 import { Script, ScriptHandler } from '../../game-state/Script'
 
-export function transitionScript(gameState: GameState, entity: Entity, state: Script<string, object>) {
+export function transitionScript(gameState: GameState, entity: Entity, state: StateMachineScript<string, StateMachineData>) {
     (entity.scriptData as StateMachineData).timeEnteredState = gameState.time
+    const oldScript = entity.script as StateMachineScript<string>
+    if (oldScript.onExitState) {
+        oldScript.onExitState(gameState, entity)
+    }
     entity.script = state
+    if (state.onEnterState) {
+        state.onEnterState(gameState, entity)
+    }
 }
 
 export interface StateMachineData {
@@ -14,7 +21,10 @@ export interface StateMachineData {
 export interface StateMachineScript<
     T extends string,
     D extends StateMachineData = StateMachineData
-> extends Script<T, D> {}
+> extends Script<T, D> {
+    onEnterState?(gameState: GameState, entity: Entity): void
+    onExitState?(gameState: GameState, entity: Entity): void
+}
 
 export function createStateMachineHandler<T extends string, D extends StateMachineData>(
     type: T,

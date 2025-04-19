@@ -1,5 +1,5 @@
 import { Flag } from "../game-state/Flag";
-import { EntityFlags, EntityStates, World } from "../game-state/Entity";
+import { EntityFlags, World } from "../game-state/Entity";
 import { GameEventType } from "../game-state/GameEvent";
 import { GameState } from '../game-state/GameState'
 
@@ -12,7 +12,7 @@ export const ScriptSystem = {
                 continue
             }
             const entity = World.getEntity(state, event.entity)
-            if (!entity || entity.state !== EntityStates.ALIVE || !Flag.hasBigintFlags(entity.flags, EntityFlags.SCRIPT)) {
+            if (!entity || !Flag.hasBigintFlags(entity.flags, EntityFlags.SCRIPT)) {
                 continue
             }
 
@@ -25,7 +25,7 @@ export const ScriptSystem = {
         for (let i = 0; i < state.entities.length; i++) {
             const entity = state.entities[i]
 
-            if (entity.state !== EntityStates.ALIVE && !Flag.hasBigintFlags(entity.flags, EntityFlags.SCRIPT)) {
+            if (!Flag.hasBigintFlags(entity.flags, EntityFlags.SCRIPT)) {
                 continue
             }
 

@@ -10,13 +10,19 @@ export const EntityFlags = Object.freeze({
     SCRIPT: entityFlag(),
     CONSTRAIN_TO_PLAY_SPACE: entityFlag(),
     BOUNCE_IN_PLAY_SPACE: entityFlag(),
+
     ROLE_PLAYER: entityFlag(),
     ROLE_PLAYER_BULLET: entityFlag(),
-    KILLS_PLAYER_BULLETS: entityFlag(),
+    ROLE_OBSTACLE: entityFlag(),
+    ROLE_POWERUP: entityFlag(),
+
     HURT_BY_PLAYER_BULLETS: entityFlag(),
-    HURTS_PLAYER: entityFlag(),
+    HURT_BY_OBSTACLE: entityFlag(),
+
     ROLE_PICKUP: entityFlag(),
+    INVULNERABLE: entityFlag(),
     DESTROY_AFTER_SECTION: entityFlag(),
+    DESTROY_AT_0_HP: entityFlag(),
     parse: (flags: string[] | undefined): bigint => {
         if (!flags) {
             return 0n
@@ -75,6 +81,7 @@ export interface Entity {
     state: number
     flags: bigint
     parent: number
+    hurtBy: bigint
     posX: number
     posY: number
     posZ: number
@@ -87,8 +94,7 @@ export interface Entity {
     transR: number
     colliderBbSrc: BoundingBox[],
     colliderBbTransform: BoundingBox[],
-    colliderGroup: number,
-    collidesWith: number,
+    collidesWith: bigint,
     invulnerableUntil: number,
     colour: string,
     hp: number,
@@ -100,6 +106,7 @@ const NULL_ENTITY: Omit<Entity, 'id'> = Object.freeze({
     state: EntityStates.FREE,
     flags: 0n,
     parent: 0,
+    hurtBy: 0n,
     posX: 0,
     posY: 0,
     posZ: 0,
@@ -112,8 +119,7 @@ const NULL_ENTITY: Omit<Entity, 'id'> = Object.freeze({
     transR: 0,
     colliderBbSrc: [],
     colliderBbTransform: [],
-    colliderGroup: 0,
-    collidesWith: 0,
+    collidesWith: 0n,
     invulnerableUntil: 0,
     colour: '',
     hp: 0,
@@ -126,6 +132,7 @@ const excludedKeys = [
     'parent',
     'state',
     'flags',
+    'hurtBy',
     'transX',
     'transY',
     'transR',
@@ -136,6 +143,8 @@ const assertExcludedKeys: readonly (keyof Entity)[] = excludedKeys
 
 export type EntitySpec = Partial<Omit<Entity, typeof excludedKeys[number]> & {
     flags: Exclude<keyof typeof EntityFlags, 'parse'>[],
+    hurtBy: Exclude<keyof typeof EntityFlags, 'parse'>[],
+    collidesWith: Exclude<keyof typeof EntityFlags, 'parse'>[],
 }>
 const entitySpecKeys = (() => {
     const keyObj: { [key in keyof Required<EntitySpec>]: 0 } = {
@@ -147,11 +156,11 @@ const entitySpecKeys = (() => {
         velY: 0,
         velR: 0,
         colliderBbSrc: 0,
-        colliderGroup: 0,
-        collidesWith: 0,
         colour: 0,
         hp: 0,
         flags: 0,
+        hurtBy: 0,
+        collidesWith: 0,
         script: 0,
         scriptData: 0,
     }
@@ -174,6 +183,8 @@ export const Entity = {
         const specKeys = Object.keys(spec) as (keyof Required<EntitySpec>)[]
         for (const key of specKeys) {
             switch (key) {
+                case 'hurtBy':
+                case 'collidesWith':
                 case 'flags': entity.flags = EntityFlags.parse(spec.flags); break;
                 case 'posX':
                 case 'posY':
@@ -182,8 +193,6 @@ export const Entity = {
                 case 'velX':
                 case 'velY':
                 case 'velR':
-                case 'colliderGroup':
-                case 'collidesWith':
                 case 'hp': if (spec[key] !== undefined) { entity[key] = spec[key] }; break;
                 case 'colour': if (spec[key] !== undefined) { entity[key] = spec[key] }; break;
                 case 'colliderBbSrc': if (spec[key] !== undefined) { entity[key] = spec[key].map(BoundingBox.clone) }; break;
@@ -199,6 +208,8 @@ export const Entity = {
                 continue
             }
             switch (key) {
+                case 'hurtBy':
+                case 'collidesWith':
                 case 'flags': spec.flags = EntityFlags.serialize(entity.flags); break
                 case 'posX':
                 case 'posY':
@@ -207,8 +218,6 @@ export const Entity = {
                 case 'velX':
                 case 'velY':
                 case 'velR':
-                case 'colliderGroup':
-                case 'collidesWith':
                 case 'hp': spec[key] = entity[key]; break;
                 case 'colour': spec[key] = entity[key]; break;
                 case 'colliderBbSrc': spec[key] = entity[key]; break;

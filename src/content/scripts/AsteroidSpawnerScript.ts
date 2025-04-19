@@ -16,21 +16,21 @@ const SPAWN_LISTS: [string, number][][] = [
     //     ['Asteroid', 40],
     //     ['Plank', 5],
     // ],
-    [
-        [NOTHING, 30],
-        ['BouncyBall', 10],
-    ],
+    // [
+    //     [NOTHING, 30],
+    //     ['BouncyBall', 10],
+    // ],
     // [
     //     [NOTHING, 20],
     //     ['BeamSpinner', 5],
     //     ['Asteroid', 40],
     //     ['Plank', 8],
     // ],
-    // [
-    //     [NOTHING, 20],
-    //     ['ShieldRecharge', 5],
-    //     ['Asteroid', 10],
-    // ],
+    [
+        [NOTHING, 20],
+        ['ShieldRecharge', 5],
+        ['Asteroid', 10],
+    ],
 ]
 
 const stateInit: StateMachineScript<'AsteroidSpawner'> = {
