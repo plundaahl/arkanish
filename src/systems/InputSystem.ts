@@ -28,8 +28,8 @@ export const InputSystem = {
             for (const touch of uiState.touches) {
                 if (!shipTouch && touch.element === 0) {
                     touch.element = 1
-                    touch.offsetX = (player?.posX || 0) - UiState.canvasXToGameX(state, uiState, touch.x)
-                    touch.offsetY = (player?.posY || 0) - UiState.canvasYToGameY(state, uiState, touch.y)
+                    touch.offsetX = (player?.posXL || 0) - UiState.canvasXToGameX(state, uiState, touch.x)
+                    touch.offsetY = (player?.posYL || 0) - UiState.canvasYToGameY(state, uiState, touch.y)
                     shipTouch = touch
                 }
             }

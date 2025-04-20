@@ -38,7 +38,7 @@ export const PlayerPrefab: Prefab = {
 
         player.hp = 3
 
-        player.posZ = 1
+        player.posZL = 1
         player.flags |= EntityFlags.CONSTRAIN_TO_PLAY_SPACE
 
         return player

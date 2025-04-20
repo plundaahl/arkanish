@@ -17,8 +17,8 @@ export const AsteroidPrefab: Prefab = {
         const minVel = gameState.playArea.height * 0.3
         const vel = Math.ceil(Math.random() * (maxVel - minVel)) + minVel
 
-        entity.posY = -size
-        entity.velY = vel
+        entity.posYL = -size
+        entity.velYL = vel
 
         entity.flags |= EntityFlags.COLLIDER
         entity.colliderBbSrc = [BoundingBox.createAabb(-halfSize, -halfSize, size, size)]

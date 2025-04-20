@@ -22,9 +22,9 @@ export const BouncyBallPrefab: Prefab = {
         const mag = (Math.random() * (maxMag - minMag)) + minMag
         const vec = Vector2.createFromAngle(angle, mag)
 
-        entity.posY = -halfSize
-        entity.velY = Vector2.yOf(vec)
-        entity.velX = Vector2.xOf(vec) * (Math.random() < 0.5 ? 1 : -1)
+        entity.posYL = -halfSize
+        entity.velYL = Vector2.yOf(vec)
+        entity.velXL = Vector2.xOf(vec) * (Math.random() < 0.5 ? 1 : -1)
 
         entity.flags |= EntityFlags.COLLIDER
         entity.colliderBbSrc = [BoundingBox.createCircleBb(0, 0, halfSize)]

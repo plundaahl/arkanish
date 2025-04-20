@@ -16,13 +16,13 @@ export const TelegraphCircleParticle = {
         let x = particle.originX
         let y = particle.originY
         if (entity) {
-            x += entity.transX
-            y += entity.transY
+            x += entity.posXG
+            y += entity.posYG
         }
 
         RenderCommandBuffer.addCustomRenderCmd(
             renderBuffer,
-            particle.originZ + (entity?.posZ || 0),
+            particle.originZ + (entity?.posZL || 0),
             renderCircle,
             '#600',
             true,

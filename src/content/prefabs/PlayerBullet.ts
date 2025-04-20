@@ -13,7 +13,7 @@ export const PlayerBulletPrefab: Prefab = {
         const bullet = World.spawnEntity(gameState)
         bullet.flags |= EntityFlags.ROLE_PLAYER_BULLET
 
-        bullet.velY = PLAYER_BULLET_SPEED
+        bullet.velYL = PLAYER_BULLET_SPEED
 
         bullet.flags |= EntityFlags.COLLIDER
         bullet.flags |= EntityFlags.DESTROY_AT_0_HP

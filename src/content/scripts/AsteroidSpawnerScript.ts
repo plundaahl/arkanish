@@ -57,11 +57,11 @@ const stateSpawning: StateMachineScript<'AsteroidSpawner'> = {
         const prefabName = ExtraMath.rollOneOf(...spawnList)
         if (prefabName !== NOTHING) {
             const spawnedEntity = Prefab.spawn(gameState, prefabName)
-            const x = Math.ceil(Math.random() * gameState.playArea.width) + gameState.playArea.left + entity.posX
+            const x = Math.ceil(Math.random() * gameState.playArea.width) + gameState.playArea.left + entity.posXL
             if (!(spawnedEntity.flags & EntityFlags.DO_NOT_CLAMP_TO_WIDTH_ON_SPAWN)) {
-                spawnedEntity.posX = clampToPlaySpace(gameState, x, 40)
+                spawnedEntity.posXL = clampToPlaySpace(gameState, x, 40)
             }
-            spawnedEntity.posY += entity.posY
+            spawnedEntity.posYL += entity.posYL
         }
         transitionScript(gameState, entity, stateIdle)
     },

@@ -24,7 +24,7 @@ export const BulletScriptHandler: ScriptHandler<'Bullet', {}> = {
             }
         },
         onUpdate(gameState, entity) {
-            if (entity.posY < (gameState.playArea.top)) {
+            if (entity.posYL < (gameState.playArea.top)) {
                 Entity.killEntity(entity)
             }
         },

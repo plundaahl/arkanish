@@ -27,13 +27,13 @@ export function createBoxParticleRenderFn(colour: string) {
             colour,
             false,
             scaleOffset(
-                particle.originX + (entity?.transX || 0),
-                particle.vecX + (entity?.transX || 0),
+                particle.originX + (entity?.posXG || 0),
+                particle.vecX + (entity?.posXG || 0),
                 pos
             ) - halfSize,
             scaleOffset(
-                particle.originY + (entity?.transY || 0),
-                particle.vecY + (entity?.transY || 0),
+                particle.originY + (entity?.posYG || 0),
+                particle.vecY + (entity?.posYG || 0),
                 pos
             ) - halfSize,
             size,
@@ -44,9 +44,9 @@ export function createBoxParticleRenderFn(colour: string) {
 
 export function spawnExplosionParticle(state: GameState, entity: Entity, radius: number, lifetime: number) {
     const particle = ParticleState.provisionParticle(state, state.time)
-    particle.originZ = entity.posZ + 1
-    particle.originX = entity.transX
-    particle.originY = entity.transY
+    particle.originZ = entity.posZL + 1
+    particle.originX = entity.posXG
+    particle.originY = entity.posYG
     const angle = Math.random() * 2 * Math.PI
     const magntiude = (Math.random() * radius * 0.5) + (radius * 0.5)
     const vec = Vector2.createFromAngle(angle, magntiude)

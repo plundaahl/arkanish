@@ -36,25 +36,25 @@ function onInput(
     controllerFlags: number
 ) {
     if (moveImpulseX && moveImpulseY) {           
-        const offsetX = moveImpulseX - entity.posX
-        const offsetY = moveImpulseY - entity.posY
+        const offsetX = moveImpulseX - entity.posXL
+        const offsetY = moveImpulseY - entity.posYL
         const offsetMagnitude = Math.sqrt((offsetX * offsetX) + (offsetY * offsetY))
         const proportionX = offsetMagnitude !== 0 ? offsetX / offsetMagnitude : 0
         const proportionY = offsetMagnitude !== 0 ? offsetY / offsetMagnitude : 0
         const scaling = Math.min(offsetMagnitude / MAX_MAGNITUDE, 1)
 
-        entity.velX = proportionX * scaling * PLAYER_MAX_VEL
-        entity.velY = proportionY * scaling * PLAYER_MAX_VEL
+        entity.velXL = proportionX * scaling * PLAYER_MAX_VEL
+        entity.velYL = proportionY * scaling * PLAYER_MAX_VEL
     } else {
-        entity.velX = 0
-        entity.velY = 0
+        entity.velXL = 0
+        entity.velYL = 0
     }
 
     if ((controllerFlags & CONTROLLER_FIRE) && gameState.time > entity.scriptData.nextShotTime) {
         entity.scriptData.nextShotTime = gameState.time + PLAYER_RATE_OF_FIRE
         const bullet = Prefab.spawn(gameState, 'PlayerBullet')
-        bullet.posX = entity.posX
-        bullet.posY = entity.posY - PLAYER_HEIGHT_HALF
+        bullet.posXL = entity.posXL
+        bullet.posYL = entity.posYL - PLAYER_HEIGHT_HALF
     }
 }
 
@@ -83,7 +83,7 @@ const stateActive: StateMachineScript<'Player', PlayerScriptData> = {
             if (entity.hp > 0) {
                 transitionScript(gameState, entity, stateInvulnerable)
             } else {
-                entity.velR = (Math.random() * (Math.PI * 4)) - (Math.PI * 2)
+                entity.velRL = (Math.random() * (Math.PI * 4)) - (Math.PI * 2)
                 transitionScript(gameState, entity, stateDying)
             }
         }

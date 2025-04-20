@@ -28,15 +28,15 @@ export const GunshipPrefab: Prefab = {
         entity.flags |= EntityFlags.DO_NOT_CLAMP_TO_WIDTH_ON_SPAWN
         Vector2.setToCoordinates(spawnVector, -((gameState.playArea.width * 0.5) + SIZE), 0)
         Vector2.rotateBy(spawnVector, ExtraMath.rollBetween(MIN_SPAWN_VECTOR, MAX_SPAWN_VECTOR))
-        entity.posX = Vector2.xOf(spawnVector)
-        entity.posY = Vector2.yOf(spawnVector) + (gameState.playArea.width * 0.25)
+        entity.posXL = Vector2.xOf(spawnVector)
+        entity.posYL = Vector2.yOf(spawnVector) + (gameState.playArea.width * 0.25)
 
         Vector2.rotateBy(spawnVector, Math.PI)
         Vector2.scaleToUnit(spawnVector)
         Vector2.scaleBy(spawnVector, SPEED)
-        entity.posR = Vector2.angleOf(spawnVector)
-        entity.velX = Vector2.xOf(spawnVector)
-        entity.velY = Vector2.yOf(spawnVector) + EXTRA_Y_SPEED
+        entity.posRL = Vector2.angleOf(spawnVector)
+        entity.velXL = Vector2.xOf(spawnVector)
+        entity.velYL = Vector2.yOf(spawnVector) + EXTRA_Y_SPEED
 
         entity.flags |= EntityFlags.COLLIDER
         entity.colliderBbSrc = [
@@ -60,9 +60,9 @@ export const GunshipPrefab: Prefab = {
         turret2.parent = entity.id
         turret3.parent = entity.id
 
-        turret1.posX = 40
-        turret2.posX = -20
-        turret3.posX = -80
+        turret1.posXL = 40
+        turret2.posXL = -20
+        turret3.posXL = -80
 
         return entity
     },

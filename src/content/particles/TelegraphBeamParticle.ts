@@ -19,15 +19,15 @@ export const TelegraphBeamParticle = {
 
         RenderCommandBuffer.addCustomRenderCmd(
             renderBuffer,
-            particle.originZ + (entity?.posZ || 0),
+            particle.originZ + (entity?.posZL || 0),
             renderBeam,
             '#600',
             true,
             opacity,
-            particle.originX + (entity?.transX || 0),
-            particle.originY + (entity?.transY || 0),
+            particle.originX + (entity?.posXG || 0),
+            particle.originY + (entity?.posYG || 0),
             w,
-            r + (entity?.transR || 0),
+            r + (entity?.posRG || 0),
         )
     },
     spawn: function (state: GameState, entity: Entity, x: number, y: number, w: number, r: number, delay: number): Particle {

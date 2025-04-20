@@ -34,7 +34,7 @@ const level: Level = {
         main1: {
             contents: [
                 { when: { type: 'init' }, then: [
-                    SpawnPrefabActionHandler.create('AsteroidSpawner', { posY: -450 })
+                    SpawnPrefabActionHandler.create('AsteroidSpawner', { posYL: -450 })
                 ]},
                 { when: { type: 'time', at: 20000 }, then: [
                     StartSectionActionHandler.create('main2')
@@ -44,7 +44,7 @@ const level: Level = {
         main2: {
             contents: [
                 { when: { type: 'init' }, then: [
-                    SpawnPrefabActionHandler.create('AsteroidSpawner', { posY: -450 })
+                    SpawnPrefabActionHandler.create('AsteroidSpawner', { posYL: -450 })
                 ]},
                 { when: { type: 'time', at: 20000 }, then: [
                     StartSectionActionHandler.create('main3')
@@ -54,7 +54,7 @@ const level: Level = {
         main3: {
             contents: [
                 { when: { type: 'init' }, then: [
-                    SpawnPrefabActionHandler.create('AsteroidSpawner', { posY: -450 })
+                    SpawnPrefabActionHandler.create('AsteroidSpawner', { posYL: -450 })
                 ]},
                 { when: { type: 'time', at: 20000 }, then: [
                     StartSectionActionHandler.create('intermission')
@@ -64,7 +64,7 @@ const level: Level = {
         intermission: {
             contents: [
                 { when: { type: 'time', at: 2500 }, then: [
-                    SpawnPrefabActionHandler.create('ShieldRecharge', { posY: -475 })
+                    SpawnPrefabActionHandler.create('ShieldRecharge', { posYL: -475 })
                 ]},
                 { when: { type: 'time', at: 5000 }, then: [
                     StartSectionActionHandler.create('main1')
@@ -87,7 +87,7 @@ export class GameScene implements Scene {
         if (!this.state) {
             this.state = GameState.create(time)
             const player = Prefab.spawn(this.state, 'Player')
-            player.posY = this.state.playArea.height / 4
+            player.posYL = this.state.playArea.height / 4
             this.state.playerId = player.id
             LevelState.loadLevel(this.state, level)
         }

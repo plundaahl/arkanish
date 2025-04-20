@@ -84,16 +84,17 @@ export interface Entity {
     flags: bigint
     parent: number
     hurtBy: bigint
-    posX: number
-    posY: number
-    posZ: number
-    posR: number
-    velX: number
-    velY: number
-    velR: number
-    transX: number
-    transY: number
-    transR: number
+    posXL: number
+    posYL: number
+    posZL: number
+    posRL: number
+    velXL: number
+    velYL: number
+    velRL: number
+    posXG: number
+    posYG: number
+    posZG: number
+    posRG: number
     colliderBbSrc: BoundingBox[],
     colliderBbTransform: BoundingBox[],
     collidesWith: bigint,
@@ -110,16 +111,17 @@ const NULL_ENTITY: Omit<Entity, 'id' | 'colliderBbSrc' | 'colliderBbTransform'> 
     flags: 0n,
     parent: 0,
     hurtBy: 0n,
-    posX: 0,
-    posY: 0,
-    posZ: 0,
-    posR: 0,
-    velX: 0,
-    velY: 0,
-    velR: 0,
-    transX: 0,
-    transY: 0,
-    transR: 0,
+    posXL: 0,
+    posYL: 0,
+    posZL: 0,
+    posRL: 0,
+    velXL: 0,
+    velYL: 0,
+    velRL: 0,
+    posXG: 0,
+    posYG: 0,
+    posZG: 0,
+    posRG: 0,
     collidesWith: 0n,
     invulnerableUntil: 0,
     colour: '',
@@ -135,9 +137,10 @@ const excludedKeys = [
     'state',
     'flags',
     'hurtBy',
-    'transX',
-    'transY',
-    'transR',
+    'posXG',
+    'posYG',
+    'posZG',
+    'posRG',
     'colliderBbTransform',
     'invulnerableUntil',
 ] as const
@@ -150,13 +153,13 @@ export type EntitySpec = Partial<Omit<Entity, typeof excludedKeys[number]> & {
 }>
 const entitySpecKeys = (() => {
     const keyObj: { [key in keyof Required<EntitySpec>]: 0 } = {
-        posX: 0,
-        posY: 0,
-        posZ: 0,
-        posR: 0,
-        velX: 0,
-        velY: 0,
-        velR: 0,
+        posXL: 0,
+        posYL: 0,
+        posZL: 0,
+        posRL: 0,
+        velXL: 0,
+        velYL: 0,
+        velRL: 0,
         colliderBbSrc: 0,
         colour: 0,
         hp: 0,
@@ -193,13 +196,13 @@ export const Entity = {
                 case 'hurtBy':
                 case 'collidesWith':
                 case 'flags': entity.flags = EntityFlags.parse(spec.flags); break;
-                case 'posX':
-                case 'posY':
-                case 'posZ':
-                case 'posR':
-                case 'velX':
-                case 'velY':
-                case 'velR':
+                case 'posXL':
+                case 'posYL':
+                case 'posZL':
+                case 'posRL':
+                case 'velXL':
+                case 'velYL':
+                case 'velRL':
                 case 'hp': if (spec[key] !== undefined) { entity[key] = spec[key] }; break;
                 case 'colour': if (spec[key] !== undefined) { entity[key] = spec[key] }; break;
                 case 'colliderBbSrc': if (spec[key] !== undefined) { entity[key] = spec[key].map(BoundingBox.clone) }; break;
@@ -218,13 +221,13 @@ export const Entity = {
                 case 'hurtBy':
                 case 'collidesWith':
                 case 'flags': spec.flags = EntityFlags.serialize(entity.flags); break
-                case 'posX':
-                case 'posY':
-                case 'posZ':
-                case 'posR':
-                case 'velX':
-                case 'velY':
-                case 'velR':
+                case 'posXL':
+                case 'posYL':
+                case 'posZL':
+                case 'posRL':
+                case 'velXL':
+                case 'velYL':
+                case 'velRL':
                 case 'hp': spec[key] = entity[key]; break;
                 case 'colour': spec[key] = entity[key]; break;
                 case 'colliderBbSrc': spec[key] = entity[key]; break;

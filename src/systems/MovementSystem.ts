@@ -18,9 +18,9 @@ export const MovementSystem = {
         for (let i = 0; i < state.entities.length; i++) {
             const entity = state.entities[i]
             if (entity.state === EntityStates.ALIVE) {
-                entity.posY += (entity.velY * deltaT) / MS_PER_SEC
-                entity.posX += (entity.velX * deltaT) / MS_PER_SEC
-                entity.posR += ExtraMath.modulo((entity.velR * deltaT) / MS_PER_SEC, FULL_CIRCLE)
+                entity.posYL += (entity.velYL * deltaT) / MS_PER_SEC
+                entity.posXL += (entity.velXL * deltaT) / MS_PER_SEC
+                entity.posRL += ExtraMath.modulo((entity.velRL * deltaT) / MS_PER_SEC, FULL_CIRCLE)
             }
         }
 
@@ -42,34 +42,34 @@ export const MovementSystem = {
             const bottom = BoundingBox.bottomOf(...entity.colliderBbSrc)
 
             if (Flag.hasBigintFlags(entity.flags, EntityFlags.CONSTRAIN_TO_PLAY_SPACE)) {
-                entity.posX = clamp(playAreaLeft - left, entity.posX, playAreaRight - right)
-                entity.posY = clamp(playAreaTop - top, entity.posY, playAreaBottom - bottom)
+                entity.posXL = clamp(playAreaLeft - left, entity.posXL, playAreaRight - right)
+                entity.posYL = clamp(playAreaTop - top, entity.posYL, playAreaBottom - bottom)
             }
 
             if (Flag.hasBigintFlags(entity.flags, EntityFlags.BOUNCE_IN_PLAY_SPACE)) {
                 let bounce = false
-                const leftOverlap = entity.posX + left - playAreaLeft
+                const leftOverlap = entity.posXL + left - playAreaLeft
                 if (leftOverlap < 0) {
-                    entity.posX -= leftOverlap
-                    entity.velX *= -1
+                    entity.posXL -= leftOverlap
+                    entity.velXL *= -1
                     bounce = true
                 }
-                const rightOverlap = entity.posX + right - playAreaRight
+                const rightOverlap = entity.posXL + right - playAreaRight
                 if (rightOverlap > 0) {
-                    entity.posX -= rightOverlap
-                    entity.velX *= -1
+                    entity.posXL -= rightOverlap
+                    entity.velXL *= -1
                     bounce = true
                 }
-                const topOverlap = entity.posY + top - playAreaTop
+                const topOverlap = entity.posYL + top - playAreaTop
                 if (topOverlap < 0) {
-                    entity.posY -= topOverlap
-                    entity.velY *= -1
+                    entity.posYL -= topOverlap
+                    entity.velYL *= -1
                     bounce = true
                 }
-                const bottomOverlap = entity.posY + bottom - playAreaBottom
+                const bottomOverlap = entity.posYL + bottom - playAreaBottom
                 if (bottomOverlap > 0) {
-                    entity.posY -= bottomOverlap
-                    entity.velY *= -1
+                    entity.posYL -= bottomOverlap
+                    entity.velYL *= -1
                     bounce = true
                 }
                 if (bounce) {
@@ -86,14 +86,14 @@ export const MovementSystem = {
             }
 
             // Update parent transforms
-            entity.transX = entity.posX
-            entity.transY = entity.posY
-            entity.transR = entity.posR
+            entity.posXG = entity.posXL
+            entity.posYG = entity.posYL
+            entity.posRG = entity.posRL
             for (let i = 0; i < entity.colliderBbSrc.length; i++) {
                 const src = entity.colliderBbSrc[i]
                 const dest = entity.colliderBbTransform[i] || BoundingBox.clone(src)
                 entity.colliderBbTransform[i] = dest
-                BoundingBox.transform(src, dest, entity.posX, entity.posY, entity.posR)
+                BoundingBox.transform(src, dest, entity.posXL, entity.posYL, entity.posRL)
             }
         }
 
@@ -109,20 +109,21 @@ export const MovementSystem = {
             }
 
             // Update child transforms
-            Vector2.setToCoordinates(vParent, parent.transX, parent.transY)
-            Vector2.setToCoordinates(vChild, entity.posX, entity.posY)
+            Vector2.setToCoordinates(vParent, parent.posXG, parent.posYG)
+            Vector2.setToCoordinates(vChild, entity.posXL, entity.posYL)
 
-            Vector2.rotateBy(vChild, parent.transR)
-            Vector2.addCoordinates(vChild, parent.transX, parent.transY)
+            Vector2.rotateBy(vChild, parent.posRG)
+            Vector2.addCoordinates(vChild, parent.posXG, parent.posYG)
 
-            entity.transX = Vector2.xOf(vChild)
-            entity.transY = Vector2.yOf(vChild)
-            entity.transR = entity.posR + parent.transR
+            entity.posXG = Vector2.xOf(vChild)
+            entity.posYG = Vector2.yOf(vChild)
+            entity.posZG = entity.posZL + parent.posZG
+            entity.posRG = entity.posRL + parent.posRG
 
             for (let i = 0; i < entity.colliderBbSrc.length; i++) {
                 const src = entity.colliderBbSrc[i]
                 const dest = entity.colliderBbTransform[i]
-                BoundingBox.transform(src, dest, entity.transX, entity.transY, entity.transR)
+                BoundingBox.transform(src, dest, entity.posXG, entity.posYG, entity.posRG)
             }
         }
     }

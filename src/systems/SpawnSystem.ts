@@ -66,7 +66,7 @@ function byIdIndex(a: Entity, b: Entity): number {
 
 function isEntityInWorldBounds(state: GameState, entity: Entity) {
     return (
-        (entity.velY > 0 && entity.posY > state.playArea.height * 2)
-        || (entity.velY < 0 && entity.posY < state.playArea.height * -2)
+        (entity.velYL > 0 && entity.posYL > state.playArea.height * 2)
+        || (entity.velYL < 0 && entity.posYL < state.playArea.height * -2)
     )
 }

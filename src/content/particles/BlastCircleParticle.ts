@@ -16,12 +16,12 @@ export const BlastCircleParticle = {
 
         RenderCommandBuffer.addCustomRenderCmd(
             renderBuffer,
-            particle.originZ + (entity?.posZ || 0),
+            particle.originZ + (entity?.posZL || 0),
             renderCircle,
             'white',
             true,
-            particle.originX + (entity?.transX || 0),
-            particle.originY + (entity?.transY || 0),
+            particle.originX + (entity?.posXG || 0),
+            particle.originY + (entity?.posYG || 0),
             size,
             opacity,
         )
@@ -29,9 +29,9 @@ export const BlastCircleParticle = {
     spawn: (state: GameState, entity: Entity, radius: number, delay: number): Particle => {
         const particle = ParticleState.provisionParticle(state, state.time)
         particle.type = BlastCircleParticle.id
-        particle.originZ = entity.posZ - 1
-        particle.originX = entity.posX
-        particle.originY = entity.posY
+        particle.originZ = entity.posZL - 1
+        particle.originX = entity.posXL
+        particle.originY = entity.posYL
         particle.vecX = radius
         particle.endTime = state.time + delay
         return particle

@@ -11,7 +11,7 @@ export const ShieldRechargePrefab: Prefab = {
         const entity = World.spawnEntity(gameState)
         entity.flags |= EntityFlags.ROLE_PICKUP | EntityFlags.ROLE_POWERUP
 
-        entity.velY = 350
+        entity.velYL = 350
 
         entity.flags |= EntityFlags.COLLIDER
         entity.flags |= EntityFlags.DESTROY_AT_0_HP

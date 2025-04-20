@@ -13,10 +13,10 @@ const LINGER_TIME = BLAST_PARTICLE_TIME - BLAST_TIME
 const stateIdle: StateMachineScript<'BeamSpinner'> = {
     type: "BeamSpinner",
     onUpdate(gameState, entity) {
-        if (entity.posY > gameState.playArea.top) {
+        if (entity.posYL > gameState.playArea.top) {
             transitionScript(gameState, entity, statePreparing)
             // Wait a random amount of time before triggering
-            entity.scriptData.timeEnteredState -= Math.abs(ExtraMath.rollBetween(0, 0.4) * gameState.playArea.height / entity.velY)
+            entity.scriptData.timeEnteredState -= Math.abs(ExtraMath.rollBetween(0, 0.4) * gameState.playArea.height / entity.velYL)
         }
     },
 }

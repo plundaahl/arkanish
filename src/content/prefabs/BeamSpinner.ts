@@ -23,10 +23,10 @@ export const BeamSpinnerPrefab: Prefab = {
         const maxVel = gameState.playArea.height * 0.5
         const minVel = gameState.playArea.height * 0.2
     
-        spinner.posY = -size
-        spinner.velY = ExtraMath.rollBetween(minVel, maxVel)
-        spinner.velR = ExtraMath.rollBetween(0, 0.15) * Math.PI * ExtraMath.positiveOrNegative()
-        spinner.posR = Math.random() * Math.PI * 2
+        spinner.posYL = -size
+        spinner.velYL = ExtraMath.rollBetween(minVel, maxVel)
+        spinner.velRL = ExtraMath.rollBetween(0, 0.15) * Math.PI * ExtraMath.positiveOrNegative()
+        spinner.posRL = Math.random() * Math.PI * 2
     
         spinner.flags |= EntityFlags.COLLIDER
         spinner.colliderBbSrc = [BoundingBox.createCircleBb(0, 0, halfSize)]
