@@ -151,7 +151,7 @@ export const LevelState = {
                     state.levelSectionTimeStatements.push(statement as Statement<TimeCondition>)
                 }
             }
-            state.levelSectionTimeStatements.sort((a, b) => b.when.at - a.when.at)
+            state.levelSectionTimeStatements.sort((a, b) => a.when.at - b.when.at)
         }
     },
     currentSection: (state: LevelState): Section | undefined => {
