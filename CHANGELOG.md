@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.2.3 (2025-04-19)
+- Added 'gunboat' enemies.
+- Large-scale refactoring to support more complex enemy types.
+
 ## v0.2.2 (2025-04-13)
 - Added 'beam spinner' enemies.
 
