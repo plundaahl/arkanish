@@ -15,6 +15,7 @@ import {
     PlayerScriptHandler,
     PowerupScriptHandler,
     TurretScriptHandler,
+    WeaverScriptHandler,
 } from './content/scripts'
 import {
     BlastBeamParticle,
@@ -38,6 +39,7 @@ import {
     ShieldRechargePrefab,
     TurretPrefab,
     EnemyBulletPrefab,
+    WeaverPrefab,
 } from './content/prefabs'
 
 Registry.registerActions(
@@ -53,6 +55,7 @@ Registry.registerScriptHandlers(
     PlayerScriptHandler,
     AsteroidSpawnerScriptHandler,
     TurretScriptHandler,
+    WeaverScriptHandler,
 )
 Registry.registerParticleHandlers(
     BlastBeamParticle,
@@ -76,6 +79,7 @@ Registry.registerPrefabs(
     GunshipPrefab,
     TurretPrefab,
     EnemyBulletPrefab,
+    WeaverPrefab,
 )
 
 function orError<T>(element: T | null, error: string, ifNull: (message: string) => void): T {

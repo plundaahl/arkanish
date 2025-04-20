@@ -1,4 +1,5 @@
 export const ExtraMath = {
+    FULL_CIRCLE: Math.PI * 2,
     rollBetween: (from: number, to: number): number => from + (Math.random() * (to - from)),
     positiveOrNegative: (): number => Math.random() < 0.5 ? -1 : 1,
     rollOneOf: <T>(...options: [T, number?][]): T => {
@@ -19,8 +20,18 @@ export const ExtraMath = {
     },
     modulo(value: number, cap: number): number {
         let result = value % cap
-        return result < 0
-            ? cap + result
-            : result
+        if (result < 0) {
+            result += cap
+        }
+        if (result === -0) {
+            return 0
+        }
+        return result
+    },
+    moduloBetween(value: number, min: number, max: number): number {
+        return ExtraMath.modulo(value - min, max - min) + min
+    },
+    clamp(min: number, current: number, max: number): number {
+        return Math.min(Math.max(min, current), max)
     },
 }

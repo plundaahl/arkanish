@@ -15,6 +15,11 @@ export const Vector2 = {
         vec[VEC2_Y] = y
         return vec
     },
+    setToAngleAndMag: (vec: Vector2, angle: number, magnitude: number) => {
+        vec[VEC2_X] = Math.cos(angle) * magnitude
+        vec[VEC2_Y] = Math.sin(angle) * magnitude
+        return vec
+    },
     setToVec: (vec: Vector2, source: Vector2): Vector2 => {
         vec[VEC2_X] = source[VEC2_X]
         vec[VEC2_Y] = source[VEC2_Y]

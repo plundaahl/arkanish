@@ -10,18 +10,30 @@ import { ExtraMath } from "../Math";
 const MS_PER_SEC = 1000
 const FULL_CIRCLE = Math.PI * 2
 
+const localVel: Vector2 = Vector2.createFromCoordinates(0, 0)
+
 export const MovementSystem = {
     run: (state: GameState) => {
         const deltaT = state.frameLength
 
-        // Move parent entities
+        // Update local positions of all entities
         for (let i = 0; i < state.entities.length; i++) {
             const entity = state.entities[i]
-            if (entity.state === EntityStates.ALIVE) {
-                entity.posYL += (entity.velYL * deltaT) / MS_PER_SEC
-                entity.posXL += (entity.velXL * deltaT) / MS_PER_SEC
-                entity.posRL += ExtraMath.modulo((entity.velRL * deltaT) / MS_PER_SEC, FULL_CIRCLE)
+            if (entity.state !== EntityStates.ALIVE) {
+                continue
             }
+
+            entity.posRL = ExtraMath.modulo(entity.posRL + ((entity.velRL * deltaT) / MS_PER_SEC), FULL_CIRCLE)
+
+            if (entity.flags & EntityFlags.USE_INTERNAL_VELOCITY) {
+                Vector2.setToAngleAndMag(localVel, entity.velAI, entity.velMI)
+                Vector2.rotateBy(localVel, entity.posRL)
+                entity.velXL = Vector2.xOf(localVel)
+                entity.velYL = Vector2.yOf(localVel)
+            }
+
+            entity.posXL += (entity.velXL * deltaT) / MS_PER_SEC
+            entity.posYL += (entity.velYL * deltaT) / MS_PER_SEC
         }
 
         // Constrain entities to play area
@@ -42,8 +54,8 @@ export const MovementSystem = {
             const bottom = BoundingBox.bottomOf(...entity.colliderBbSrc)
 
             if (Flag.hasBigintFlags(entity.flags, EntityFlags.CONSTRAIN_TO_PLAY_SPACE)) {
-                entity.posXL = clamp(playAreaLeft - left, entity.posXL, playAreaRight - right)
-                entity.posYL = clamp(playAreaTop - top, entity.posYL, playAreaBottom - bottom)
+                entity.posXL = ExtraMath.clamp(playAreaLeft - left, entity.posXL, playAreaRight - right)
+                entity.posYL = ExtraMath.clamp(playAreaTop - top, entity.posYL, playAreaBottom - bottom)
             }
 
             if (Flag.hasBigintFlags(entity.flags, EntityFlags.BOUNCE_IN_PLAY_SPACE)) {
@@ -127,10 +139,6 @@ export const MovementSystem = {
             }
         }
     }
-}
-
-function clamp(min: number, current: number, max: number): number {
-    return Math.min(Math.max(min, current), max)
 }
 
 function byIdIndex(a: Entity, b: Entity): number {

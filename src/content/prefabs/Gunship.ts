@@ -1,16 +1,34 @@
+import { GameState } from "../../game-state/GameState";
 import { ExtraMath } from "../../Math";
 import { BoundingBox } from "../../game-state/BoundingBox";
-import { EntityFlags, World } from "../../game-state/Entity";
+import { Entity, EntityFlags, World } from "../../game-state/Entity";
 import { Prefab } from "../../game-state/Prefab";
 import { Vector2 } from "../../game-state/Vector";
 
-const MIN_SPAWN_VECTOR = Math.PI * 0.1
-const MAX_SPAWN_VECTOR = Math.PI * 0.9
+const CENTER = Math.PI * 0.5
+const MAX_OFFSET = Math.PI * 0.4
 const SIZE = 120
 const SPEED = 40
 const EXTRA_Y_SPEED = 100
 
 const spawnVector: Vector2 = Vector2.createFromCoordinates(1, 1)
+
+function spawnAtAngle(gameState: GameState, entity: Entity, center: number, offset: number, size: number, speed: number, extraYSpeed: number) {
+    entity.flags |= EntityFlags.DO_NOT_CLAMP_TO_WIDTH_ON_SPAWN
+    Vector2.setToCoordinates(spawnVector, -((gameState.playArea.width * 0.5) + size), 0)
+    Vector2.rotateBy(spawnVector, center + offset)
+    entity.posXL = Vector2.xOf(spawnVector)
+    entity.posYL = -size - (gameState.playArea.width * 0.5)
+
+    Vector2.rotateBy(spawnVector, Math.PI)
+    Vector2.scaleToUnit(spawnVector)
+    Vector2.scaleBy(spawnVector, speed)
+    entity.posRL = Vector2.angleOf(spawnVector)
+    entity.velXL = Vector2.xOf(spawnVector)
+    entity.velYL = Vector2.yOf(spawnVector) + extraYSpeed
+}
+
+let lastSpawnOffset = 0
 
 export const GunshipPrefab: Prefab = {
     id: 'Gunship',
@@ -25,18 +43,10 @@ export const GunshipPrefab: Prefab = {
 
         entity.colour = 'red'
 
-        entity.flags |= EntityFlags.DO_NOT_CLAMP_TO_WIDTH_ON_SPAWN
-        Vector2.setToCoordinates(spawnVector, -((gameState.playArea.width * 0.5) + SIZE), 0)
-        Vector2.rotateBy(spawnVector, ExtraMath.rollBetween(MIN_SPAWN_VECTOR, MAX_SPAWN_VECTOR))
-        entity.posXL = Vector2.xOf(spawnVector)
-        entity.posYL = Vector2.yOf(spawnVector) + (gameState.playArea.width * 0.25)
-
-        Vector2.rotateBy(spawnVector, Math.PI)
-        Vector2.scaleToUnit(spawnVector)
-        Vector2.scaleBy(spawnVector, SPEED)
-        entity.posRL = Vector2.angleOf(spawnVector)
-        entity.velXL = Vector2.xOf(spawnVector)
-        entity.velYL = Vector2.yOf(spawnVector) + EXTRA_Y_SPEED
+        const offset = ExtraMath.rollBetween(MAX_OFFSET * 0.25, MAX_OFFSET) * ExtraMath.positiveOrNegative()
+        const accumulated = lastSpawnOffset + offset
+        lastSpawnOffset = ExtraMath.moduloBetween(accumulated, -MAX_OFFSET, MAX_OFFSET)
+        spawnAtAngle(gameState, entity, CENTER, lastSpawnOffset, SIZE, SPEED, EXTRA_Y_SPEED)
 
         entity.flags |= EntityFlags.COLLIDER
         entity.colliderBbSrc = [

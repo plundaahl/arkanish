@@ -25,6 +25,7 @@ export const EntityFlags = Object.freeze({
     DESTROY_AFTER_SECTION: entityFlag(),
     DESTROY_AT_0_HP: entityFlag(),
     DO_NOT_CLAMP_TO_WIDTH_ON_SPAWN: entityFlag(),
+    USE_INTERNAL_VELOCITY: entityFlag(),
     parse: (flags: string[] | undefined): bigint => {
         if (!flags) {
             return 0n
@@ -84,6 +85,10 @@ export interface Entity {
     flags: bigint
     parent: number
     hurtBy: bigint
+    // Internal velocity (relative to local position and facing - allows for steering)
+    velAI: number
+    velMI: number
+    // Local position and velocity (relative to parent)
     posXL: number
     posYL: number
     posZL: number
@@ -91,6 +96,7 @@ export interface Entity {
     velXL: number
     velYL: number
     velRL: number
+    // Global position (relative to global coordinate space)
     posXG: number
     posYG: number
     posZG: number
@@ -111,6 +117,8 @@ const NULL_ENTITY: Omit<Entity, 'id' | 'colliderBbSrc' | 'colliderBbTransform'> 
     flags: 0n,
     parent: 0,
     hurtBy: 0n,
+    velAI: 0,
+    velMI: 0,
     posXL: 0,
     posYL: 0,
     posZL: 0,
@@ -157,6 +165,8 @@ const entitySpecKeys = (() => {
         posYL: 0,
         posZL: 0,
         posRL: 0,
+        velAI: 0,
+        velMI: 0,
         velXL: 0,
         velYL: 0,
         velRL: 0,
@@ -200,6 +210,8 @@ export const Entity = {
                 case 'posYL':
                 case 'posZL':
                 case 'posRL':
+                case 'velAI':
+                case 'velMI':
                 case 'velXL':
                 case 'velYL':
                 case 'velRL':
@@ -225,6 +237,8 @@ export const Entity = {
                 case 'posYL':
                 case 'posZL':
                 case 'posRL':
+                case 'velAI':
+                case 'velMI':
                 case 'velXL':
                 case 'velYL':
                 case 'velRL':

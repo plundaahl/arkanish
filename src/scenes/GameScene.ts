@@ -23,7 +23,15 @@ type State = GameState
 
 const level: Level = {
     initSection: 'start',
+    // initSection: 'scratch',
     sections: {
+        scratch: {
+            contents: [
+                { when: { type: 'time', at: 1000 }, then: [
+                    SpawnPrefabActionHandler.create('Weaver', { velYL: 0 })
+                ]},
+            ]
+        },
         start: {
             contents: [
                 { when: { type: 'time', at: 2000 }, then: [
@@ -37,7 +45,8 @@ const level: Level = {
                     SpawnPrefabActionHandler.create('AsteroidSpawner', { posYL: -450 })
                 ]},
                 { when: { type: 'time', at: 20000 }, then: [
-                    StartSectionActionHandler.create('main2')
+                    StartSectionActionHandler.create('main2'),
+                    SpawnPrefabActionHandler.create('ShieldRecharge', { posYL: -475 })
                 ]}
             ],
         },
@@ -47,7 +56,8 @@ const level: Level = {
                     SpawnPrefabActionHandler.create('AsteroidSpawner', { posYL: -450 })
                 ]},
                 { when: { type: 'time', at: 20000 }, then: [
-                    StartSectionActionHandler.create('main3')
+                    StartSectionActionHandler.create('main3'),
+                    SpawnPrefabActionHandler.create('ShieldRecharge', { posYL: -475 })
                 ]}
             ],
         },
@@ -57,15 +67,13 @@ const level: Level = {
                     SpawnPrefabActionHandler.create('AsteroidSpawner', { posYL: -450 })
                 ]},
                 { when: { type: 'time', at: 20000 }, then: [
-                    StartSectionActionHandler.create('intermission')
+                    StartSectionActionHandler.create('intermission'),
+                    SpawnPrefabActionHandler.create('ShieldRecharge', { posYL: -475 })
                 ]}
             ],
         },
         intermission: {
             contents: [
-                { when: { type: 'time', at: 2500 }, then: [
-                    SpawnPrefabActionHandler.create('ShieldRecharge', { posYL: -475 })
-                ]},
                 { when: { type: 'time', at: 5000 }, then: [
                     StartSectionActionHandler.create('main1')
                 ]},
