@@ -1,6 +1,6 @@
 {
   "name": "arkanish",
-  "version": "0.2.2",
+  "version": "0.2.4",
   "main": "index.js",
   "author": "Patrick Charles-Lundaahl <plundaahl@protonmail.com>",
   "license": "MIT",
@@ -17,8 +17,8 @@
     "copy-webpack-plugin": "^13.0.0"
   },
   "scripts": {
-    "start": "webpack serve --config ./webpack.develop.js",
-    "build": "webpack --config ./webpack.production.js",
+    "start": "node ./scripts/write-dev-version.js && webpack serve --config ./webpack.develop.js",
+    "build": "node ./scripts/write-prod-version.js && webpack --config ./webpack.production.js",
     "test": "jest"
   }
 }

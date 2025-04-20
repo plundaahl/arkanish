@@ -1,5 +1,5 @@
-import { CURSOR_CLICK, CURSOR_DOWN, Scene, UiState, renderTouches } from './Scene'
-
+import { CURSOR_CLICK, CURSOR_DOWN, Scene, UiState } from './Scene'
+import * as buildInfo from '../build-info.json'
 const TITLE = 'Arkanish'
 const START = 'Start'
 
@@ -38,6 +38,18 @@ export class MenuScene implements Scene {
             ctx.fillStyle = 'white'
             const textMetrics = ctx.measureText(TITLE)
             ctx.fillText(TITLE, halfW - (textMetrics.width / 2), hPos)
+            hPos += textMetrics.actualBoundingBoxAscent + textMetrics.actualBoundingBoxDescent
+            ctx.restore()
+        }
+
+        // Version
+        {
+            ctx.save()
+            ctx.font = '20px serif'
+            ctx.fillStyle = 'white'
+            const text = `v${buildInfo.version}`
+            const textMetrics = ctx.measureText(text)
+            ctx.fillText(text, halfW - (textMetrics.width / 2), hPos - 40)
             hPos += textMetrics.actualBoundingBoxAscent + textMetrics.actualBoundingBoxDescent
             ctx.restore()
         }
