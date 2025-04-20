@@ -17,7 +17,7 @@ export const RenderSystem = {
                     if (box.type === BoundingBoxTypes.AABB) {
                         RenderCommandBuffer.addCustomRenderCmd(
                             gameBuffer,
-                            entity.posZL,
+                            entity.posZG,
                             renderBox,
                             entity.colour || 'white',
                             state.collidedEntities.has(entity.id),
@@ -29,7 +29,7 @@ export const RenderSystem = {
                     } else if (box.type === BoundingBoxTypes.CIRCLE) {
                         RenderCommandBuffer.addCustomRenderCmd(
                             gameBuffer,
-                            entity.posZL,
+                            entity.posZG,
                             renderCircle,
                             entity.colour || 'white',
                             state.collidedEntities.has(entity.id),
@@ -40,7 +40,7 @@ export const RenderSystem = {
                     } else if (box.type === BoundingBoxTypes.CONVEX_POLY) {
                         RenderCommandBuffer.addCustomRenderCmd(
                             gameBuffer,
-                            entity.posZL,
+                            entity.posZG,
                             renderPoly,
                             entity.colour || 'white',
                             state.collidedEntities.has(entity.id) || entity.id === state.playerId,
