@@ -9,6 +9,7 @@ import {
     LevelSystem,
     MovementSystem,
     ParticleSystem,
+    PlayAreaFlagSystem,
     RenderSystem,
     ScriptSystem,
     SpawnSystem,
@@ -31,6 +32,7 @@ export const Engine = {
         InputSystem.run(state, uiState)
         MovementSystem.run(state)
         CollisionSystem.run(state)
+        PlayAreaFlagSystem.run(state)
         EventSystem.run(state)
         DamageSystem.run(state)
         ScriptSystem.run(state)

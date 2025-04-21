@@ -31,7 +31,23 @@ export const DamageSystem = {
                         entity.scoreValue = 0
                     }
                 }
+                propagateEventsToParent(gameState, entity, killingHit)
             }
         }
     },
+}
+
+function propagateEventsToParent(gameState: GameState, entity: Entity, deathEvent: boolean) {
+    for (
+        let parent = World.getEntity(gameState, entity.parent);
+        parent != undefined;
+        entity = parent, parent = World.getEntity(gameState, entity.parent)
+    ) {
+        if (deathEvent && entity.flags & EntityFlags.PROPAGATE_DEATH_TO_PARENT) {
+            Entity.killEntity(parent)
+            GameEventBuffer.addDamageEvent(gameState, parent.id, deathEvent)
+        } else {
+            return
+        }
+    }
 }

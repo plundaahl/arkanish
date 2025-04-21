@@ -26,6 +26,8 @@ export const EntityFlags = Object.freeze({
     DESTROY_AT_0_HP: entityFlag(),
     DO_NOT_CLAMP_TO_WIDTH_ON_SPAWN: entityFlag(),
     USE_INTERNAL_VELOCITY: entityFlag(),
+    PROPAGATE_DEATH_TO_PARENT: entityFlag(),
+    IN_PLAY_AREA: entityFlag(),
     parse: (flags: string[] | undefined): bigint => {
         if (!flags) {
             return 0n
