@@ -1,23 +1,12 @@
 import { Scene } from './Scene'
 import { World } from '../game-state/Entity'
-import { CollisionSystem } from '../systems/CollisionSystem'
-import { ScriptSystem } from '../systems/ScriptSystem'
 import { GameState } from '../game-state/GameState'
-import { SpawnSystem } from '../systems/SpawnSystem'
-import { MovementSystem } from '../systems/MovementSystem'
-import { EventSystem } from '../systems/EventSystem'
 import { RenderCommandBuffer } from '../RenderCommand'
-import { RenderSystem } from '../systems/RenderSystem'
-import { ParticleSystem } from '../systems/ParticleSystem'
 import { Level, LevelState } from '../game-state/Level'
-import { LevelSystem } from '../systems/LevelSystem'
 import { Prefab } from '../game-state/Prefab'
 import { SpawnPrefabActionHandler, StartSectionActionHandler } from '../content/actions'
-import { InputSystem } from '../systems/InputSystem'
-import { DamageSystem } from '../systems/DamageSystem'
 import { UiState } from '../ui-state'
-import { TimeSystem } from '../systems/TimeSystem'
-import { UiSystem } from '../systems/UiSystem'
+import { Engine } from '../Engine'
 
 type State = GameState
 
@@ -107,19 +96,14 @@ export class GameScene implements Scene {
             LevelState.loadLevel(this.state, level)
         }
 
-        TimeSystem.run(this.state, time)
-        LevelSystem.run(this.state)
-        SpawnSystem.runSpawn(this.state)
-        InputSystem.run(this.state, uiState)
-        MovementSystem.run(this.state)
-        CollisionSystem.run(this.state)
-        EventSystem.run(this.state)
-        DamageSystem.run(this.state)
-        ScriptSystem.run(this.state)
-        SpawnSystem.runDespawn(this.state)
-        UiSystem.run(this.state, this.uiBuffer)
-        ParticleSystem.render(this.state, this.gameObjBuffer)
-        RenderSystem.render(this.state, uiState, this.gameObjBuffer, this.uiBuffer, canvas)
+        Engine.update(
+            this.state,
+            uiState,
+            time,
+            this.gameObjBuffer,
+            this.uiBuffer,
+            canvas,
+        )
 
         const player = World.getEntity(this.state, this.state.playerId)
         if (!player) {
