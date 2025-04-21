@@ -17,8 +17,6 @@ import { InputSystem } from '../systems/InputSystem'
 import { DamageSystem } from '../systems/DamageSystem'
 import { UiState } from '../ui-state'
 
-const STAR_TIME_SCALE = 1 / 5000
-
 type State = GameState
 
 const level: Level = {
@@ -84,8 +82,8 @@ const level: Level = {
 
 export class GameScene implements Scene {
     private state: State;
-    private gameRenderCommandBuffer: RenderCommandBuffer = RenderCommandBuffer.create()
-    private uiRenderCommandBuffer: RenderCommandBuffer = RenderCommandBuffer.create()
+    private gameObjBuffer: RenderCommandBuffer = RenderCommandBuffer.create()
+    private uiBuffer: RenderCommandBuffer = RenderCommandBuffer.create()
 
     constructor(
         private readonly onDeath: () => void,
@@ -120,40 +118,15 @@ export class GameScene implements Scene {
         ScriptSystem.run(this.state)
         SpawnSystem.runDespawn(this.state)
 
-        this.renderBackground(time, canvas, uiState)
-        this.renderUi(this.uiRenderCommandBuffer)
+        this.renderUi(this.uiBuffer)
 
-        ParticleSystem.render(this.state, this.gameRenderCommandBuffer)
-        RenderSystem.render(this.state, uiState, this.gameRenderCommandBuffer, this.uiRenderCommandBuffer, canvas)
+        ParticleSystem.render(this.state, this.gameObjBuffer)
+        RenderSystem.render(this.state, uiState, this.gameObjBuffer, this.uiBuffer, canvas)
 
         const player = World.getEntity(this.state, this.state.playerId)
         if (!player) {
             this.onDeath()
         }
-    }
-
-    private renderBackground(time: number, ctx: CanvasRenderingContext2D, ui: UiState): void {
-        const { width, height } = ui
-
-        ctx.save()
-
-        ctx.clearRect(0, 0, width, height)
-        ctx.fillStyle = 'black'
-        ctx.fillRect(0, 0, width, height)
-
-        ctx.fillStyle = 'white'
-
-        for (let i = 0; i < 100; i++) {
-            const xScaler = (i * i) + (i / 3)
-            const yScaler = (i * i * i) - (i / 73)
-            const speedScaler = ((((i + xScaler + yScaler) % 10) / 10) + 0.5)
-            const sizeScaler = (speedScaler * 2) + 0.1 
-            const xPos = (1.37 * xScaler * ui.width) % ui.width
-            const yPos = ((0.83 * yScaler * ui.height) + (time * speedScaler * STAR_TIME_SCALE * ui.height)) % ui.height
-            ctx.fillRect(xPos, yPos, sizeScaler, sizeScaler)
-        }
-
-        ctx.restore()
     }
 
     private renderUi(buffer: RenderCommandBuffer) {

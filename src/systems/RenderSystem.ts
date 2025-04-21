@@ -57,7 +57,11 @@ export const RenderSystem = {
         gameBuffer.commands.sort(renderCmdsByZDepth)
 
         // NOTE: Rendering relies on play area projection calculation. See InputSystem.
-        
+
+        // DRAW BACKGROUND
+        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
+        renderStarBackground(ctx, state.time, ui)
+
         // DRAW GAME VIEW
         ctx.save()
         renderViewBox(ctx, ui)
@@ -206,5 +210,29 @@ export function renderBeam(
         ctx.lineWidth = 2
         ctx.strokeRect(0, 0 - halfWidth, BEAM_LENGTH, w)
     }
+    ctx.restore()
+}
+
+const STAR_TIME_SCALE = 1 / 5000
+function renderStarBackground(ctx: CanvasRenderingContext2D, time: number, ui: UiState): void {
+    const { width, height } = ui
+
+    ctx.save()
+
+    ctx.fillStyle = 'black'
+    ctx.fillRect(0, 0, width, height)
+
+    ctx.fillStyle = 'white'
+
+    for (let i = 0; i < 100; i++) {
+        const xScaler = (i * i) + (i / 3)
+        const yScaler = (i * i * i) - (i / 73)
+        const speedScaler = ((((i + xScaler + yScaler) % 10) / 10) + 0.5)
+        const sizeScaler = (speedScaler * 2) + 0.1
+        const xPos = (1.37 * xScaler * width) % width
+        const yPos = ((0.83 * yScaler * height) + (time * speedScaler * STAR_TIME_SCALE * height)) % height
+        ctx.fillRect(xPos, yPos, sizeScaler, sizeScaler)
+    }
+
     ctx.restore()
 }
