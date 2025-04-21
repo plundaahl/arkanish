@@ -1,4 +1,5 @@
-import { CURSOR_CLICK, CURSOR_DOWN, CURSOR_IDLE, Scene, UiState } from './scenes/Scene'
+import { Scene } from './scenes/Scene'
+import { CURSOR_CLICK, CURSOR_DOWN, CURSOR_IDLE, UiState } from './ui-state'
 import { MenuScene } from './scenes/MenuScene'
 import { GameScene } from './scenes/GameScene'
 import { Registry } from './game-state/Registry'

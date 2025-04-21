@@ -3,7 +3,7 @@ import { RenderCmd, RenderCommandBuffer } from "../RenderCommand";
 import { EntityFlags, EntityStates } from "../game-state/Entity";
 import { GameState } from "../game-state/GameState";
 import { BoundingBoxTypes } from "../game-state/BoundingBox";
-import { UiState } from "../scenes/Scene";
+import { UiState } from "../ui-state";
 import { Vector2 } from "../game-state/Vector";
 
 export const RenderSystem = {

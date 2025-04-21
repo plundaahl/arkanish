@@ -1,7 +1,7 @@
 import { CONTROLLER_FIRE } from "../game-state/Script";
 import { World } from "../game-state/Entity";
 import { GameState } from "../game-state/GameState";
-import { CURSOR_DOWN, UiState } from "../scenes/Scene";
+import { CURSOR_DOWN, UiState } from "../ui-state";
 
 export const InputSystem = {
     run: (state: GameState, uiState: UiState) => {

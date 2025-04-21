@@ -1,4 +1,4 @@
-import { Scene, UiState } from './Scene'
+import { Scene } from './Scene'
 import { World } from '../game-state/Entity'
 import { CollisionSystem } from '../systems/CollisionSystem'
 import { ScriptSystem } from '../systems/ScriptSystem'
@@ -15,6 +15,7 @@ import { Prefab } from '../game-state/Prefab'
 import { SpawnPrefabActionHandler, StartSectionActionHandler } from '../content/actions'
 import { InputSystem } from '../systems/InputSystem'
 import { DamageSystem } from '../systems/DamageSystem'
+import { UiState } from '../ui-state'
 
 const STAR_TIME_SCALE = 1 / 5000
 

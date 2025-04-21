@@ -1,4 +1,5 @@
-import { CURSOR_CLICK, CURSOR_DOWN, Scene, UiState } from './Scene'
+import { Scene } from './Scene'
+import { CURSOR_CLICK, CURSOR_DOWN, UiState } from '../ui-state'
 import * as buildInfo from '../build-info.json'
 const TITLE = 'Arkanish'
 const START = 'Start'
