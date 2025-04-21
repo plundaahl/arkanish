@@ -17,6 +17,7 @@ import { InputSystem } from '../systems/InputSystem'
 import { DamageSystem } from '../systems/DamageSystem'
 import { UiState } from '../ui-state'
 import { TimeSystem } from '../systems/TimeSystem'
+import { UiSystem } from '../systems/UiSystem'
 
 type State = GameState
 
@@ -116,9 +117,7 @@ export class GameScene implements Scene {
         DamageSystem.run(this.state)
         ScriptSystem.run(this.state)
         SpawnSystem.runDespawn(this.state)
-
-        this.renderUi(this.uiBuffer)
-
+        UiSystem.run(this.state, this.uiBuffer)
         ParticleSystem.render(this.state, this.gameObjBuffer)
         RenderSystem.render(this.state, uiState, this.gameObjBuffer, this.uiBuffer, canvas)
 
@@ -127,28 +126,4 @@ export class GameScene implements Scene {
             this.onDeath()
         }
     }
-
-    private renderUi(buffer: RenderCommandBuffer) {
-        const player = World.getEntity(this.state, this.state.playerId)
-        const hpText = `HP: ${player?.hp || 0}`
-        const scoreText = `Score: ${this.state.score}`
-        // const frameRate = `Framerate: ${Math.round(100000 / this.state.frameLength) * 0.01}`
-        RenderCommandBuffer.addCustomRenderCmd(buffer, 1000, renderText, [hpText, scoreText])
-    }
-}
-
-function renderText(ctx: CanvasRenderingContext2D, text: string[]) {
-    ctx.save()
-    ctx.font = '20px serif'
-    ctx.fillStyle = 'white'
-
-    let pos = 50;
-
-    for (const line of text) {
-        ctx.fillText(line, 50, pos)
-        const textMetrics = ctx.measureText(line)
-        pos += textMetrics.actualBoundingBoxAscent + textMetrics.actualBoundingBoxDescent + 10
-    }
-
-    ctx.restore()
 }

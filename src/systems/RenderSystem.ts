@@ -213,6 +213,22 @@ export function renderBeam(
     ctx.restore()
 }
 
+export function renderText(ctx: CanvasRenderingContext2D, text: string[]) {
+    ctx.save()
+    ctx.font = '20px serif'
+    ctx.fillStyle = 'white'
+
+    let pos = 50;
+
+    for (const line of text) {
+        ctx.fillText(line, 50, pos)
+        const textMetrics = ctx.measureText(line)
+        pos += textMetrics.actualBoundingBoxAscent + textMetrics.actualBoundingBoxDescent + 10
+    }
+
+    ctx.restore()
+}
+
 const STAR_TIME_SCALE = 1 / 5000
 function renderStarBackground(ctx: CanvasRenderingContext2D, time: number, ui: UiState): void {
     const { width, height } = ui
