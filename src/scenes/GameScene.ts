@@ -16,6 +16,7 @@ import { SpawnPrefabActionHandler, StartSectionActionHandler } from '../content/
 import { InputSystem } from '../systems/InputSystem'
 import { DamageSystem } from '../systems/DamageSystem'
 import { UiState } from '../ui-state'
+import { TimeSystem } from '../systems/TimeSystem'
 
 type State = GameState
 
@@ -105,9 +106,7 @@ export class GameScene implements Scene {
             LevelState.loadLevel(this.state, level)
         }
 
-        this.state.frameLength = time - this.state.time
-        this.state.time = time
-
+        TimeSystem.run(this.state, time)
         LevelSystem.run(this.state)
         SpawnSystem.runSpawn(this.state)
         InputSystem.run(this.state, uiState)
