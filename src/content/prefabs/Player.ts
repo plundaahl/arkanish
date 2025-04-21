@@ -41,6 +41,11 @@ export const PlayerPrefab: Prefab = {
         player.posZL = 1
         player.flags |= EntityFlags.CONSTRAIN_TO_PLAY_SPACE
 
+        // Jet
+        const jetEmitter = Prefab.spawn(gameState, 'JetEmitter')
+        jetEmitter.parent = player.id
+        jetEmitter.posRL = Math.PI * 1.5
+
         return player
     }
 }

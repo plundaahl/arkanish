@@ -3,7 +3,7 @@ import { BoundingBox } from "../../game-state/BoundingBox";
 import { EntityFlags, World } from "../../game-state/Entity";
 import { Prefab } from "../../game-state/Prefab";
 import { Script } from "../../game-state/Script";
-import { WeaverScriptHandler } from "../scripts";
+import { JetEmitterData, WeaverScriptHandler } from "../scripts";
 import { ExtraMath } from "../../Math";
 
 const MIN_SPEED_MULTIPLE = 0.4
@@ -57,6 +57,14 @@ export const WeaverPrefab: Prefab = {
             particleTime: 0,
             shotTime: 0,
         })
+
+        const jetEmitter = Prefab.spawn(gameState, 'JetEmitter')
+        jetEmitter.parent = entity.id
+        jetEmitter.posRL = Math.PI * 0.5
+        jetEmitter.posXL = -15
+        const jetData = (jetEmitter.scriptData as JetEmitterData)
+        jetData.distance = 50
+        jetData.lifetime = 1000
 
         return entity
     },

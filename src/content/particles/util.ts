@@ -10,7 +10,7 @@ function scaleOffset(from: number, offset: number, by: number): number {
 }
 
 export function createBoxParticleRenderFn(colour: string) {
-    return function renderExplosionWhiteParticle(renderBuffer: RenderCommandBuffer, particle: Particle, time: number, entity?: Entity) {
+    return function renderExplosionParticle(renderBuffer: RenderCommandBuffer, particle: Particle, time: number, entity?: Entity) {
         const length = particle.endTime - particle.startTime
         if (length === 0) {
             return

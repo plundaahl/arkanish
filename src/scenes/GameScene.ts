@@ -16,8 +16,8 @@ const level: Level = {
     sections: {
         scratch: {
             contents: [
-                { when: { type: 'time', at: 1000 }, then: [
-                    SpawnPrefabActionHandler.create('Weaver', { velYL: 0 })
+                { when: { type: 'time', at: 0 }, then: [
+                    SpawnPrefabActionHandler.create('Missile', { posYL: -200 })
                 ]},
             ]
         },

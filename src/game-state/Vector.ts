@@ -8,7 +8,7 @@ const FULL_CIRCLE = Math.PI * 2
 
 export const Vector2 = {
     createFromCoordinates: (x: number, y: number): Vector2 => [x, y],
-    createFromAngle: (angle: number, magnitude: number): Vector2 => [Math.cos(angle) * magnitude, Math.sin(angle) * magnitude],
+    createFromAngle: (angle: number, magnitude: number = 1): Vector2 => [Math.cos(angle) * magnitude, Math.sin(angle) * magnitude],
     createFromVec: (vec: Vector2): Vector2 => [vec[VEC2_X], vec[VEC2_Y]],
     setToCoordinates: (vec: Vector2, x: number, y: number): Vector2 => {
         vec[VEC2_X] = x

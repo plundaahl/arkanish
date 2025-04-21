@@ -48,16 +48,16 @@ export const WeaverScriptHandler: ScriptHandler<'Weaver', WeaverScriptData> = {
 
             entity.velRL = ExtraMath.clamp(-data.maxVelR, entity.velRL + (data.accelR * data.dir), data.maxVelR)
 
-            if (data.particleTime < gameState.time) {
-                data.particleTime = gameState.time + MS_PER_PARTICLE
-                JetParticle.spawn(
-                    gameState,
-                    entity,
-                    entity.posRL + Math.PI,
-                    PARTICLE_SPEED,
-                    PARTICLE_LIFETIME
-                )
-            }
+            // if (data.particleTime < gameState.time) {
+            //     data.particleTime = gameState.time + MS_PER_PARTICLE
+            //     JetParticle.spawn(
+            //         gameState,
+            //         entity,
+            //         entity.posRL + Math.PI,
+            //         PARTICLE_SPEED,
+            //         PARTICLE_LIFETIME
+            //     )
+            // }
 
             if (data.shotTime < gameState.time && entity.posYG > gameState.playArea.top) {
                 data.shotTime = gameState.time + MS_PER_SHOT

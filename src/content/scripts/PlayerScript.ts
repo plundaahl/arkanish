@@ -58,16 +58,6 @@ function onInput(
     }
 }
 
-function spawnJet(
-    gameState: GameState,
-    entity: Entity & { scriptData: PlayerScriptData },
-) {
-    if (entity.scriptData.nextParticleSpawnTime < gameState.time) {
-        entity.scriptData.nextParticleSpawnTime = gameState.time + MS_PER_JET_PARTICLE
-        JetParticle.spawn(gameState, entity)
-    }
-}
-
 const stateActive: StateMachineScript<'Player', PlayerScriptData> = {
     type: "Player",
     onInput,
@@ -88,9 +78,6 @@ const stateActive: StateMachineScript<'Player', PlayerScriptData> = {
             }
         }
     },
-    onUpdate(gameState, entity) {
-        spawnJet(gameState, entity)
-    },
 }
 
 const stateInvulnerable: StateMachineScript<'Player', PlayerScriptData> = {
@@ -101,7 +88,6 @@ const stateInvulnerable: StateMachineScript<'Player', PlayerScriptData> = {
         entity.flags |= EntityFlags.INVULNERABLE
     },
     onUpdate(gameState, entity) {
-        spawnJet(gameState, entity)
         if (gameState.time - entity.scriptData.timeEnteredState > TIME_INVULNERABLE_AFTER_HIT) {
             transitionScript(gameState, entity, stateActive)
         }

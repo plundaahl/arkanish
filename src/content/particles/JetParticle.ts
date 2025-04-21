@@ -12,13 +12,19 @@ const SPREAD = Math.PI * 0.05
 export const JetParticle = {
     id: "JetParticle",
     render: createBoxParticleRenderFn('#444'),
-    spawn: (state: GameState, entity: Entity, direction: number = DEFAULT_DIR, rate: number = 100, time: number = 500): Particle => {
+    spawn: (
+        state: GameState,
+        entity: Entity,
+        direction: number = DEFAULT_DIR,
+        distance: number = 100,
+        time: number = 500,
+    ): Particle => {
         const particle = ParticleState.provisionParticle(state, state.time)
         particle.type = JetParticle.id
-        particle.originZ = entity.posZL - 1
-        particle.originX = entity.posXL
-        particle.originY = entity.posYL
-        Vector2.setToAngleAndMag(dirVec, direction, rate)
+        particle.originZ = entity.posZG - 1
+        particle.originX = entity.posXG
+        particle.originY = entity.posYG
+        Vector2.setToAngleAndMag(dirVec, entity.posRG + direction, distance)
         Vector2.rotateBy(dirVec, ExtraMath.positiveOrNegative() * Math.random() * SPREAD)
         particle.vecY = Vector2.yOf(dirVec)
         particle.vecX = Vector2.xOf(dirVec)

@@ -21,10 +21,10 @@ export interface ScriptHandler<T extends string, D extends Object = {}> {
 }
 
 export const Script = {
-    attach<D extends Object>(gameState: GameState, entity: Entity, scriptHandler: ScriptHandler<string, D>, data?: D): void {
+    attach<D extends Object>(gameState: GameState, entity: Entity, scriptHandler: ScriptHandler<string, D>, data?: Partial<D>): void {
         entity.flags |= EntityFlags.SCRIPT
         entity.script = scriptHandler.script
-        entity.scriptData = { ...(data || scriptHandler.nullData) }
+        entity.scriptData = Object.assign({}, scriptHandler.nullData, data)
         if (entity.script.onInit) {
             entity.script.onInit(gameState, entity as any)
         }
