@@ -17,7 +17,6 @@ import { InputSystem } from '../systems/InputSystem'
 import { DamageSystem } from '../systems/DamageSystem'
 
 const STAR_TIME_SCALE = 1 / 5000
-const MS_PER_SCORE_TICK = 800
 
 type State = GameState
 
@@ -94,9 +93,15 @@ export class GameScene implements Scene {
     update(time: number, canvas: CanvasRenderingContext2D, uiState: UiState): void {
         if (!this.state) {
             this.state = GameState.create(time)
+
+            // Load player
             const player = Prefab.spawn(this.state, 'Player')
             player.posYL = this.state.playArea.height / 4
             this.state.playerId = player.id
+
+            // Load score incrementer
+            Prefab.spawn(this.state, 'ScoreIncrementer')
+
             LevelState.loadLevel(this.state, level)
         }
 
@@ -104,7 +109,6 @@ export class GameScene implements Scene {
         this.state.time = time
 
         this.calculatePlayAreaProjection(uiState)
-        this.incrementScoreForTime(time)
 
         LevelSystem.run(this.state)
         SpawnSystem.runSpawn(this.state)
@@ -145,14 +149,6 @@ export class GameScene implements Scene {
         ui.playArea.top = Math.max(ui.height - projectionHeight, 0) * 0.5
         ui.playArea.width = projectionWidth
         ui.playArea.height = projectionHeight
-    }
-
-    private incrementScoreForTime(time: number) {
-        this.state.scoreTimeIncrementer += this.state.frameLength
-        if (this.state.scoreTimeIncrementer > MS_PER_SCORE_TICK) {
-            this.state.scoreTimeIncrementer -= MS_PER_SCORE_TICK
-            this.state.score += 1
-        }
     }
 
     private renderBackground(time: number, ctx: CanvasRenderingContext2D, ui: UiState): void {

@@ -12,7 +12,7 @@ export interface Script<T extends string, D extends Object> {
     onInput?(gameState: GameState, entity: Entity & { scriptData: D }, xImpulse: number, yImpulse: number, controllerFlags: number): void
 }
 
-export interface ScriptHandler<T extends string, D extends Object> {
+export interface ScriptHandler<T extends string, D extends Object = {}> {
     type: T
     script: Script<T, D>
     nullData: D
