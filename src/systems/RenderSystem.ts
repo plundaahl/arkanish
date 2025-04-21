@@ -56,6 +56,7 @@ export const RenderSystem = {
         uiBuffer.commands.sort(renderCmdsByZDepth)
         gameBuffer.commands.sort(renderCmdsByZDepth)
 
+        // NOTE: Rendering relies on play area projection calculation. See InputSystem.
         
         // DRAW GAME VIEW
         ctx.save()

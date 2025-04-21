@@ -103,13 +103,12 @@ export class GameScene implements Scene {
             // Load score incrementer
             Prefab.spawn(this.state, 'ScoreIncrementer')
 
+            // Load level
             LevelState.loadLevel(this.state, level)
         }
 
         this.state.frameLength = time - this.state.time
         this.state.time = time
-
-        this.calculatePlayAreaProjection(uiState)
 
         LevelSystem.run(this.state)
         SpawnSystem.runSpawn(this.state)
@@ -131,25 +130,6 @@ export class GameScene implements Scene {
         if (!player) {
             this.onDeath()
         }
-    }
-
-    private calculatePlayAreaProjection(ui: UiState) {
-        const canvasAspect = ui.width / ui.height
-        const playSpaceAspect = this.state.playArea.width / this.state.playArea.height
-        const isTooWide = canvasAspect > playSpaceAspect
-
-        const projectionWidth = isTooWide
-            ? Math.floor(ui.height * playSpaceAspect)
-            : ui.width
-
-        const projectionHeight = isTooWide
-            ? ui.height
-            : Math.floor(ui.width / playSpaceAspect)
-        
-        ui.playArea.left = Math.max(ui.width - projectionWidth, 0) * 0.5
-        ui.playArea.top = Math.max(ui.height - projectionHeight, 0) * 0.5
-        ui.playArea.width = projectionWidth
-        ui.playArea.height = projectionHeight
     }
 
     private renderBackground(time: number, ctx: CanvasRenderingContext2D, ui: UiState): void {
