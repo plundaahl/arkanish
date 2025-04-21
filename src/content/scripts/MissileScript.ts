@@ -1,22 +1,25 @@
 import { Vector2 } from "../../game-state/Vector";
-import { World } from "../../game-state/Entity";
+import { EntityFlags, World } from "../../game-state/Entity";
 import { ScriptHandler } from "../../game-state/Script";
 import { DEFAULT_STEERING_DATA as DEFAULT_STEERING_DATA, SteeringData, steerTowardsEntity } from "./behaviours/steerTowardsEntity";
 import { ExtraMath } from "../../Math";
 import { LaunchParticle } from "../particles";
 
-const DISABLE_RANGE = 150
+const DISABLE_RANGE = 250
 const LOCKING_ANGLE = Math.PI * 0.5
 const EVASION_ANGLE = Math.PI * 0.8
+const DEFAULT_SEEK_DELAY = 500
 
 const STATE_LAUNCHING = 0
 const STATE_SEEKING = 1
 const STATE_LOCKED = 2
 const STATE_EVASION_RANGE = 3
 
-interface MissileScriptData extends SteeringData {
+export interface MissileScriptData extends SteeringData {
     targetId: number
     state: number
+    launchTime: number
+    seekDelay: number
 }
 
 const missileVector = Vector2.createFromCoordinates(0, 1)
@@ -29,6 +32,7 @@ export const MissileScriptHandler: ScriptHandler<'Missile', MissileScriptData> =
         onInit(gameState, entity) {
             const data = (entity.scriptData as MissileScriptData)
             data.targetId = gameState.playerId
+            data.launchTime = gameState.time
         },
         onUpdate(gameState, entity) {
             const data = (entity.scriptData as MissileScriptData)
@@ -47,6 +51,10 @@ export const MissileScriptHandler: ScriptHandler<'Missile', MissileScriptData> =
                         1200,
                     )
                 }
+            }
+
+            if (data.launchTime + DEFAULT_SEEK_DELAY > gameState.time) {
+                return
             }
 
             // If the missile gets within a certain range and passes the target (i.e., it starts moving away),
@@ -72,17 +80,22 @@ export const MissileScriptHandler: ScriptHandler<'Missile', MissileScriptData> =
                         data.targetId = 0
                     }
                 }
+
+                // Lose target lock if off-screen
+                if (data.state !== STATE_SEEKING && !(entity.flags & EntityFlags.IN_PLAY_AREA)) {
+                    data.targetId = 0
+                }
             }
 
             steerTowardsEntity(gameState, entity, target, data)
-
-            console.log(`alive ${gameState.time}`)
         },
     },
     nullData: {
         ...DEFAULT_STEERING_DATA,
         targetId: 0,
         state: STATE_LAUNCHING,
+        launchTime: 0,
+        seekDelay: DEFAULT_SEEK_DELAY,
     },
     serializeData(data: MissileScriptData): Object {
         return {}

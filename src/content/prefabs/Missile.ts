@@ -24,8 +24,8 @@ export const MisslePrefab: Prefab = {
 
         entity.colour = 'red'
         entity.flags |= EntityFlags.ROLE_OBSTACLE
-        entity.collidesWith |= EntityFlags.ROLE_PLAYER | EntityFlags.ROLE_PLAYER
-        entity.hurtBy |= EntityFlags.ROLE_PLAYER | EntityFlags.ROLE_PLAYER
+        entity.collidesWith |= EntityFlags.ROLE_PLAYER | EntityFlags.ROLE_PLAYER_BULLET
+        entity.hurtBy |= EntityFlags.ROLE_PLAYER | EntityFlags.ROLE_PLAYER_BULLET
         entity.flags |= EntityFlags.DESTROY_AT_0_HP
 
         entity.flags |= EntityFlags.COLLIDER

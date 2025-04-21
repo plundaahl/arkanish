@@ -20,6 +20,7 @@ import {
     WeaverScriptHandler,
     MissileScriptHandler,
     JetEmitterScriptHandler,
+    MissileBayScriptHandler,
 } from './content/scripts'
 import {
     BlastBeamParticle,
@@ -48,6 +49,7 @@ import {
     ScoreIncrementerPrefab,
     MisslePrefab,
     JetEmitterPrefab,
+    MissileBayPrefab,
 } from './content/prefabs'
 
 Registry.registerActions(
@@ -66,6 +68,7 @@ Registry.registerScriptHandlers(
     WeaverScriptHandler,
     ScoreIncrementerScriptHandler,
     MissileScriptHandler,
+    MissileBayScriptHandler,
     JetEmitterScriptHandler,
 )
 Registry.registerParticleHandlers(
@@ -94,6 +97,7 @@ Registry.registerPrefabs(
     WeaverPrefab,
     ScoreIncrementerPrefab,
     MisslePrefab,
+    MissileBayPrefab,
     JetEmitterPrefab,
 )
 

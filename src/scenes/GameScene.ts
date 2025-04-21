@@ -17,7 +17,7 @@ const level: Level = {
         scratch: {
             contents: [
                 { when: { type: 'time', at: 0 }, then: [
-                    SpawnPrefabActionHandler.create('Missile', { posYL: -200 })
+                    SpawnPrefabActionHandler.create('MissileBay', { posYL: -200, posRL: Math.PI * 0.5 })
                 ]},
             ]
         },
