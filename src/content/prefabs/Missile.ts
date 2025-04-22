@@ -17,7 +17,7 @@ const MAX_VELOCITY = 500
 const ACCELERATION = 10000
 const BREAKING = 100
 
-export const MisslePrefab: Prefab = {
+export const MissilePrefab: Prefab = {
     id: "Missile",
     spawn(gameState: GameState): Entity {
         const entity = World.spawnEntity(gameState)

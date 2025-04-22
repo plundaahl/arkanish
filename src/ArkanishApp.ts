@@ -47,7 +47,7 @@ import {
     EnemyBulletPrefab,
     WeaverPrefab,
     ScoreIncrementerPrefab,
-    MisslePrefab,
+    MissilePrefab,
     JetEmitterPrefab,
     MissileBayPrefab,
 } from './content/prefabs'
@@ -96,7 +96,7 @@ Registry.registerPrefabs(
     EnemyBulletPrefab,
     WeaverPrefab,
     ScoreIncrementerPrefab,
-    MisslePrefab,
+    MissilePrefab,
     MissileBayPrefab,
     JetEmitterPrefab,
 )
