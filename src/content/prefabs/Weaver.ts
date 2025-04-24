@@ -12,14 +12,14 @@ const MAX_SPEED_MULTIPLE = 0.9
 const MIN_VEER = Math.PI * 0.2
 const MAX_VEER = Math.PI * 0.5
 
-const TRANSLATE_SPEED = 400
+const TRANSLATE_SPEED = 300
 const ACCEL_R = Math.PI * 0.4
 const MAX_VEL_R = Math.PI * 1
 
 export const WeaverPrefab: Prefab = {
     id: 'Weaver',
-    spawn(gameState) {
-        const entity = World.spawnEntity(gameState)
+    spawn(gameState, parent) {
+        const entity = World.spawnEntity(gameState, parent)
 
         entity.flags |= EntityFlags.ROLE_OBSTACLE
         entity.collidesWith |= EntityFlags.ROLE_PLAYER | EntityFlags.ROLE_PLAYER_BULLET
@@ -58,8 +58,7 @@ export const WeaverPrefab: Prefab = {
             shotTime: 0,
         })
 
-        const jetEmitter = Prefab.spawn(gameState, 'JetEmitter')
-        jetEmitter.parent = entity.id
+        const jetEmitter = Prefab.spawn(gameState, 'JetEmitter', entity.id)
         jetEmitter.posRL = Math.PI * 0.5
         jetEmitter.posXL = -15
         const jetData = (jetEmitter.scriptData as JetEmitterData)

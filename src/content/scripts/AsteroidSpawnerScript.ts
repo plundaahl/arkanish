@@ -1,4 +1,4 @@
-import { EntityFlags } from "../../game-state/Entity";
+import { Entity, EntityFlags, World } from "../../game-state/Entity";
 import { GameState } from "../../game-state/GameState";
 import { Prefab } from "../../game-state/Prefab";
 import { ExtraMath } from "../../Math";
@@ -36,6 +36,14 @@ const SPAWN_LISTS: [string, number][][] = [
         ['BeamSpinner', 8],
         ['Coin', 1],
     ],
+    [
+        [NOTHING, 80],
+        ['MissileFrigate', 1],
+        ['BeamSpinner', 3],
+        ['Weaver', 15],
+        ['Plank', 6],
+        ['Coin', 3],
+    ]
 ]
 
 const stateInit: StateMachineScript<'AsteroidSpawner'> = {
@@ -64,18 +72,21 @@ const stateSpawning: StateMachineScript<'AsteroidSpawner'> = {
         const prefabName = ExtraMath.rollOneOf(...spawnList)
         if (prefabName !== NOTHING) {
             const spawnedEntity = Prefab.spawn(gameState, prefabName)
-            const x = Math.ceil(Math.random() * gameState.playArea.width) + gameState.playArea.left + entity.posXL
-            if (!(spawnedEntity.flags & EntityFlags.DO_NOT_CLAMP_TO_WIDTH_ON_SPAWN)) {
-                spawnedEntity.posXL = clampToPlaySpace(gameState, x, 40)
-            }
-            spawnedEntity.posYL += entity.posYL
+            const position = Prefab.spawn(
+                gameState,
+                spawnedEntity.defaultSpawner || 'SpawnPosClampedAbove',
+                0,
+                { size: spawnedEntity.radius }
+            )
+
+            spawnedEntity.posXL = position.posXL
+            spawnedEntity.posYL = position.posYL
+            spawnedEntity.posRL = position.posRL
+
+            Entity.killEntity(position)
         }
         transitionScript(gameState, entity, stateIdle)
     },
 }
 
 export const AsteroidSpawnerScriptHandler = createStateMachineHandler('AsteroidSpawner', stateInit)
-
-function clampToPlaySpace(gameState: GameState, x: number, width: number) {
-    return x * ((gameState.playArea.width - width) / gameState.playArea.width)
-}

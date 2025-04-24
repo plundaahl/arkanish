@@ -82,7 +82,7 @@ export const MissileScriptHandler: ScriptHandler<'Missile', MissileScriptData> =
                 }
 
                 // Lose target lock if off-screen
-                if (data.state !== STATE_SEEKING && !(entity.flags & EntityFlags.IN_PLAY_AREA)) {
+                if (!(entity.flags & EntityFlags.IN_PLAY_AREA)) {
                     data.targetId = 0
                 }
             }

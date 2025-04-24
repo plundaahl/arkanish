@@ -5,8 +5,8 @@ import { Prefab } from "../../game-state/Prefab";
 
 export const EnemyBulletPrefab: Prefab = {
     id: 'EnemyBullet',
-    spawn(gameState: GameState): Entity {
-        const entity = World.spawnEntity(gameState)
+    spawn(gameState: GameState, parent?: number): Entity {
+        const entity = World.spawnEntity(gameState, parent)
 
         entity.flags |= EntityFlags.ROLE_ENEMY_BULLET | EntityFlags.DESTROY_AT_0_HP
         entity.collidesWith |= EntityFlags.ROLE_PLAYER

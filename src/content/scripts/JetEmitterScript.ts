@@ -16,7 +16,7 @@ export const JetEmitterScriptHandler: ScriptHandler<'JetEmitter', JetEmitterData
         type: "JetEmitter",
         onInit(gameState, entity) {
             const data = entity.scriptData as JetEmitterData
-            data.particleTime = gameState.time
+            data.particleTime = gameState.time + (Math.random() * (MS_PER_SEC / data.rate))
         },
         onUpdate(gameState, entity) {
             const data = entity.scriptData as JetEmitterData

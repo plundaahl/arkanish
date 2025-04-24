@@ -5,8 +5,8 @@ import { Prefab } from "../../game-state/Prefab";
 
 export const AsteroidPrefab: Prefab = {
     id: "Asteroid",
-    spawn: (gameState: GameState): Entity => {
-        const entity = World.spawnEntity(gameState)
+    spawn: (gameState: GameState, parent?: number): Entity => {
+        const entity = World.spawnEntity(gameState, parent)
 
         const maxSize = gameState.playArea.width * 0.45
         const minSize = gameState.playArea.width * 0.1

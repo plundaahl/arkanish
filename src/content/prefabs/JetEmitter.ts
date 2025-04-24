@@ -1,14 +1,27 @@
 import { Script } from "../../game-state/Script";
 import { Entity, World } from "../../game-state/Entity";
-import { GameState } from "../../game-state/GameState";
-import { Prefab } from "../../game-state/Prefab";
+import { Prefab, PrefabParameters } from "../../game-state/Prefab";
 import { JetEmitterScriptHandler } from "../scripts";
 
-export const JetEmitterPrefab: Prefab = {
+interface JetEmitterParameters extends PrefabParameters {
+    distance: number,
+    lifetime: number,
+    rate: number,
+}
+
+export const JetEmitterPrefab: Prefab<JetEmitterParameters> = {
     id: "JetEmitter",
-    spawn(gameState: GameState): Entity {
-        const entity = World.spawnEntity(gameState)
-        Script.attach(gameState, entity, JetEmitterScriptHandler)
+    spawn(gameState, parent, parameters): Entity {
+        const entity = World.spawnEntity(gameState, parent)
+        const distance = parameters?.distance
+        const lifetime = parameters?.lifetime
+        const rate = parameters?.rate
+
+        const scriptParams = parameters
+            ? { distance, lifetime, rate }
+            : undefined
+
+        Script.attach(gameState, entity, JetEmitterScriptHandler, scriptParams)
         return entity
     }
 }

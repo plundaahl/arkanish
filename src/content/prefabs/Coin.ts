@@ -1,4 +1,4 @@
-import { ColliderFlags, Entity, EntityFlags, World } from "../../game-state/Entity";
+import { Entity, EntityFlags, World } from "../../game-state/Entity";
 import { GameState } from "../../game-state/GameState";
 import { Prefab } from "../../game-state/Prefab";
 import { BoundingBox } from "../../game-state/BoundingBox";
@@ -7,8 +7,8 @@ import { Script } from "../../game-state/Script";
 
 export const CoinPrefab: Prefab = {
     id: "Coin",
-    spawn: (gameState: GameState): Entity => {
-        const entity = World.spawnEntity(gameState)
+    spawn: (gameState: GameState, parent?: number): Entity => {
+        const entity = World.spawnEntity(gameState, parent)
         entity.flags |= EntityFlags.ROLE_PICKUP
 
         entity.velYL = 350

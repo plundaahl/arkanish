@@ -6,8 +6,8 @@ import { ScoreIncrementerScriptHandler } from "../scripts";
 
 export const ScoreIncrementerPrefab: Prefab = {
     id: "ScoreIncrementer",
-    spawn(gameState: GameState): Entity {
-        const entity = World.spawnEntity(gameState)
+    spawn(gameState, parent): Entity {
+        const entity = World.spawnEntity(gameState, parent)
         entity.flags |= EntityFlags.SCRIPT
         Script.attach(gameState, entity, ScoreIncrementerScriptHandler)
         return entity

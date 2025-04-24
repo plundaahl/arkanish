@@ -19,8 +19,8 @@ const BREAKING = 100
 
 export const MissilePrefab: Prefab = {
     id: "Missile",
-    spawn(gameState: GameState): Entity {
-        const entity = World.spawnEntity(gameState)
+    spawn(gameState, parent): Entity {
+        const entity = World.spawnEntity(gameState, parent)
 
         entity.colour = 'red'
         entity.flags |= EntityFlags.ROLE_OBSTACLE
@@ -61,11 +61,11 @@ export const MissilePrefab: Prefab = {
         entity.velMI = MAX_VELOCITY * 0.5
 
         // Jet particles
-        const jetEmitter = Prefab.spawn(gameState, 'JetEmitter')
-        jetEmitter.parent = entity.id
+        const jetEmitter = Prefab.spawn(gameState, 'JetEmitter', entity.id, {
+            rate: 35,
+            distance: 50,
+        })
         jetEmitter.posXL = -HALF_LEN - 5
-        const jetData = (jetEmitter.scriptData as JetEmitterData)
-        jetData.rate = 35
 
         return entity
     }

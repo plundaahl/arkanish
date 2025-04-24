@@ -9,8 +9,8 @@ const PLAYER_BULLET_SPEED = -500
 
 export const PlayerBulletPrefab: Prefab = {
     id: "PlayerBullet",
-        spawn: function (gameState: GameState): Entity {
-        const bullet = World.spawnEntity(gameState)
+        spawn(gameState, parent): Entity {
+        const bullet = World.spawnEntity(gameState, parent)
         bullet.flags |= EntityFlags.ROLE_PLAYER_BULLET
 
         bullet.velYL = PLAYER_BULLET_SPEED

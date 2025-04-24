@@ -42,25 +42,12 @@ describe('getEntity', () => {
 })
 
 describe('releaseEntity', () => {
-    test('Puts index back on free list', () => {
-        const world = World.create(32)
-        const freeListLength = world.freeList.length
-        const idx = world.freeList[freeListLength - 1]
-        const entity = World.spawnEntity(world)
-        expect(world.freeList.length).toEqual(freeListLength - 1)
-        World.releaseEntity(world, entity)
-        expect(world.freeList.length).toEqual(freeListLength)
-        expect(world.freeList[freeListLength - 1]).toEqual(idx)
-    })
-
     test('Does not release entity if already freed', () => {
         const world = World.create(32)
         const entity = World.spawnEntity(world)
         World.releaseEntity(world, entity)
-        const freeListLength = world.freeList.length
         const releasedEntityId = entity.id
         World.releaseEntity(world, entity)
-        expect(world.freeList.length).toEqual(freeListLength)
         expect(entity.id).toEqual(releasedEntityId)
     })
 })

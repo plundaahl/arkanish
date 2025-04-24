@@ -6,8 +6,8 @@ import { AsteroidSpawnerScriptHandler } from "../scripts";
 
 export const AsteroidSpawnerPrefab: Prefab = {
     id: "AsteroidSpawner",
-    spawn: (gameState: GameState): Entity => {
-        const entity = World.spawnEntity(gameState)
+    spawn: (gameState: GameState, parent?: number): Entity => {
+        const entity = World.spawnEntity(gameState, parent)
         entity.flags |= EntityFlags.DESTROY_AFTER_SECTION
         Script.attach(gameState, entity, AsteroidSpawnerScriptHandler)
         return entity

@@ -25,7 +25,6 @@ const DOOR_VERTEXES = [2, 3, 0, 1]
 const PARENT_DIRS = [1, 1, -1, -1]
 
 const DOOR_WIDTH = 46
-const OPEN_WIDTH = DOOR_WIDTH * 0.5
 
 export const MissileBay = {
     SIGNAL_UNSET: 0,
@@ -35,7 +34,8 @@ export const MissileBay = {
 
 export interface MissileBayData extends StateMachineData {
     doorPercentOpen: number
-    shotsToFire: number
+    doorHalfW: number
+    shotsPerSalvo: number
     shotsRemain: number
     signal: number
     heart: number
@@ -43,8 +43,9 @@ export interface MissileBayData extends StateMachineData {
 
 const NULL_MISSILE_BAY_DATA: MissileBayData = {
     doorPercentOpen: 0,
+    doorHalfW: DOOR_WIDTH,
     timeEnteredState: 0,
-    shotsToFire: DEFAULT_SHOTS,
+    shotsPerSalvo: DEFAULT_SHOTS,
     shotsRemain: DEFAULT_SHOTS,
     signal: MissileBay.SIGNAL_UNSET,
     heart: 0,
@@ -71,7 +72,7 @@ const stateClosed: StateMachineScript<'MissileBay', MissileBayData> = {
         }
 
         const timeInState = gameState.time - data.timeEnteredState
-        if (timeInState > TIME_CLOSED && entity.flags && EntityFlags.IN_PLAY_AREA) {
+        if (timeInState > TIME_CLOSED && entity.flags & EntityFlags.IN_PLAY_AREA) {
             transitionScript(gameState, entity, stateOpening)
         }
     },   
@@ -94,7 +95,7 @@ const stateOpening: StateMachineScript<'MissileBay', MissileBayData> = {
         if (!heart) {
             throw new Error(`MissileBay heart missing`)
         }
-        setDoorWidth(gameState, entity, heart, OPEN_WIDTH * doorOpenPercent)
+        setDoorWidth(gameState, entity, heart, data.doorHalfW * doorOpenPercent)
 
         if (doorOpenPercent === 1) {
             transitionScript(gameState, entity, stateOpenPreLaunch)
@@ -104,6 +105,10 @@ const stateOpening: StateMachineScript<'MissileBay', MissileBayData> = {
 
 const stateOpenPreLaunch: StateMachineScript<'MissileBay', MissileBayData> = {
     type: "MissileBay",
+    onInit(_, entity) {
+        const data = entity.scriptData as MissileBayData
+        data.shotsRemain = data.shotsPerSalvo
+    },
     onUpdate(gameState, entity) {
         const data = entity.scriptData as MissileBayData
         if (gameState.time > data.timeEnteredState + TIME_PRE_LAUNCH) {
@@ -124,8 +129,8 @@ const stateLaunching: StateMachineScript<'MissileBay', MissileBayData> = {
     onUpdate(gameState, entity) {
         const data = entity.scriptData as MissileBayData
         if (gameState.time > data.timeEnteredState + TIME_PER_LAUNCH) {
-            if (--data.shotsRemain <= 0) {
-                data.shotsRemain = data.shotsToFire
+            if (--data.shotsRemain <= 0 || !(entity.flags & EntityFlags.IN_PLAY_AREA)) {
+                data.shotsRemain = data.shotsPerSalvo
                 transitionScript(gameState, entity, stateOpenPostLaunch)
             } else {
                 transitionScript(gameState, entity, stateLaunching)
@@ -158,7 +163,7 @@ const stateClosing: StateMachineScript<'MissileBay', MissileBayData> = {
         if (!heart) {
             throw new Error(`MissileBay heart missing`)
         }
-        setDoorWidth(gameState, entity, heart, OPEN_WIDTH * doorOpenPercent)
+        setDoorWidth(gameState, entity, heart, data.doorHalfW * doorOpenPercent)
 
         if (doorOpenPercent === 0) {
             transitionScript(gameState, entity, stateClosed)
@@ -172,7 +177,7 @@ export const MissileBayScriptHandler = createStateMachineHandler(
     NULL_MISSILE_BAY_DATA
 )
 
-function setDoorWidth(gameState: GameState, doors: Entity, heart: Entity, width: number) {
+function setDoorWidth(_: GameState, doors: Entity, heart: Entity, width: number) {
     for (let d = 0; d < DOOR_BBOXES.length; d++) {
         const direction = DOOR_DIR[d]
         const box = doors.colliderBbSrc[DOOR_BBOXES[d]] as ConvexPolyBB
@@ -204,6 +209,7 @@ function launchMissile(gameState: GameState, entity: Entity) {
     missile.posXL = entity.posXG
     missile.posYL = entity.posYG
     missile.posRL = entity.posRG + ExtraMath.rollBetween(-ANGLE_VARIATION, ANGLE_VARIATION)
+    missile.posZL = entity.posZG + 50
     const data = (missile.scriptData as MissileScriptData)
     data.seekDelay = ExtraMath.rollBetween(MIN_LAUNCH_HEIGHT, MAX_LAUNCH_HEIGHT) / missile.velMI
 }

@@ -9,8 +9,8 @@ import { ExtraMath } from "../../Math";
 
 export const BouncyBallPrefab: Prefab = {
     id: "BouncyBall",
-    spawn: (gameState: GameState): Entity => {
-        const entity = World.spawnEntity(gameState)
+    spawn: (gameState: GameState, parent?: number): Entity => {
+        const entity = World.spawnEntity(gameState, parent)
 
         const halfSize = 20
 

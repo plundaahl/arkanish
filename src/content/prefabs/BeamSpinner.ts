@@ -13,9 +13,9 @@ const BEAM_HALF_WIDTH = BEAM_WIDTH * 0.5
 
 export const BeamSpinnerPrefab: Prefab = {
     id: "BeamSpinner",
-    spawn: (gameState: GameState): Entity => {
+    spawn: (gameState: GameState, parent?: number): Entity => {
         // Spinner
-        const spinner = World.spawnEntity(gameState)
+        const spinner = World.spawnEntity(gameState, parent)
     
         const size = 50
         const halfSize = size * 0.5
@@ -41,8 +41,7 @@ export const BeamSpinnerPrefab: Prefab = {
         spinner.colour = 'red'
     
         // Hit box
-        const hitBox = World.spawnEntity(gameState)
-        hitBox.parent = spinner.id
+        const hitBox = World.spawnEntity(gameState, spinner.id)
         hitBox.colliderBbSrc = [BoundingBox.createConvexPolyBb(
             Vector2.createFromCoordinates(-BEAM_LENGTH, -BEAM_HALF_WIDTH),
             Vector2.createFromCoordinates(BEAM_LENGTH, -BEAM_HALF_WIDTH),

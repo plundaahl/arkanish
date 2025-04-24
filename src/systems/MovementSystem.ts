@@ -110,7 +110,7 @@ export const MovementSystem = {
         }
 
         // Update child transforms
-        childEntities.sort(byIdIndex)
+        childEntities.sort(byParentIdIndex)
         const vParent: Vector2 = Vector2.createFromCoordinates(0, 0)
         const vChild: Vector2 = Vector2.createFromCoordinates(0, 0)
         for (const entity of childEntities) {
@@ -141,6 +141,6 @@ export const MovementSystem = {
     }
 }
 
-function byIdIndex(a: Entity, b: Entity): number {
-    return Id.indexOf(a.id) - Id.indexOf(b.id)
+function byParentIdIndex(a: Entity, b: Entity): number {
+    return Id.indexOf(a.parent) - Id.indexOf(b.parent)
 }

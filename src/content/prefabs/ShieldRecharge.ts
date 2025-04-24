@@ -7,8 +7,8 @@ import { Script } from "../../game-state/Script";
 
 export const ShieldRechargePrefab: Prefab = {
     id: "ShieldRecharge",
-    spawn: (gameState: GameState): Entity => {
-        const entity = World.spawnEntity(gameState)
+    spawn(gameState, parent): Entity {
+        const entity = World.spawnEntity(gameState, parent)
         entity.flags |= EntityFlags.ROLE_PICKUP | EntityFlags.ROLE_POWERUP
 
         entity.velYL = 350

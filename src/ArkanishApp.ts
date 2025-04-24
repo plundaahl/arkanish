@@ -21,6 +21,7 @@ import {
     MissileScriptHandler,
     JetEmitterScriptHandler,
     MissileBayScriptHandler,
+    MissileFrigateScriptHandler,
 } from './content/scripts'
 import {
     BlastBeamParticle,
@@ -50,6 +51,10 @@ import {
     MissilePrefab,
     JetEmitterPrefab,
     MissileBayPrefab,
+    MissileFrigatePrefab,
+    SpawnPosClampedAbovePrefab,
+    SpawnPosAngledAbovePrefab,
+    WeakPointPrefab,
 } from './content/prefabs'
 
 Registry.registerActions(
@@ -69,6 +74,7 @@ Registry.registerScriptHandlers(
     ScoreIncrementerScriptHandler,
     MissileScriptHandler,
     MissileBayScriptHandler,
+    MissileFrigateScriptHandler,
     JetEmitterScriptHandler,
 )
 Registry.registerParticleHandlers(
@@ -98,7 +104,11 @@ Registry.registerPrefabs(
     ScoreIncrementerPrefab,
     MissilePrefab,
     MissileBayPrefab,
+    MissileFrigatePrefab,
     JetEmitterPrefab,
+    SpawnPosClampedAbovePrefab,
+    SpawnPosAngledAbovePrefab,
+    WeakPointPrefab,
 )
 
 function orError<T>(element: T | null, error: string, ifNull: (message: string) => void): T {

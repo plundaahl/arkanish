@@ -85,8 +85,9 @@ export interface Entity {
     id: number
     state: number
     flags: bigint
-    parent: number
+    readonly parent: number
     hurtBy: bigint
+    defaultSpawner: string
     // Internal velocity (relative to local position and facing - allows for steering)
     velAI: number
     velMI: number
@@ -105,6 +106,7 @@ export interface Entity {
     posRG: number
     colliderBbSrc: BoundingBox[],
     colliderBbTransform: BoundingBox[],
+    radius: number
     collidesWith: bigint,
     invulnerableUntil: number,
     colour: string,
@@ -114,11 +116,16 @@ export interface Entity {
     scriptData: Object | undefined
 }
 
+type Writeable<T> = { -readonly [P in keyof T]: T[P] }
+
+type InternalEntity = Writeable<Entity>
+
 const NULL_ENTITY: Omit<Entity, 'id' | 'colliderBbSrc' | 'colliderBbTransform'> = Object.freeze({
     state: EntityStates.FREE,
     flags: 0n,
     parent: 0,
     hurtBy: 0n,
+    defaultSpawner: '',
     velAI: 0,
     velMI: 0,
     posXL: 0,
@@ -133,6 +140,7 @@ const NULL_ENTITY: Omit<Entity, 'id' | 'colliderBbSrc' | 'colliderBbTransform'> 
     posZG: 0,
     posRG: 0,
     collidesWith: 0n,
+    radius: 0,
     invulnerableUntil: 0,
     colour: '',
     hp: 0,
@@ -151,6 +159,7 @@ const excludedKeys = [
     'posYG',
     'posZG',
     'posRG',
+    'radius',
     'colliderBbTransform',
     'invulnerableUntil',
 ] as const
@@ -174,6 +183,7 @@ const entitySpecKeys = (() => {
         velRL: 0,
         colliderBbSrc: 0,
         colour: 0,
+        defaultSpawner: 0,
         hp: 0,
         scoreValue: 0,
         flags: 0,
@@ -218,6 +228,7 @@ export const Entity = {
                 case 'velYL':
                 case 'velRL':
                 case 'hp': if (spec[key] !== undefined) { entity[key] = spec[key] }; break;
+                case 'defaultSpawner':
                 case 'colour': if (spec[key] !== undefined) { entity[key] = spec[key] }; break;
                 case 'colliderBbSrc': if (spec[key] !== undefined) { entity[key] = spec[key].map(BoundingBox.clone) }; break;
                 default:
@@ -245,6 +256,7 @@ export const Entity = {
                 case 'velYL':
                 case 'velRL':
                 case 'hp': spec[key] = entity[key]; break;
+                case 'defaultSpawner':
                 case 'colour': spec[key] = entity[key]; break;
                 case 'colliderBbSrc': spec[key] = entity[key]; break;
                 default:
@@ -261,21 +273,19 @@ export const Entity = {
 const DEFAULT_NUM_ENTITIES = 512
 export interface World {
     entities: Entity[]
-    freeList: number[]
+    noFreeEntitiesBefore: number
 }
 export const World = {
     create: (size: number = DEFAULT_NUM_ENTITIES): World => {
         const entities: Entity[] = new Array(size)
-        const freeList: number[] = new Array(size)
 
         for (let i = 0; i < size; i++) {
             entities[i] = Entity.create(i)
-            freeList[i] = size - i - 1
         }
 
         return {
             entities,
-            freeList,
+            noFreeEntitiesBefore: -1,
         }
     },
     reset: (world: World) => {
@@ -298,27 +308,47 @@ export const World = {
         }
         return undefined
     },
-    spawnEntity: (world: World): Entity => {
-        let idx = world.freeList.pop()
-        let entity: Entity
-        if (idx === undefined) {
+    spawnEntity: (world: World, parent: number = 0): Entity => {
+        const parentIndex = Id.indexOf(parent)
+        let entity: Entity | undefined = undefined
+        let idx: number = -1
+        
+        if (world.noFreeEntitiesBefore < world.entities.length - 1) {
+            const startAt = parentIndex === 0 ? world.noFreeEntitiesBefore : parentIndex
+
+            for (let i = startAt; i < world.entities.length; i++) {
+                if (world.entities[i]?.state === EntityStates.FREE) {
+                    idx = i
+                    entity = world.entities[i]
+                    break
+                }
+            }
+        }
+
+        if (entity === undefined) {
             idx = world.entities.length
             entity = Entity.create(idx)
             world.entities[idx] = entity
-        } else {
-            entity = world.entities[idx]
         }
+
+        if (!parentIndex || parentIndex < world.noFreeEntitiesBefore) {
+            world.noFreeEntitiesBefore = idx
+        }
+
         entity.state = EntityStates.SPAWNING
+        if (parent) {
+            (entity as InternalEntity).parent = parent
+        }
         return entity
     },
     releaseEntity: (world: World, entity: number | Entity): void => {
         const id = typeof entity === 'number' ? entity : entity.id
         const ent = typeof entity === 'number' ? World.getEntity(world, entity) : entity
         const idx = Id.indexOf(id)
-        if (ent === undefined || world.freeList.includes(idx)) {
+        if (ent === undefined || ent.state === EntityStates.FREE) {
             return
         }
-        world.freeList.push(idx)
+        world.noFreeEntitiesBefore = Math.min(world.noFreeEntitiesBefore, idx)
         Entity.release(ent)
     },
 }

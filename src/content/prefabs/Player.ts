@@ -13,8 +13,8 @@ const PLAYER_OFFSET = PLAYER_HEIGHT_HALF / 2
 
 export const PlayerPrefab: Prefab = {
     id: "Player",
-    spawn: (gameState: GameState): Entity => {
-        const player = World.spawnEntity(gameState)
+    spawn: (gameState, parent): Entity => {
+        const player = World.spawnEntity(gameState, parent)
         player.flags |= EntityFlags.ROLE_PLAYER
 
         player.flags |= EntityFlags.COLLIDER
@@ -42,8 +42,7 @@ export const PlayerPrefab: Prefab = {
         player.flags |= EntityFlags.CONSTRAIN_TO_PLAY_SPACE
 
         // Jet
-        const jetEmitter = Prefab.spawn(gameState, 'JetEmitter')
-        jetEmitter.parent = player.id
+        const jetEmitter = Prefab.spawn(gameState, 'JetEmitter', player.id)
         jetEmitter.posRL = Math.PI * 1.5
 
         return player

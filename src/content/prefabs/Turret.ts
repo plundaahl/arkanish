@@ -1,15 +1,14 @@
 import { Script } from "../../game-state/Script";
 import { BoundingBox } from "../../game-state/BoundingBox";
 import { Entity, EntityFlags, World } from "../../game-state/Entity";
-import { GameState } from "../../game-state/GameState";
 import { Prefab } from "../../game-state/Prefab";
 import { Vector2 } from "../../game-state/Vector";
 import { TurretScriptHandler } from "../scripts/TurretScript";
 
 export const TurretPrefab: Prefab = {
     id: 'Turret',
-    spawn(gameState: GameState): Entity {
-        const entity = World.spawnEntity(gameState)
+    spawn(gameState, parent): Entity {
+        const entity = World.spawnEntity(gameState, parent)
 
         entity.flags |= EntityFlags.COLLIDER
         entity.colliderBbSrc = [

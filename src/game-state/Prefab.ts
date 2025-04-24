@@ -1,9 +1,11 @@
 import { Entity } from "./Entity";
 import { GameState } from "./GameState";
 
-export interface Prefab {
+export interface PrefabParameters {}
+
+export interface Prefab<P extends PrefabParameters = PrefabParameters> {
     id: string,
-    spawn: (gameState: GameState) => Entity,
+    spawn: (gameState: GameState, parent?: number, parameters?: Partial<P>) => Entity,
 }
 
 const prefabRegistry: { [Id in string]: Prefab } = {}
@@ -23,11 +25,11 @@ export const PrefabRegistry = {
 }
 
 export const Prefab = {
-    spawn: (state: GameState, prefabName: string): Entity => {
+    spawn: (state: GameState, prefabName: string, parent?: number, parameters?: PrefabParameters): Entity => {
         const prefab = prefabRegistry[prefabName]
         if (!prefab) {
             throw new Error(`No Prefab found with ID [${prefabName}].`)
         }
-        return prefab.spawn(state)
+        return prefab.spawn(state, parent, parameters)
     },
 }
