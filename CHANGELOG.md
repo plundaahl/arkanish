@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.2.5 (2025-04-23)
+- Added 'missile frigate' enemies.
+- Added ability to pass parameters into prefabs.
+- Added weak points that can be used to add vulnerable spots to otherwise heavily-armoured enemies.
+- Fixed bug where deeply-nested entities would sometimes not have their global transforms set properly.
+
 ## v0.2.4 (2025-04-20)
 - Added 'weaver' enemies.
 - Reworked levels into stages.
