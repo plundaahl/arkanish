@@ -18,12 +18,12 @@ const SHOT_SPEED = 200
 const initState: StateMachineScript<'Turret'> = {
     type: 'Turret',
     onInit(gameState, entity) {
-        (entity.scriptData as StateMachineData).timeEnteredState = gameState.time + Math.round(Math.random() * MS_PER_SHOT)
+        (entity.scriptData as StateMachineData).timeEnteredState = gameState.gameTime + Math.round(Math.random() * MS_PER_SHOT)
     },
     onUpdate(gameState, entity) {
         trackPlayer(gameState, entity)
         const timeEntered = (entity.scriptData as StateMachineData).timeEnteredState
-        if (timeEntered < gameState.time) {
+        if (timeEntered < gameState.gameTime) {
             transitionScript(gameState, entity, fireState)
         }
     },
@@ -33,7 +33,7 @@ const idleState: StateMachineScript<'Turret'> = {
     type: 'Turret',
     onUpdate(gameState, entity) {
         trackPlayer(gameState, entity)
-        const timeInState = gameState.time - (entity.scriptData as StateMachineData).timeEnteredState
+        const timeInState = gameState.gameTime - (entity.scriptData as StateMachineData).timeEnteredState
         if (timeInState > MS_PER_SHOT) {
             transitionScript(gameState, entity, fireState)
         }

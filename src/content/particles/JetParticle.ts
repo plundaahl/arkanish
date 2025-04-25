@@ -19,7 +19,7 @@ export const JetParticle = {
         distance: number = 100,
         time: number = 500,
     ): Particle => {
-        const particle = ParticleState.provisionParticle(state, state.time)
+        const particle = ParticleState.provisionParticle(state, state.gameTime)
         particle.type = JetParticle.id
         particle.originZ = entity.posZG - 1
         particle.originX = entity.posXG
@@ -28,7 +28,7 @@ export const JetParticle = {
         Vector2.rotateBy(dirVec, ExtraMath.positiveOrNegative() * Math.random() * SPREAD)
         particle.vecY = Vector2.yOf(dirVec)
         particle.vecX = Vector2.xOf(dirVec)
-        particle.endTime = state.time + time
+        particle.endTime = state.gameTime + time
         return particle
     },
 }

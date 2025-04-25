@@ -43,7 +43,7 @@ export function createBoxParticleRenderFn(colour: string) {
 }
 
 export function spawnExplosionParticle(state: GameState, entity: Entity, radius: number, lifetime: number) {
-    const particle = ParticleState.provisionParticle(state, state.time)
+    const particle = ParticleState.provisionParticle(state, state.gameTime)
     particle.originZ = entity.posZL + 1
     particle.originX = entity.posXG
     particle.originY = entity.posYG
@@ -52,6 +52,6 @@ export function spawnExplosionParticle(state: GameState, entity: Entity, radius:
     const vec = Vector2.createFromAngle(angle, magntiude)
     particle.vecX = Vector2.xOf(vec)
     particle.vecY = Vector2.yOf(vec)
-    particle.endTime = state.time + lifetime
+    particle.endTime = state.gameTime + lifetime
     return particle
 }

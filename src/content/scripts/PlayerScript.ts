@@ -50,8 +50,8 @@ function onInput(
         entity.velYL = 0
     }
 
-    if ((controllerFlags & CONTROLLER_FIRE) && gameState.time > entity.scriptData.nextShotTime) {
-        entity.scriptData.nextShotTime = gameState.time + PLAYER_RATE_OF_FIRE
+    if ((controllerFlags & CONTROLLER_FIRE) && gameState.gameTime > entity.scriptData.nextShotTime) {
+        entity.scriptData.nextShotTime = gameState.gameTime + PLAYER_RATE_OF_FIRE
         const bullet = Prefab.spawn(gameState, 'PlayerBullet')
         bullet.posXL = entity.posXL
         bullet.posYL = entity.posYL - PLAYER_HEIGHT_HALF
@@ -88,7 +88,7 @@ const stateInvulnerable: StateMachineScript<'Player', PlayerScriptData> = {
         entity.flags |= EntityFlags.INVULNERABLE
     },
     onUpdate(gameState, entity) {
-        if (gameState.time - entity.scriptData.timeEnteredState > TIME_INVULNERABLE_AFTER_HIT) {
+        if (gameState.gameTime - entity.scriptData.timeEnteredState > TIME_INVULNERABLE_AFTER_HIT) {
             transitionScript(gameState, entity, stateActive)
         }
     },
@@ -102,10 +102,10 @@ const stateDying: StateMachineScript<'Player', PlayerScriptData> = {
         entity.flags |= EntityFlags.INVULNERABLE
     },
     onUpdate(gameState, entity) {
-        if (entity.scriptData.nextParticleSpawnTime < gameState.time) {
+        if (entity.scriptData.nextParticleSpawnTime < gameState.gameTime) {
             ExplosionWhiteParticle.spawn(gameState, entity, PLAYER_BLAST_RADIUS)
         }
-        if (gameState.time - entity.scriptData.timeEnteredState > TIME_DYING) {
+        if (gameState.gameTime - entity.scriptData.timeEnteredState > TIME_DYING) {
             Entity.killEntity(entity)
         }
     },

@@ -141,7 +141,7 @@ export const LevelState = {
         }
         state.levelPendingSection = undefined
         state.levelCurrentSection = section
-        state.levelSectionTimeStart = state.time
+        state.levelSectionTimeStart = state.gameTime
         state.levelSectionTimeNextIdx = 0
         state.levelSectionTimeStatements.length = 0
         const currentSection = LevelState.currentSection(state)

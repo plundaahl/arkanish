@@ -1,11 +1,15 @@
 export type FrameState = {
-    time: number
+    running: boolean
+    realTime: number
+    gameTime: number
     frameLength: number
 }
 
 export const FrameState = {
     create: (time: number): FrameState => ({
-        time,
+        running: true,
+        realTime: time,
+        gameTime: 0,
         frameLength: 0,
     })
 }

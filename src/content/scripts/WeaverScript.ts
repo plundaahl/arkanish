@@ -59,8 +59,8 @@ export const WeaverScriptHandler: ScriptHandler<'Weaver', WeaverScriptData> = {
             //     )
             // }
 
-            if (data.shotTime < gameState.time && entity.posYG > gameState.playArea.top) {
-                data.shotTime = gameState.time + MS_PER_SHOT
+            if (data.shotTime < gameState.gameTime && entity.posYG > gameState.playArea.top) {
+                data.shotTime = gameState.gameTime + MS_PER_SHOT
                 const bullet = Prefab.spawn(gameState, 'EnemyBullet')
                 Vector2.setToAngleAndMag(shotDirVec, entity.posRL, SHOT_SPEED)
                 bullet.velXL = Vector2.xOf(shotDirVec)

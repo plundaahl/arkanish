@@ -1,5 +1,6 @@
 import { GameState } from "../game-state/GameState"
 import { AABB, BoundingBox } from "../game-state/BoundingBox"
+import { ButtonState } from "./ButtonState"
 
 export const CURSOR_IDLE = 'IDLE'
 export const CURSOR_DOWN = 'DOWN'
@@ -7,7 +8,7 @@ export const CURSOR_CLICK = 'CLICK'
 
 export type CursorState = typeof CURSOR_IDLE | typeof CURSOR_DOWN | typeof CURSOR_CLICK
 
-export interface UiState {
+export type UiState = {
     width: number
     height: number
     cursorActive: boolean
@@ -24,7 +25,7 @@ export interface UiState {
         element: number
     }[]
     playArea: AABB
-}
+} & ButtonState
 
 export const UiState = {
     create: (): UiState => ({
@@ -35,7 +36,8 @@ export const UiState = {
         cursorY: 0,
         cursorState: CURSOR_IDLE,
         touches: [],
-        playArea: BoundingBox.createAabb(0, 0, 0, 0)
+        playArea: BoundingBox.createAabb(0, 0, 0, 0),
+        ...ButtonState.create(),
     }),
     canvasXToGameX: (gameState: GameState, uiState: UiState, x: number): number => {
         return ((x - uiState.playArea.left)

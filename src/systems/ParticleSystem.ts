@@ -8,7 +8,7 @@ export const ParticleSystem = {
         // Clean up expired particles
         for (let i = state.liveParticles.length; i >= 0; i--) {
             const particle = state.liveParticles[i]
-            const particleIsExpired = particle && state.time > particle.endTime
+            const particleIsExpired = particle && state.gameTime > particle.endTime
             const particleEntityNoLongerExists = particle && particle.attachedToEntity > 0 && !World.getEntity(state, particle.attachedToEntity)
             if (particleIsExpired || particleEntityNoLongerExists) {
                 ParticleState.releaseParticle(state, i)
@@ -20,7 +20,7 @@ export const ParticleSystem = {
             const attachedEntity = particle.attachedToEntity ? World.getEntity(state, particle.attachedToEntity) : undefined
             const handler = Particle.getHandlerForId(particle.type)
             if (handler) {
-                handler.render(renderBuffer, particle, state.time, attachedEntity)
+                handler.render(renderBuffer, particle, state.gameTime, attachedEntity)
             }
         }
     },

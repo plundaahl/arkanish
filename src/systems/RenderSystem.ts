@@ -60,7 +60,7 @@ export const RenderSystem = {
 
         // DRAW BACKGROUND
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
-        renderStarBackground(ctx, state.time, ui)
+        renderStarBackground(ctx, state.gameTime, ui)
 
         // DRAW GAME VIEW
         ctx.save()

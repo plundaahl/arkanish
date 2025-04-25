@@ -1,5 +1,5 @@
 import { Scene } from './scenes/Scene'
-import { CURSOR_CLICK, CURSOR_DOWN, CURSOR_IDLE, UiState } from './ui-state'
+import { Buttons, CURSOR_CLICK, CURSOR_DOWN, CURSOR_IDLE, UiState } from './ui-state'
 import { MenuScene } from './scenes/MenuScene'
 import { GameScene } from './scenes/GameScene'
 import { Registry } from './game-state/Registry'
@@ -119,6 +119,10 @@ function orError<T>(element: T | null, error: string, ifNull: (message: string) 
     return element
 }
 
+const KEY_MAP: { [code: string]: number } = {
+    Escape: Buttons.MENU,
+}
+
 export class ArkanishApp extends HTMLElement {
     private $canvas: HTMLCanvasElement;
     private canvasContext: CanvasRenderingContext2D;
@@ -153,6 +157,8 @@ export class ArkanishApp extends HTMLElement {
         this.addEventListener('touchend', this.handleTouchEvent)
         this.addEventListener('touchmove', this.handleTouchEvent)
         this.addEventListener('touchcancel', this.handleTouchEvent)
+        document.addEventListener('keydown', this.handleKeyboardEvent)
+        document.addEventListener('keyup', this.handleKeyboardEvent)
         window.addEventListener('resize', this.handleResize)
 
         // Game-specific setup
@@ -247,7 +253,18 @@ export class ArkanishApp extends HTMLElement {
     }
 
     handleKeyboardEvent(event: KeyboardEvent) {
+        const keyCode = event.code
+        const button = KEY_MAP[keyCode]
 
+        if (!button) {
+            return
+        }
+
+        if (event.type === 'keydown') {
+            this.uiState.buttonsDown |= button
+        } else if (event.type === 'keyup') {
+            this.uiState.buttonsDown &= ~button
+        }
     }
 
     error(message: string) {
@@ -261,6 +278,8 @@ export class ArkanishApp extends HTMLElement {
         }
 
         this.scene.update(Date.now(), this.canvasContext, this.uiState)
+
+        this.uiState.prevButtonsDown = this.uiState.buttonsDown
 
         if (this.uiState.cursorState === CURSOR_CLICK) {
             this.uiState.cursorState = CURSOR_IDLE

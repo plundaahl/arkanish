@@ -32,7 +32,7 @@ export const MissileScriptHandler: ScriptHandler<'Missile', MissileScriptData> =
         onInit(gameState, entity) {
             const data = (entity.scriptData as MissileScriptData)
             data.targetId = gameState.playerId
-            data.launchTime = gameState.time
+            data.launchTime = gameState.gameTime
         },
         onUpdate(gameState, entity) {
             const data = (entity.scriptData as MissileScriptData)
@@ -53,7 +53,7 @@ export const MissileScriptHandler: ScriptHandler<'Missile', MissileScriptData> =
                 }
             }
 
-            if (data.launchTime + DEFAULT_SEEK_DELAY > gameState.time) {
+            if (data.launchTime + DEFAULT_SEEK_DELAY > gameState.gameTime) {
                 return
             }
 

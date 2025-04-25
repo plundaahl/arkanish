@@ -38,7 +38,7 @@ export const LevelSystem = {
 
         // Run TimeCondition actions
         if (state.level) {
-            const sectionTime = state.time - state.levelSectionTimeStart
+            const sectionTime = state.gameTime - state.levelSectionTimeStart
             for (let i = state.levelSectionTimeNextIdx; i < state.levelSectionTimeStatements.length; i++) {
                 const statement = state.levelSectionTimeStatements[i]
                 if (statement.when.at <= sectionTime) {

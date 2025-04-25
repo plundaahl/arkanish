@@ -16,12 +16,12 @@ export const JetEmitterScriptHandler: ScriptHandler<'JetEmitter', JetEmitterData
         type: "JetEmitter",
         onInit(gameState, entity) {
             const data = entity.scriptData as JetEmitterData
-            data.particleTime = gameState.time + (Math.random() * (MS_PER_SEC / data.rate))
+            data.particleTime = gameState.gameTime + (Math.random() * (MS_PER_SEC / data.rate))
         },
         onUpdate(gameState, entity) {
             const data = entity.scriptData as JetEmitterData
-            if (data.particleTime < gameState.time) {
-                data.particleTime = gameState.time + (MS_PER_SEC / data.rate)
+            if (data.particleTime < gameState.gameTime) {
+                data.particleTime = gameState.gameTime + (MS_PER_SEC / data.rate)
                 JetParticle.spawn(
                     gameState,
                     entity,

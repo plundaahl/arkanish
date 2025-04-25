@@ -56,7 +56,7 @@ const stateClosed: StateMachineScript<'MissileBay', MissileBayData> = {
     onInit(gameState, entity) {
         const data = (entity.scriptData as MissileBayData)
         const heart = World.getEntity(gameState, data.heart)
-        data.timeEnteredState = gameState.time
+        data.timeEnteredState = gameState.gameTime
         if (heart) {
             heart.flags |= EntityFlags.INVULNERABLE
         }
@@ -71,7 +71,7 @@ const stateClosed: StateMachineScript<'MissileBay', MissileBayData> = {
             return
         }
 
-        const timeInState = gameState.time - data.timeEnteredState
+        const timeInState = gameState.gameTime - data.timeEnteredState
         if (timeInState > TIME_CLOSED && entity.flags & EntityFlags.IN_PLAY_AREA) {
             transitionScript(gameState, entity, stateOpening)
         }
@@ -89,7 +89,7 @@ const stateOpening: StateMachineScript<'MissileBay', MissileBayData> = {
     },
     onUpdate(gameState, entity) {
         const data = entity.scriptData as MissileBayData
-        const timeInState = gameState.time - data.timeEnteredState
+        const timeInState = gameState.gameTime - data.timeEnteredState
         const doorOpenPercent = ExtraMath.clamp(0, timeInState / TIME_TOGGLE_DOOR, 1)
         const heart = World.getEntity(gameState, data.heart)
         if (!heart) {
@@ -111,7 +111,7 @@ const stateOpenPreLaunch: StateMachineScript<'MissileBay', MissileBayData> = {
     },
     onUpdate(gameState, entity) {
         const data = entity.scriptData as MissileBayData
-        if (gameState.time > data.timeEnteredState + TIME_PRE_LAUNCH) {
+        if (gameState.gameTime > data.timeEnteredState + TIME_PRE_LAUNCH) {
             if (data.signal === MissileBay.SIGNAL_CLOSE) {
                 transitionScript(gameState, entity, stateClosing)
             } else {
@@ -128,7 +128,7 @@ const stateLaunching: StateMachineScript<'MissileBay', MissileBayData> = {
     },
     onUpdate(gameState, entity) {
         const data = entity.scriptData as MissileBayData
-        if (gameState.time > data.timeEnteredState + TIME_PER_LAUNCH) {
+        if (gameState.gameTime > data.timeEnteredState + TIME_PER_LAUNCH) {
             if (--data.shotsRemain <= 0 || !(entity.flags & EntityFlags.IN_PLAY_AREA)) {
                 data.shotsRemain = data.shotsPerSalvo
                 transitionScript(gameState, entity, stateOpenPostLaunch)
@@ -143,7 +143,7 @@ const stateOpenPostLaunch: StateMachineScript<'MissileBay', MissileBayData> = {
     type: "MissileBay",
     onUpdate(gameState, entity) {
         const data = entity.scriptData as MissileBayData
-        if (gameState.time > data.timeEnteredState + TIME_POST_LAUNCH) {
+        if (gameState.gameTime > data.timeEnteredState + TIME_POST_LAUNCH) {
             if (data.signal === MissileBay.SIGNAL_LAUNCH) {
                 transitionScript(gameState, entity, stateOpenPreLaunch)
             } else {
@@ -157,7 +157,7 @@ const stateClosing: StateMachineScript<'MissileBay', MissileBayData> = {
     type: "MissileBay",
     onUpdate(gameState, entity) {
         const data = entity.scriptData as MissileBayData
-        const timeInState = gameState.time - data.timeEnteredState
+        const timeInState = gameState.gameTime - data.timeEnteredState
         const doorOpenPercent = 1 - ExtraMath.clamp(0, timeInState / TIME_TOGGLE_DOOR, 1)
         const heart = World.getEntity(gameState, data.heart)
         if (!heart) {

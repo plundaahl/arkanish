@@ -37,7 +37,7 @@ export const stateTelegraphing: StateMachineScript<'BouncyBall'> = {
         TelegraphCircleParticle.spawn(gameState, entity, BLAST_RADIUS, DETONATION_TIME)
     },
     onUpdate(gameState, entity) {
-        const timeInState = gameState.time - entity.scriptData.timeEnteredState
+        const timeInState = gameState.gameTime - entity.scriptData.timeEnteredState
 
         if (timeInState > DETONATION_TIME) {
             transitionScript(gameState, entity, stateDetonating)

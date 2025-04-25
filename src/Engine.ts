@@ -26,16 +26,20 @@ export const Engine = {
         uiBuffer: RenderCommandBuffer,
         canvas: CanvasRenderingContext2D,
     ) {
+        InputSystem.run(state, uiState)
         TimeSystem.run(state, systemTime)
         LevelSystem.run(state)
         SpawnSystem.runSpawn(state)
-        InputSystem.run(state, uiState)
-        MovementSystem.run(state)
-        CollisionSystem.run(state)
+        if (state.running) {
+            MovementSystem.run(state)
+            CollisionSystem.run(state)
+        }
         PlayAreaFlagSystem.run(state)
-        EventSystem.run(state)
-        DamageSystem.run(state)
-        ScriptSystem.run(state)
+        if (state.running) {
+            EventSystem.run(state)
+            DamageSystem.run(state)
+            ScriptSystem.run(state)
+        }
         SpawnSystem.runDespawn(state)
         UiSystem.run(state, uiBuffer)
         ParticleSystem.render(state, gameObjBuffer)

@@ -57,7 +57,7 @@ const stateInit: StateMachineScript<'AsteroidSpawner'> = {
 const stateIdle: StateMachineScript<'AsteroidSpawner'> = {
     type: "AsteroidSpawner",
     onUpdate(gameState, entity) {
-        const timeInState = gameState.time - entity.scriptData.timeEnteredState
+        const timeInState = gameState.gameTime - entity.scriptData.timeEnteredState
         if (timeInState > IDLE_TIME) { 
             transitionScript(gameState, entity, stateSpawning)
         }

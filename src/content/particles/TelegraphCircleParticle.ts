@@ -33,11 +33,11 @@ export const TelegraphCircleParticle = {
         )
     },
     spawn: (state: GameState, entity: Entity, radius: number, delay: number): Particle => {
-        const particle = ParticleState.provisionParticle(state, state.time)
+        const particle = ParticleState.provisionParticle(state, state.gameTime)
         particle.type = TelegraphCircleParticle.id
         particle.attachedToEntity = entity ? entity.id : 0
         particle.vecX = radius
-        particle.endTime = state.time + delay
+        particle.endTime = state.gameTime + delay
         return particle
     },
 }

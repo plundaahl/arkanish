@@ -22,7 +22,7 @@ export const LaunchParticle = {
         range: number,
         lifetime: number,
     ): Particle {
-        const particle = ParticleState.provisionParticle(state, state.time)
+        const particle = ParticleState.provisionParticle(state, state.gameTime)
         particle.type = LaunchParticle.id
         particle.originX = x
         particle.originY = y
@@ -30,7 +30,7 @@ export const LaunchParticle = {
 
         const lifetimeScale = ExtraMath.rollBetween(MIN_LIFETIME_SCALE, 1)
         const actualLifetime = lifetime * lifetimeScale
-        particle.endTime = state.time + actualLifetime
+        particle.endTime = state.gameTime + actualLifetime
 
         const veer = Math.random()
 

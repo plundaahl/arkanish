@@ -24,7 +24,7 @@ const stateIdle: StateMachineScript<'BeamSpinner'> = {
 const statePreparing: StateMachineScript<'BeamSpinner'> = {
     type: "BeamSpinner",
     onUpdate(gameState, entity) {
-        const timeInState = gameState.time - entity.scriptData.timeEnteredState
+        const timeInState = gameState.gameTime - entity.scriptData.timeEnteredState
         if (timeInState > PREPARE_TIME) {
             TelegraphBeamParticle.spawn(gameState, entity, 0, 0, 50, 0, TELEGRAPH_TIME)
             TelegraphBeamParticle.spawn(gameState, entity, 0, 0, 50, Math.PI, TELEGRAPH_TIME)
@@ -36,7 +36,7 @@ const statePreparing: StateMachineScript<'BeamSpinner'> = {
 const stateTelegraphing: StateMachineScript<'BeamSpinner'> = {
     type: "BeamSpinner",
     onUpdate(gameState, entity) {
-        const timeInState = gameState.time - entity.scriptData.timeEnteredState
+        const timeInState = gameState.gameTime - entity.scriptData.timeEnteredState
         if (timeInState > TELEGRAPH_TIME) {
             BlastBeamParticle.spawn(gameState, entity, 0, 0, 50, 0, BLAST_PARTICLE_TIME)
             BlastBeamParticle.spawn(gameState, entity, 0, 0, 50, Math.PI, BLAST_PARTICLE_TIME)
@@ -53,7 +53,7 @@ const stateTelegraphing: StateMachineScript<'BeamSpinner'> = {
 const stateBlasting: StateMachineScript<'BeamSpinner'> = {
     type: "BeamSpinner",
     onUpdate(gameState, entity) {
-        const timeInState = gameState.time - entity.scriptData.timeEnteredState
+        const timeInState = gameState.gameTime - entity.scriptData.timeEnteredState
         if (timeInState > BLAST_TIME) {
             entity.flags &= ~EntityFlags.COLLIDER
             transitionScript(gameState, entity, stateLingering)
@@ -64,7 +64,7 @@ const stateBlasting: StateMachineScript<'BeamSpinner'> = {
 const stateLingering: StateMachineScript<'BeamSpinner'> = {
     type: "BeamSpinner",
     onUpdate(gameState, entity) {
-        const timeInState = gameState.time - entity.scriptData.timeEnteredState
+        const timeInState = gameState.gameTime - entity.scriptData.timeEnteredState
         if (timeInState > LINGER_TIME) {
             const parent = World.getEntity(gameState, entity.parent)
             if (parent) {

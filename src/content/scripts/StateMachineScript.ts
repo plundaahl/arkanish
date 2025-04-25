@@ -7,7 +7,7 @@ export function transitionScript(gameState: GameState, entity: Entity, state: St
     if (oldScript.onExitState) {
         oldScript.onExitState(gameState, entity)
     }
-    (entity.scriptData as StateMachineData).timeEnteredState = gameState.time
+    (entity.scriptData as StateMachineData).timeEnteredState = gameState.gameTime
     entity.script = state
     if (state.onInit) {
         state.onInit(gameState, entity as any)

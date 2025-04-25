@@ -27,13 +27,13 @@ export const BlastCircleParticle = {
         )
     },
     spawn: (state: GameState, entity: Entity, radius: number, delay: number): Particle => {
-        const particle = ParticleState.provisionParticle(state, state.time)
+        const particle = ParticleState.provisionParticle(state, state.gameTime)
         particle.type = BlastCircleParticle.id
         particle.originZ = entity.posZL - 1
         particle.originX = entity.posXL
         particle.originY = entity.posYL
         particle.vecX = radius
-        particle.endTime = state.time + delay
+        particle.endTime = state.gameTime + delay
         return particle
     }
 }

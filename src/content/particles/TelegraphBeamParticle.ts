@@ -31,7 +31,7 @@ export const TelegraphBeamParticle = {
         )
     },
     spawn: function (state: GameState, entity: Entity, x: number, y: number, w: number, r: number, delay: number): Particle {
-        const particle = ParticleState.provisionParticle(state, state.time)
+        const particle = ParticleState.provisionParticle(state, state.gameTime)
         particle.type = TelegraphBeamParticle.id
         particle.attachedToEntity = entity ? entity.id : 0
         particle.originZ = -1
@@ -40,7 +40,7 @@ export const TelegraphBeamParticle = {
         particle.variation = w
         particle.vecX = Math.cos(r)
         particle.vecY = Math.sin(r)
-        particle.endTime = state.time + delay
+        particle.endTime = state.gameTime + delay
         return particle
     }
 }

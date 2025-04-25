@@ -12,7 +12,7 @@ export const ScoreIncrementerScriptHandler: ScriptHandler<'ScoreIncrementer', Sc
     script: {
         type: "ScoreIncrementer",
         onInit(gameState, entity) {
-            (entity.scriptData as ScriptIncrementerData).lastScoreIncrement = gameState.time
+            (entity.scriptData as ScriptIncrementerData).lastScoreIncrement = gameState.gameTime
         },
         onUpdate(gameState, entity) {
             const player = World.getEntity(gameState, gameState.playerId)
@@ -20,8 +20,8 @@ export const ScoreIncrementerScriptHandler: ScriptHandler<'ScoreIncrementer', Sc
                 return
             }
             const data = (entity.scriptData as ScriptIncrementerData)
-            if (gameState.time > data.lastScoreIncrement + MS_PER_SCORE_TICK) {
-                data.lastScoreIncrement = gameState.time
+            if (gameState.gameTime > data.lastScoreIncrement + MS_PER_SCORE_TICK) {
+                data.lastScoreIncrement = gameState.gameTime
                 gameState.score += 1
             }
         },
