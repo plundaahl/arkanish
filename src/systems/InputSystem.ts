@@ -1,7 +1,7 @@
 import { CONTROLLER_FIRE } from "../game-state/Script";
 import { World } from "../game-state/Entity";
 import { GameState } from "../game-state/GameState";
-import { Buttons, ButtonState, CURSOR_DOWN, UiState } from "../ui-state";
+import { Buttons, ButtonState, CURSOR_CLICK, CURSOR_DOWN, CURSOR_IDLE, UiState } from "../ui-state";
 
 export const InputSystem = {
     run: (gameState: GameState, uiState: UiState) => {
@@ -40,12 +40,15 @@ export const InputSystem = {
         }
 
         // Mouse
-        if (uiState.cursorActive) {
+        if (uiState.cursorActive && uiState.cursorElementId === 0) {
             moveImpulseX = UiState.canvasXToGameX(gameState, uiState, uiState.cursorX)
             moveImpulseY = UiState.canvasYToGameY(gameState, uiState, uiState.cursorY)
             if (uiState.cursorState === CURSOR_DOWN) {
                 controllerFlags |= CONTROLLER_FIRE
             }
+        }
+        if (uiState.cursorState === CURSOR_IDLE) {
+            uiState.cursorElementId = 0
         }
 
         // Touch

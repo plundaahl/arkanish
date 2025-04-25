@@ -1,43 +1,26 @@
 import { GameState } from "../game-state/GameState"
 import { AABB, BoundingBox } from "../game-state/BoundingBox"
 import { ButtonState } from "./ButtonState"
+import { GuiState } from "./GuiState"
+import { PointerState } from "./PointerState"
+import { TouchState } from "./TouchState"
+import { ScreenState } from "./ScreenState"
 
-export const CURSOR_IDLE = 'IDLE'
-export const CURSOR_DOWN = 'DOWN'
-export const CURSOR_CLICK = 'CLICK'
-
-export type CursorState = typeof CURSOR_IDLE | typeof CURSOR_DOWN | typeof CURSOR_CLICK
-
-export type UiState = {
-    width: number
-    height: number
-    cursorActive: boolean
-    cursorX: number
-    cursorY: number
-    cursorState: CursorState
-    touches: {
-        x: number
-        y: number
-        offsetX: number
-        offsetY: number
-        id: number
-        state: CursorState
-        element: number
-    }[]
-    playArea: AABB
-} & ButtonState
+export type UiState = (
+    ScreenState
+    & ButtonState
+    & GuiState
+    & PointerState
+    & TouchState
+)
 
 export const UiState = {
     create: (): UiState => ({
-        width: 0,
-        height: 0,
-        cursorActive: false,
-        cursorX: 0,
-        cursorY: 0,
-        cursorState: CURSOR_IDLE,
-        touches: [],
-        playArea: BoundingBox.createAabb(0, 0, 0, 0),
+        ...ScreenState.create(),
+        ...TouchState.create(),
+        ...PointerState.create(),
         ...ButtonState.create(),
+        ...GuiState.create(),
     }),
     canvasXToGameX: (gameState: GameState, uiState: UiState, x: number): number => {
         return ((x - uiState.playArea.left)

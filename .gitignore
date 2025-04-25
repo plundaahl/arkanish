@@ -52,3 +52,4 @@ node_modules/
 
 # project-specific stuff
 src/build-info.json
+.me*

@@ -41,7 +41,7 @@ export const Engine = {
             ScriptSystem.run(state)
         }
         SpawnSystem.runDespawn(state)
-        UiSystem.run(state, uiBuffer)
+        UiSystem.run(state, uiState, uiBuffer)
         ParticleSystem.render(state, gameObjBuffer)
         RenderSystem.render(state, uiState, gameObjBuffer, uiBuffer, canvas)
     },
