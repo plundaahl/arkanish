@@ -5,6 +5,7 @@ import { GameEventBuffer } from './GameEvent'
 import { LevelState } from './Level'
 import { ParticleState } from './Particles'
 import { PlayAreaState } from './PlayArea'
+import { SceneState } from './Scene'
 
 export type GameState = World
     & GameEventBuffer
@@ -13,6 +14,7 @@ export type GameState = World
     & ParticleState
     & LevelState
     & PlayAreaState
+    & SceneState
     & {
     playerId: number,
     playerNextShotTime: number,
@@ -23,7 +25,7 @@ export type GameState = World
 }
 
 export const GameState = {
-    create: (time: number): GameState => {
+    create(time: number): GameState {
         const state = {
             ...World.create(),
             ...GameEventBuffer.create(),
@@ -32,6 +34,7 @@ export const GameState = {
             ...ParticleState.create(),
             ...LevelState.create(),
             ...PlayAreaState.create(),
+            ...SceneState.create(),
             playerId: 0,
             lastSpawnTime: time,
             numEntities: 0,
@@ -40,5 +43,12 @@ export const GameState = {
             scoreTimeIncrementer: 0,
         }
         return state
-    }
+    },
+    reset(gameState: GameState): void {
+        World.reset(gameState)
+        ParticleState.reset(gameState)
+        LevelState.reset(gameState)
+        GameEventBuffer.reset(gameState)
+        gameState.numEntities = 0
+    },
 }

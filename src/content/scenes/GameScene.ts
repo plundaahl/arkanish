@@ -1,14 +1,10 @@
-import { Scene } from './Scene'
-import { World } from '../game-state/Entity'
-import { GameState } from '../game-state/GameState'
-import { RenderCommandBuffer } from '../RenderCommand'
-import { Level, LevelState } from '../game-state/Level'
-import { Prefab } from '../game-state/Prefab'
-import { SpawnPrefabActionHandler, StartSectionActionHandler } from '../content/actions'
-import { UiState } from '../ui-state'
-import { Engine } from '../Engine'
-
-type State = GameState
+import { Scene } from '../../game-state/Scene'
+import { World } from '../../game-state/Entity'
+import { GameState } from '../../game-state/GameState'
+import { Level, LevelState } from '../../game-state/Level'
+import { Prefab } from '../../game-state/Prefab'
+import { SpawnPrefabActionHandler, StartSectionActionHandler } from '../actions'
+import { Gui, UiState } from '../../ui-state'
 
 const level: Level = {
     initSection: 'start',
@@ -71,43 +67,28 @@ const level: Level = {
     }
 }
 
-export class GameScene implements Scene {
-    private state: State;
-    private gameObjBuffer: RenderCommandBuffer = RenderCommandBuffer.create()
-    private uiBuffer: RenderCommandBuffer = RenderCommandBuffer.create()
+export const GameScene: Scene = {
+    id: 'Game',
+    onStart(gameState: GameState, uiState: UiState): void {
+        gameState.score = 0
+        gameState.scoreTimeIncrementer = 0
 
-    constructor(
-        private readonly onDeath: () => void,
-    ) {}
+        // Load player
+        const player = Prefab.spawn(gameState, 'Player')
+        player.posYL = gameState.playArea.height / 4
+        gameState.playerId = player.id
 
-    update(time: number, canvas: CanvasRenderingContext2D, uiState: UiState): void {
-        if (!this.state) {
-            this.state = GameState.create(time)
-
-            // Load player
-            const player = Prefab.spawn(this.state, 'Player')
-            player.posYL = this.state.playArea.height / 4
-            this.state.playerId = player.id
-
-            // Load score incrementer
-            Prefab.spawn(this.state, 'ScoreIncrementer')
-
-            // Load level
-            LevelState.loadLevel(this.state, level)
-        }
-
-        Engine.update(
-            this.state,
-            uiState,
-            time,
-            this.gameObjBuffer,
-            this.uiBuffer,
-            canvas,
-        )
-
-        const player = World.getEntity(this.state, this.state.playerId)
+        Prefab.spawn(gameState, 'ScoreIncrementer')
+        LevelState.loadLevel(gameState, level)
+        Gui.startController(uiState, 'GameplayOverlay')
+    },
+    onUpdate(gameState: GameState, uiState: UiState): void {
+        const player = World.getEntity(gameState, gameState.playerId)
         if (!player) {
-            this.onDeath()
+            console.log('no player')
+            gameState.playerId = 0
+            gameState.playerNextShotTime = 0
+            Scene.transitionToScene(gameState, 'MainMenu')
         }
     }
 }

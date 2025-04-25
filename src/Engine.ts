@@ -11,6 +11,7 @@ import {
     ParticleSystem,
     PlayAreaFlagSystem,
     RenderSystem,
+    SceneSystem,
     ScriptSystem,
     SpawnSystem,
     TimeSystem,
@@ -26,6 +27,7 @@ export const Engine = {
         uiBuffer: RenderCommandBuffer,
         canvas: CanvasRenderingContext2D,
     ) {
+        SceneSystem.run(state, uiState)
         InputSystem.run(state, uiState)
         TimeSystem.run(state, systemTime)
         LevelSystem.run(state)

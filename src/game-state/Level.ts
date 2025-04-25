@@ -124,6 +124,15 @@ export const LevelState = {
         levelSectionTimeStatements: [],
         levelSectionTimeNextIdx: 0,
     }),
+    reset(state: LevelState): void {
+        state.level = undefined
+        state.levelPending = undefined
+        state.levelPendingSection = undefined
+        state.levelCurrentSection = ''
+        state.levelSectionTimeStart = 0
+        state.levelSectionTimeStatements.length = 0
+        state.levelSectionTimeNextIdx = 0
+    },
     loadLevel: (state: LevelState, level: Level) => {
         state.levelPending = level
     },

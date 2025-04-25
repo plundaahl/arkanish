@@ -1,8 +1,9 @@
-import { Scene } from './scenes/Scene'
 import { Buttons, CURSOR_CLICK, CURSOR_DOWN, CURSOR_IDLE, UiState } from './ui-state'
-import { MenuScene } from './scenes/MenuScene'
-import { GameScene } from './scenes/GameScene'
-import { Registry } from './game-state/Registry'
+import {
+    MenuScene,
+    GameScene,
+} from './content/scenes'
+import { Registry } from './registry'
 import {
     SpawnPrefabActionHandler,
     StartSectionActionHandler,
@@ -56,6 +57,14 @@ import {
     SpawnPosAngledAbovePrefab,
     WeakPointPrefab,
 } from './content/prefabs'
+import {
+    GameplayGuiController,
+    MainMenuGuiController,
+} from './content/gui-controllers'
+import { GameState } from './game-state/GameState'
+import { Scene } from './game-state/Scene'
+import { Engine } from './Engine'
+import { RenderCommandBuffer } from './RenderCommand'
 
 Registry.registerActions(
     SpawnPrefabActionHandler,
@@ -110,6 +119,14 @@ Registry.registerPrefabs(
     SpawnPosAngledAbovePrefab,
     WeakPointPrefab,
 )
+Registry.registerGuiControllers(
+    GameplayGuiController,
+    MainMenuGuiController,
+)
+Registry.registerScenes(
+    MenuScene,
+    GameScene,
+)
 
 function orError<T>(element: T | null, error: string, ifNull: (message: string) => void): T {
     if (element === null) {
@@ -128,7 +145,11 @@ export class ArkanishApp extends HTMLElement {
     private canvasContext: CanvasRenderingContext2D;
     private running: boolean = false;
     private scene: Scene;
+
+    private gameState: GameState
     private uiState: UiState
+    private gameObjBuffer: RenderCommandBuffer
+    private uiBuffer: RenderCommandBuffer
 
     constructor() {
         super()
@@ -139,8 +160,6 @@ export class ArkanishApp extends HTMLElement {
         this.handleKeyboardEvent = this.handleKeyboardEvent.bind(this)
         this.error = this.error.bind(this)
         this.update = this.update.bind(this)
-        this.makeGameScene = this.makeGameScene.bind(this)
-        this.makeMenuScene = this.makeMenuScene.bind(this)
     }
 
     connectedCallback() {
@@ -162,8 +181,11 @@ export class ArkanishApp extends HTMLElement {
         window.addEventListener('resize', this.handleResize)
 
         // Game-specific setup
+        this.uiBuffer = RenderCommandBuffer.create()
+        this.gameObjBuffer = RenderCommandBuffer.create()
+        this.gameState = GameState.create(Date.now())
         this.uiState = UiState.create()
-        this.scene = this.makeMenuScene()
+        Scene.transitionToScene(this.gameState, 'MainMenu')
         this.running = true;
 
         // Start the render loop 
@@ -174,14 +196,6 @@ export class ArkanishApp extends HTMLElement {
     disconnectedCallback() {
         this.running = false
         window.removeEventListener('resize', this.handleResize)
-    }
-
-    private makeMenuScene() {
-        return new MenuScene(() => this.scene = this.makeGameScene())
-    }
-
-    private makeGameScene() {
-        return new GameScene(() => this.scene = this.makeMenuScene())
     }
 
     handleResize() {
@@ -277,7 +291,14 @@ export class ArkanishApp extends HTMLElement {
             return
         }
 
-        this.scene.update(Date.now(), this.canvasContext, this.uiState)
+        Engine.update(
+            this.gameState,
+            this.uiState,
+            Date.now(),
+            this.gameObjBuffer,
+            this.uiBuffer,
+            this.canvasContext,
+        )
 
         this.uiState.prevButtonsDown = this.uiState.buttonsDown
 

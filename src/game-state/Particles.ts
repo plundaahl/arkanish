@@ -90,4 +90,11 @@ export const ParticleState = {
         Particle.reset(part)
         state.deadParticles.push(part)
     },
+    reset(state: ParticleState): void {
+        for (let i = 0; i < state.liveParticles.length; i++) {
+            Particle.reset(state.liveParticles[i])
+        }
+        state.deadParticles.push(...state.liveParticles)
+        state.liveParticles.length = 0
+    },
 }

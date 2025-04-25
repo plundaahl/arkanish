@@ -1,8 +1,4 @@
-import { UiState } from "../ui-state"
-
-export interface Scene {
-    update(time: number, canvas: CanvasRenderingContext2D, uiState: UiState): void
-}
+import { UiState } from "../../ui-state"
 
 // Debug function for rendering touches
 export function renderTouches(ctx: CanvasRenderingContext2D, ui: UiState) {
