@@ -36,13 +36,13 @@ export const theme: Theme = {
             outline: "green"
         },
         hot: {
-            glyph: "white",
-            bg: "#0055FF",
+            glyph: "black",
+            bg: "green",
             outline: "green"
         },
         active: {
             glyph: "white",
-            bg: "#0055FF",
+            bg: "#005500",
             outline: "green"
         },
     }

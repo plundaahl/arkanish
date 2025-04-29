@@ -19,12 +19,12 @@ export const RenderSystem = {
                             gameBuffer,
                             entity.posZG,
                             renderBox,
-                            entity.colour || 'white',
-                            state.collidedEntities.has(entity.id),
                             box.left,
                             box.top,
                             box.width,
                             box.height,
+                            entity.colour || 'white',
+                            state.collidedEntities.has(entity.id) ? RenderFlags.FILL : 0,
                         )
                     } else if (box.type === BoundingBoxTypes.CIRCLE) {
                         RenderCommandBuffer.addCustomRenderCmd(
@@ -131,23 +131,81 @@ function renderViewBox(ctx: CanvasRenderingContext2D, ui: UiState) {
     ctx.clip()
 }
 
-export function renderBox(ctx: CanvasRenderingContext2D, style: string, fill: boolean, x: number, y: number, w: number, h: number) {
-    ctx.save()
-    ctx.lineWidth = 2
+const renderFlag = Flag.makeNumberFlagFactory()
+export const RenderFlags = {
+    FILL: renderFlag(),
+    LINE_THICK: renderFlag(),
+    ALIGN_X_LEFT: 0,
+    ALIGN_X_CENTER: renderFlag(),
+    ALIGN_X_RIGHT: renderFlag(),
+    ALIGN_Y_TOP: 0,
+    ALIGN_Y_CENTER: renderFlag(),
+    ALIGN_Y_BOTTOM: renderFlag(),
+}
 
-    if (fill) {
+export function positionX(x: number, w: number, flags: number): number {
+    if (flags & RenderFlags.ALIGN_X_CENTER) {
+        return x - (w * 0.5)
+    }
+    if (flags & RenderFlags.ALIGN_X_RIGHT) {
+        return x - w
+    }
+    return x
+}
+
+export function positionY(y: number, h: number, flags: number): number {
+    if (flags & RenderFlags.ALIGN_Y_CENTER) {
+        return y - (h * 0.5)
+    }
+    if (flags & RenderFlags.ALIGN_Y_BOTTOM) {
+        return y - h
+    }
+    return y
+}
+
+function lineWidth(flags: number) {
+    if (flags & RenderFlags.LINE_THICK) {
+        return 4
+    }
+    return 2
+}
+
+export function renderBox(
+    ctx: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    w: number,
+    h: number,
+    style: string,
+    flags: number = 0,
+) {
+    ctx.save()
+
+    const actualX = positionX(x, w, flags)
+    const actualY = positionY(y, h, flags)
+
+    if (flags & RenderFlags.FILL) {
         ctx.fillStyle = style
-        ctx.fillRect(x, y, w, h)
+        ctx.fillRect(actualX, actualY, w, h)
     } else {
+        ctx.lineWidth = lineWidth(flags)
         ctx.strokeStyle = style
-        ctx.strokeRect(x, y, w, h)
+        ctx.strokeRect(actualX, actualY, w, h)
     }
 
     ctx.restore()
 }
 
 const FULL_CRICLE = 2 * Math.PI
-export function renderCircle(ctx: CanvasRenderingContext2D, style: string, fill: boolean, x: number, y: number, r: number, opacity: number = 1) {
+export function renderCircle(
+    ctx: CanvasRenderingContext2D,
+    style: string,
+    fill: boolean,
+    x: number,
+    y: number,
+    r: number,
+    opacity: number = 1
+) {
     ctx.save()
     ctx.beginPath()
     ctx.arc(x, y, Math.abs(r), 0, FULL_CRICLE)
@@ -213,17 +271,34 @@ export function renderBeam(
     ctx.restore()
 }
 
-export function renderText(ctx: CanvasRenderingContext2D, text: string[]) {
+export function renderText(
+    ctx: CanvasRenderingContext2D,
+    text: string[],
+    x: number,
+    y: number,
+    flags: number = 0,
+    style: string = 'white',
+    font: string = '20px serif',
+) {
     ctx.save()
-    ctx.font = '20px serif'
-    ctx.fillStyle = 'white'
+    ctx.font = font
+    ctx.fillStyle = style
 
-    let pos = 50;
+    const baseMetrics = ctx.measureText('')
+    const lineHeight = baseMetrics.emHeightAscent + baseMetrics.emHeightDescent
+    const totalHeight = lineHeight * text.length
+
+    let pos = positionY(y, totalHeight, flags)
 
     for (const line of text) {
-        ctx.fillText(line, 50, pos)
         const textMetrics = ctx.measureText(line)
-        pos += textMetrics.actualBoundingBoxAscent + textMetrics.actualBoundingBoxDescent + 10
+        const lineHeight = textMetrics.emHeightAscent + textMetrics.emHeightDescent
+        ctx.fillText(
+            line,
+            positionX(x, textMetrics.width, flags),
+            pos,
+        )
+        pos += lineHeight
     }
 
     ctx.restore()

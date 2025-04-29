@@ -21,8 +21,11 @@ export const GameplayController: Controller<'GameplayController'> = {
             uiState,
             buffer,
             uiState.playArea.width - PAUSE_BTN_OFFSET - PAUSE_BTN_W,
-            PAUSE_BTN_OFFSET
+            PAUSE_BTN_OFFSET,
         )
+
+        if (!gameState.running) {
+        }
 
         if (ButtonState.pressed(uiState, Buttons.MENU) || pauseControlPressed) {
             gameState.running = !gameState.running

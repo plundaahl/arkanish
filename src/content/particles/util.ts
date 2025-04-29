@@ -24,8 +24,6 @@ export function createBoxParticleRenderFn(colour: string) {
             renderBuffer,
             particle.originZ,
             renderBox,
-            colour,
-            false,
             scaleOffset(
                 particle.originX + (entity?.posXG || 0),
                 particle.vecX + (entity?.posXG || 0),
@@ -38,6 +36,8 @@ export function createBoxParticleRenderFn(colour: string) {
             ) - halfSize,
             size,
             size,
+            colour,
+            0,
         )
     }
 }
