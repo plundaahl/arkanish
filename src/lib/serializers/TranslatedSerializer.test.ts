@@ -15,7 +15,9 @@ beforeEach(() => {
 })
 
 test('TaggedSerializer test', () => {
-    const entityId = TranslatedSerializer.create(TaggedSerializer.create('entityId', 1, PrimitiveSerializer.uint32))
+    const entityId = TranslatedSerializer
+        .create(TaggedSerializer.create('entityId', 1)
+        .initialVersion(PrimitiveSerializer.uint32))
 
     entityId.serialize(cursor, 7)
     entityId.serialize(cursor, 9)

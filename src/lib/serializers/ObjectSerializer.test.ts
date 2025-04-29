@@ -24,7 +24,7 @@ test('Basic test', () => {
     const v2Builder = v1Builder
     .newVersion()
     .retypeField('flags', PrimitiveSerializer.bigUint64, BigInt)
-    .retypeField('id', TaggedSerializer.create('entityId', 2, PrimitiveSerializer.uint32), i => i)
+    .retypeField('id', TaggedSerializer.create('entityId', 2).initialVersion(PrimitiveSerializer.uint32), i => i)
     .removeField('alive')
 
     const v3Builder = v2Builder

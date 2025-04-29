@@ -19,32 +19,35 @@ test('Basic', () => {
     type Vector2 = { type: 'vector2', x: number, y: number }
     const isVector2 = (obj: unknown): obj is Vector2 => typeof obj === 'object' && (obj as Vector2).type === 'vector2'
     const nullVector2: Vector2 = { type: 'vector2', x: 0, y: 0 }
-    const vector2 = TaggedSerializer.create('taggedVector2', 1, ObjectSerializer.builder('vector2')
-        .addField('x', PrimitiveSerializer.float32)
-        .addField('y', PrimitiveSerializer.float32)
-        .build<Vector2>(nullVector2, isVector2))
+    const vector2 = TaggedSerializer.create('taggedVector2', 1)
+        .initialVersion(ObjectSerializer.builder('vector2')
+            .addField('x', PrimitiveSerializer.float32)
+            .addField('y', PrimitiveSerializer.float32)
+            .build<Vector2>(nullVector2, isVector2))
 
     type Aabb = { type: 'aabb', position: Vector2, bounds: Vector2 }
     const isAabb = (obj: unknown): obj is Aabb => typeof obj === 'object' && (obj as Aabb).type === 'aabb'
-    const aabb = TaggedSerializer.create('taggedAabb', 2, ObjectSerializer.builder('aabb')
-        .addField('position', vector2)
-        .addField('bounds', vector2)
-        .build<Aabb>({
-            type: 'aabb',
-            position: nullVector2,
-            bounds: nullVector2,
-        }, isAabb))
+    const aabb = TaggedSerializer.create('taggedAabb', 2)
+        .initialVersion(ObjectSerializer.builder('aabb')
+            .addField('position', vector2)
+            .addField('bounds', vector2)
+            .build<Aabb>({
+                type: 'aabb',
+                position: nullVector2,
+                bounds: nullVector2,
+            }, isAabb))
 
     type Circle = { type: 'circle', position: Vector2, radius: number }
     const isCircle = (obj: unknown): obj is Circle => typeof obj === 'object' && (obj as Circle).type === 'circle'
-    const circle = TaggedSerializer.create('taggedCircle', 3, ObjectSerializer.builder('circle')
-        .addField('position', vector2)
-        .addField('radius', PrimitiveSerializer.float32)
-        .build<Circle>({
-            type: 'circle',
-            position: nullVector2,
-            radius: 0,
-        }, isCircle))
+    const circle = TaggedSerializer.create('taggedCircle', 3)
+        .initialVersion(ObjectSerializer.builder('circle')
+            .addField('position', vector2)
+            .addField('radius', PrimitiveSerializer.float32)
+            .build<Circle>({
+                type: 'circle',
+                position: nullVector2,
+                radius: 0,
+            }, isCircle))
     
     const geometry = UnionSerializer.create('geometry')
         .withMember(vector2, isVector2)

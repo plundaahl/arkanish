@@ -64,7 +64,7 @@ test('With objects', () => {
 })
 
 test('Tagged primitives', () => {
-    const v1 = TaggedSerializer.create('entityId', 7, PrimitiveSerializer.uint8)
+    const v1 = TaggedSerializer.create('entityId', 7).initialVersion(PrimitiveSerializer.uint8)
     const v2 = v1.newVersion(PrimitiveSerializer.uint32, i => i)
     const v3 = v2.newVersion(PrimitiveSerializer.bigUint64, BigInt)
     const input = [7, 9, 24, 2]

@@ -14,7 +14,7 @@ beforeEach(() => {
 })
 
 test('Same-version de/serialization', () => {
-    const serializer = TaggedSerializer.create('foo', 1, PrimitiveSerializer.int32)
+    const serializer = TaggedSerializer.create('foo', 1).initialVersion(PrimitiveSerializer.int32)
     const value = 132
 
     serializer.serialize(cursor, value)
@@ -24,7 +24,7 @@ test('Same-version de/serialization', () => {
 })
 
 test('Version changes', () => {
-    const v1 = TaggedSerializer.create('foo', 1, PrimitiveSerializer.int32)
+    const v1 = TaggedSerializer.create('foo', 1).initialVersion(PrimitiveSerializer.int32)
     const v2 = v1.newVersion(PrimitiveSerializer.bigInt64, BigInt)
     
     v1.serialize(cursor, 123)
@@ -34,8 +34,8 @@ test('Version changes', () => {
 })
 
 test('Wrong type', () => {
-    const type1 = TaggedSerializer.create('foo', 1, PrimitiveSerializer.int32)
-    const type2 = TaggedSerializer.create('bar', 2, PrimitiveSerializer.int32)
+    const type1 = TaggedSerializer.create('foo', 1).initialVersion(PrimitiveSerializer.int32)
+    const type2 = TaggedSerializer.create('bar', 2).initialVersion(PrimitiveSerializer.int32)
 
     type1.serialize(cursor, 123)
     cursor.reset()
@@ -45,7 +45,7 @@ test('Wrong type', () => {
 })
 
 test('Invalid version', () => {
-    const v1 = TaggedSerializer.create('foo', 1, PrimitiveSerializer.int32)
+    const v1 = TaggedSerializer.create('foo', 1).initialVersion(PrimitiveSerializer.int32)
     const v2 = v1.newVersion(PrimitiveSerializer.bigInt64, BigInt)
 
     v2.serialize(cursor, 123n)
@@ -56,7 +56,7 @@ test('Invalid version', () => {
 })
 
 test('Skips bytes equal to the underlying version', () => {
-    const v1 = TaggedSerializer.create('foo', 1, PrimitiveSerializer.int32)
+    const v1 = TaggedSerializer.create('foo', 1).initialVersion(PrimitiveSerializer.int32)
     const v2 = v1.newVersion(PrimitiveSerializer.bigInt64, BigInt)
 
     v1.serialize(cursor, 123)
