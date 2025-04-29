@@ -1,7 +1,5 @@
-import { CONTROLLER_FIRE } from "../game-state/Script";
-import { World } from "../game-state/Entity";
 import { GameState } from "../game-state/GameState";
-import { Buttons, ButtonState, CURSOR_CLICK, CURSOR_DOWN, CURSOR_IDLE, UiState } from "../ui-state";
+import { CURSOR_IDLE, UiState } from "../ui-state";
 
 export const InputSystem = {
     run: (gameState: GameState, uiState: UiState) => {
@@ -23,54 +21,16 @@ export const InputSystem = {
         uiState.playArea.width = projectionWidth
         uiState.playArea.height = projectionHeight
 
-        // Keys
-        if (ButtonState.pressed(uiState, Buttons.MENU)) {
-            gameState.running = !gameState.running
-            console.log(gameState.running ? 'Resumed' : 'Paused')
-        }
-
-        // Incorporate player input
-        let moveImpulseX: number = 0
-        let moveImpulseY: number = 0
-        let controllerFlags: number = 0
-
-        const player = World.getEntity(gameState, gameState.playerId)
-        if (!player) {
-            return
-        }
-
-        // Mouse
-        if (uiState.cursorActive && uiState.cursorElementId === 0) {
-            moveImpulseX = UiState.canvasXToGameX(gameState, uiState, uiState.cursorX)
-            moveImpulseY = UiState.canvasYToGameY(gameState, uiState, uiState.cursorY)
-            if (uiState.cursorState === CURSOR_DOWN) {
-                controllerFlags |= CONTROLLER_FIRE
-            }
-        }
-        if (uiState.cursorState === CURSOR_IDLE) {
+        // Input state resets
+        if (uiState.cursorState === CURSOR_IDLE && uiState.cursorElementId !== 0) {
+            console.log(JSON.stringify(uiState))
             uiState.cursorElementId = 0
         }
 
-        // Touch
-        let shipTouch = uiState.touches.find(touch => touch.element === 1)
         for (const touch of uiState.touches) {
-            if (!shipTouch && touch.element === 0) {
-                touch.element = 1
-                touch.offsetX = (player?.posXL || 0) - UiState.canvasXToGameX(gameState, uiState, touch.x)
-                touch.offsetY = (player?.posYL || 0) - UiState.canvasYToGameY(gameState, uiState, touch.y)
-                shipTouch = touch
+            if (touch.state === CURSOR_IDLE && touch.element !== 0) {
+                touch.element = 0
             }
-        }
-        if (shipTouch) {
-            moveImpulseX = UiState.canvasXToGameX(gameState, uiState, shipTouch.x) + shipTouch.offsetX
-            moveImpulseY = UiState.canvasYToGameY(gameState, uiState, shipTouch.y) + shipTouch.offsetY
-            if (shipTouch.state === CURSOR_DOWN) {
-                controllerFlags |= CONTROLLER_FIRE
-            }
-        }
-
-        if (player.script?.onInput) {
-            player.script?.onInput(gameState, player as any, moveImpulseX, moveImpulseY, controllerFlags)
         }
     }
 }

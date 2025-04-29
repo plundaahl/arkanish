@@ -58,9 +58,9 @@ import {
     WeakPointPrefab,
 } from './content/prefabs'
 import {
-    GameplayGuiController,
-    MainMenuGuiController,
-} from './content/gui-controllers'
+    GameplayController,
+    MainMenuController,
+} from './content/controllers'
 import { GameState } from './game-state/GameState'
 import { Scene } from './game-state/Scene'
 import { Engine } from './Engine'
@@ -119,9 +119,9 @@ Registry.registerPrefabs(
     SpawnPosAngledAbovePrefab,
     WeakPointPrefab,
 )
-Registry.registerGuiControllers(
-    GameplayGuiController,
-    MainMenuGuiController,
+Registry.registerControllers(
+    GameplayController,
+    MainMenuController,
 )
 Registry.registerScenes(
     MenuScene,
@@ -168,6 +168,7 @@ export class ArkanishApp extends HTMLElement {
         this.canvasContext = orError(this.$canvas.getContext('2d'), 'Canvas context was null', this.error)
         
         this.addEventListener('click', this.handleMouseEvent)
+        this.addEventListener('mouseover', this.handleMouseEvent)
         this.addEventListener('mousedown', this.handleMouseEvent)
         this.addEventListener('mouseup', this.handleMouseEvent)
         this.addEventListener('mousemove', this.handleMouseEvent)
@@ -207,6 +208,7 @@ export class ArkanishApp extends HTMLElement {
 
     handleMouseEvent(event: MouseEvent) {
         switch (event.type) {
+            case "mouseover":
             case "mousemove":
                 this.uiState.cursorActive = true
                 this.uiState.cursorX = event.clientX

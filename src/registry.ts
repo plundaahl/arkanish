@@ -1,4 +1,4 @@
-import { GuiControllerRegistry } from './ui-state'
+import { ControllerRegistry } from './ui-state'
 import { ActionHandlerRegistry } from './game-state/Level'
 import { ParticleHandlerRegistry } from './game-state/Particles'
 import { PrefabRegistry } from './game-state/Prefab'
@@ -10,7 +10,7 @@ export const Registry = {
     ...ScriptHandlerRegistry,
     ...ParticleHandlerRegistry,
     ...PrefabRegistry,
-    ...GuiControllerRegistry,
+    ...ControllerRegistry,
     ...SceneRegistry,
 }
 

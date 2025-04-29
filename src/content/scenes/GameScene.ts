@@ -80,7 +80,7 @@ export const GameScene: Scene = {
 
         Prefab.spawn(gameState, 'ScoreIncrementer')
         LevelState.loadLevel(gameState, level)
-        Gui.startController(uiState, 'GameplayOverlay')
+        Gui.startController(uiState, 'GameplayController')
     },
     onUpdate(gameState: GameState, uiState: UiState): void {
         const player = World.getEntity(gameState, gameState.playerId)

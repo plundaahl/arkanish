@@ -10,6 +10,7 @@ export const GuiStates = {
     NONE: 0,
     HOVERED: 1,
     CLICKED: 2,
+    PRESSED: 3,
 }
 
 export type GuiState = {
@@ -17,7 +18,7 @@ export type GuiState = {
     guiController: string,
 }
 
-export interface GuiController<T extends string> {
+export interface Controller<T extends string> {
     id: T
     update(gameState: GameState, uiState: UiState, buffer: RenderCommandBuffer): void
 }
@@ -50,17 +51,22 @@ export const Gui = {
 
         let clicked = false
         let hovered = false
+        let pressed = false
         if (cursorActive
             && left <= cursorX && cursorX <= right
             && top <= cursorY && cursorY <= bottom
         ) {
-            hovered = true
-            if (ui.cursorState === CURSOR_DOWN) {
+            if (ui.cursorElementId === 0) {
+                hovered = true
+            }
+            if (ui.cursorElementId === 0 && ui.cursorState === CURSOR_DOWN) {
                 ui.cursorElementId = elementId
             } else if (ui.cursorState === CURSOR_CLICK && ui.cursorElementId === elementId) {
                 clicked = true
             }
         }
+
+        pressed = ui.cursorElementId === elementId && ui.cursorState === CURSOR_DOWN
 
         let tapped = false
         for (const touch of ui.touches) {
@@ -74,10 +80,16 @@ export const Gui = {
                     touch.element = elementId
                 }
             }
+            if (touch.element === elementId && touch.state === CURSOR_DOWN) {
+                pressed = true
+            }
         }
 
         if (clicked || tapped) {
+            console.log(JSON.stringify(ui))
             return GuiStates.CLICKED
+        } else if (pressed) {
+            return GuiStates.PRESSED
         } else if (hovered) {
             return GuiStates.HOVERED
         } else {
@@ -86,25 +98,25 @@ export const Gui = {
     },
 }
 
-const controllerRegistry: { [Id in string]: GuiController<string> } = {}
-export const GuiControllerRegistry = {
-    registerGuiControllers(...controllers: GuiController<string>[]): void {
+const controllerRegistry: { [Id in string]: Controller<string> } = {}
+export const ControllerRegistry = {
+    registerControllers(...controllers: Controller<string>[]): void {
         for (const controller of controllers) {
             if (controllerRegistry[controller.id]) {
                 if (Object.is(controllerRegistry[controller.id], controller)) {
-                    console.warn(`GuiController with ID [${controller.id}] was registered multiple times.  This is redundant and probably a bug.`)
+                    console.warn(`Controller with ID [${controller.id}] was registered multiple times.  This is redundant and probably a bug.`)
                 } else {
-                    throw new Error(`Attempted to register GuiController with ID [${controller.id}], but that ID is already registered.`)
+                    throw new Error(`Attempted to register Controller with ID [${controller.id}], but that ID is already registered.`)
                 }
             }
             controllerRegistry[controller.id] = controller
         }
     },
-    getController<I extends string>(id: I): GuiController<I> {
+    getController<I extends string>(id: I): Controller<I> {
         const controller = controllerRegistry[id]
         if (!controller) {
-            throw new Error(`No GuiController registered with ID [${id}].`)
+            throw new Error(`No Controller registered with ID [${id}].`)
         }
-        return controller as GuiController<I>
+        return controller as Controller<I>
     },
 }

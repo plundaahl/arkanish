@@ -29,6 +29,7 @@ export const Engine = {
     ) {
         SceneSystem.run(state, uiState)
         InputSystem.run(state, uiState)
+        UiSystem.run(state, uiState, uiBuffer)
         TimeSystem.run(state, systemTime)
         LevelSystem.run(state)
         SpawnSystem.runSpawn(state)
@@ -43,7 +44,6 @@ export const Engine = {
             ScriptSystem.run(state)
         }
         SpawnSystem.runDespawn(state)
-        UiSystem.run(state, uiState, uiBuffer)
         ParticleSystem.render(state, gameObjBuffer)
         RenderSystem.render(state, uiState, gameObjBuffer, uiBuffer, canvas)
     },
