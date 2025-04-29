@@ -1,4 +1,5 @@
 import { Collisions } from './Collisions'
+import { DebugState } from './DebugState'
 import { World } from './Entity'
 import { FrameState } from './Frame'
 import { GameEventBuffer } from './GameEvent'
@@ -15,6 +16,7 @@ export type GameState = World
     & LevelState
     & PlayAreaState
     & SceneState
+    & DebugState
     & {
     playerId: number,
     playerNextShotTime: number,
@@ -35,6 +37,7 @@ export const GameState = {
             ...LevelState.create(),
             ...PlayAreaState.create(),
             ...SceneState.create(),
+            ...DebugState.create(),
             playerId: 0,
             lastSpawnTime: time,
             numEntities: 0,

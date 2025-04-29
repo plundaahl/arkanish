@@ -5,6 +5,8 @@ import { World } from "../../game-state/Entity";
 import { CONTROLLER_FIRE } from "../../game-state/Script";
 import { pauseButton } from "../gui-components/pauseButton";
 import { statusText } from "../gui-components/statusText";
+import { textButton } from "../gui-components/textButton";
+import { DebugFlags } from "../../game-state/DebugState";
 
 const PAUSE_BTN_W = 60
 const PAUSE_BTN_OFFSET = 30
@@ -24,7 +26,8 @@ export const GameplayController: Controller<'GameplayController'> = {
             PAUSE_BTN_OFFSET,
         )
 
-        if (!gameState.running) {
+        if (gameState.debugFlags & DebugFlags.DEV_MODE && !gameState.running) {
+            textButton(buffer, 'Save', uiState, 100, { hPos: 10 })
         }
 
         if (ButtonState.pressed(uiState, Buttons.MENU) || pauseControlPressed) {

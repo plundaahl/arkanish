@@ -1,3 +1,4 @@
+import * as buildInfo from './build-info.json'
 import { Buttons, CURSOR_CLICK, CURSOR_DOWN, CURSOR_IDLE, UiState } from './ui-state'
 import {
     MenuScene,
@@ -65,6 +66,7 @@ import { GameState } from './game-state/GameState'
 import { Scene } from './game-state/Scene'
 import { Engine } from './Engine'
 import { RenderCommandBuffer } from './RenderCommand'
+import { DebugFlags } from './game-state/DebugState'
 
 Registry.registerActions(
     SpawnPrefabActionHandler,
@@ -144,7 +146,6 @@ export class ArkanishApp extends HTMLElement {
     private $canvas: HTMLCanvasElement;
     private canvasContext: CanvasRenderingContext2D;
     private running: boolean = false;
-    private scene: Scene;
 
     private gameState: GameState
     private uiState: UiState
@@ -185,6 +186,9 @@ export class ArkanishApp extends HTMLElement {
         this.uiBuffer = RenderCommandBuffer.create()
         this.gameObjBuffer = RenderCommandBuffer.create()
         this.gameState = GameState.create(Date.now())
+        if (buildInfo.version.includes('dev')) {
+            this.gameState.debugFlags |= DebugFlags.DEV_MODE
+        }
         this.uiState = UiState.create()
         Scene.transitionToScene(this.gameState, 'MainMenu')
         this.running = true;
