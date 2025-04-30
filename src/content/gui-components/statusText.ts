@@ -14,7 +14,8 @@ export function statusText(buffer: RenderCommandBuffer, gameState: GameState, pl
         text.push(
             '---',
             `Section Time: ${gameState.gameTime - gameState.levelSectionTimeStart}`,
-            `Intensity: ${gameState.intensity} / ${gameState.intensityBudget}`,
+            `Intensity: ${gameState.intensity} (${gameState.intensityFiltered}) / ${gameState.intensityBudget}`,
+            `Spawn tables: ${gameState.enemyTableA}, ${gameState.enemyTableB}`
         )
     }
 
