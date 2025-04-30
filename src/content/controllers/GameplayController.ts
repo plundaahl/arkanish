@@ -17,7 +17,7 @@ export const GameplayController: Controller<'GameplayController'> = {
         const player = World.getEntity(gameState, gameState.playerId)
 
         // Overlay
-        statusText(buffer, gameState.score, player?.hp)
+        statusText(buffer, gameState, player)
         const pauseControlPressed = pauseButton(
             gameState,
             uiState,
@@ -25,10 +25,6 @@ export const GameplayController: Controller<'GameplayController'> = {
             uiState.playArea.width - PAUSE_BTN_OFFSET - PAUSE_BTN_W,
             PAUSE_BTN_OFFSET,
         )
-
-        if (gameState.debugFlags & DebugFlags.DEV_MODE && !gameState.running) {
-            textButton(buffer, 'Save', uiState, 100, { hPos: 10 })
-        }
 
         if (ButtonState.pressed(uiState, Buttons.MENU) || pauseControlPressed) {
             gameState.running = !gameState.running

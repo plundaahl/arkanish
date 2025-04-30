@@ -4,6 +4,7 @@ import { RenderCommandBuffer } from "./RenderCommand"
 import {
     CollisionSystem,
     DamageSystem,
+    DirectorSystem,
     EventSystem,
     InputSystem,
     LevelSystem,
@@ -32,6 +33,7 @@ export const Engine = {
         UiSystem.run(state, uiState, uiBuffer)
         TimeSystem.run(state, systemTime)
         LevelSystem.run(state)
+        DirectorSystem.run(state)
         SpawnSystem.runSpawn(state)
         if (state.running) {
             MovementSystem.run(state)

@@ -5,6 +5,7 @@ export interface PrefabParameters {}
 
 export interface Prefab<P extends PrefabParameters = PrefabParameters> {
     id: string,
+    intensity?: number,
     spawn: (gameState: GameState, parent?: number, parameters?: Partial<P>) => Entity,
 }
 
@@ -32,4 +33,11 @@ export const Prefab = {
         }
         return prefab.spawn(state, parent, parameters)
     },
+    intensityOf: (prefabName: string): number => {
+        const prefab = prefabRegistry[prefabName]
+        if (!prefab) {
+            throw new Error(`No Prefab found with ID [${prefabName}].`)
+        }
+        return prefab.intensity || 0
+    }
 }

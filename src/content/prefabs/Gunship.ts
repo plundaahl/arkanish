@@ -2,11 +2,13 @@ import { BoundingBox } from "../../game-state/BoundingBox";
 import { EntityFlags, World } from "../../game-state/Entity";
 import { Prefab } from "../../game-state/Prefab";
 import { Vector2 } from "../../game-state/Vector";
+import { INTENSITIES } from "./intensities";
 
-const SPEED = 40
+const SPEED = 100
 
 export const GunshipPrefab: Prefab = {
     id: 'Gunship',
+    intensity: INTENSITIES.Gunship,
     spawn(gameState, parent) {
         const entity = World.spawnEntity(gameState, parent)
 

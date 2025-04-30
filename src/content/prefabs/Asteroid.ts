@@ -1,10 +1,12 @@
 import { BoundingBox } from "../../game-state/BoundingBox";
-import { ColliderFlags, Entity, EntityFlags, World } from "../../game-state/Entity";
+import { Entity, EntityFlags, World } from "../../game-state/Entity";
 import { GameState } from "../../game-state/GameState";
 import { Prefab } from "../../game-state/Prefab";
+import { INTENSITIES } from "./intensities";
 
 export const AsteroidPrefab: Prefab = {
     id: "Asteroid",
+    intensity: INTENSITIES.Asteroid,
     spawn: (gameState: GameState, parent?: number): Entity => {
         const entity = World.spawnEntity(gameState, parent)
 

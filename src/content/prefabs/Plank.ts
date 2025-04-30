@@ -1,19 +1,22 @@
 import { BoundingBox } from "../../game-state/BoundingBox";
 import { Entity, EntityFlags, World } from "../../game-state/Entity";
-import { GameState } from "../../game-state/GameState";
 import { Prefab } from "../../game-state/Prefab";
 import { Vector2 } from "../../game-state/Vector";
 import { ExtraMath } from "../../Math";
+import { INTENSITIES } from "./intensities";
 
 const PLANK_SECTION_SIZE = 50
 
 export const PlankPrefab: Prefab = {
     id: "Plank",
+    intensity: INTENSITIES.Plank,
     spawn(gameState, parent): Entity {
         const center = World.spawnEntity(gameState, parent)
         center.velYL = ExtraMath.rollBetween(100, 250)
         center.velRL = ExtraMath.rollBetween(0.25, 0.8) * Math.PI * ExtraMath.positiveOrNegative()
         center.posRL = Math.random() * Math.PI * 2
+
+        center.flags |= EntityFlags.KILL_IF_CHILDLESS
 
         const numSections = Math.floor(ExtraMath.rollBetween(3, 7))
         const halfWidth = PLANK_SECTION_SIZE * numSections * 0.5

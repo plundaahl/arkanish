@@ -1,9 +1,14 @@
+
+
 export const GameEventType = {
     NULL: 0,
     COLLISION: 1,
     BOUNCE: 2,
     DAMAGE: 3,
-}
+    SPAWN: 4,
+    DEATH: 5,
+    CHILD_DEATH: 6,
+} as const
 
 type NullGameEvent = {
     type: typeof GameEventType.NULL,
@@ -23,11 +28,29 @@ export type DamageGameEvent = {
     entity: number,
     dead: boolean,
 }
+export type SpawnGameEvent = {
+    type: typeof GameEventType.SPAWN,
+    entity: number,
+    intensity: number,
+}
+export type DespawnGameEvent = {
+    type: typeof GameEventType.DEATH,
+    entity: number,
+    intensity: number,
+}
+export type ChildDeathEvent = {
+    type: typeof GameEventType.CHILD_DEATH,
+    entity: number,
+    child: number,
+}
 
 export type GameEvent = NullGameEvent
     | CollisionGameEvent
     | BounceGameEvent
     | DamageGameEvent
+    | SpawnGameEvent
+    | DespawnGameEvent
+    | ChildDeathEvent
 
 function reset(obj: Object): any {
     for (const prop of Object.getOwnPropertyNames(obj)) {
@@ -43,9 +66,13 @@ export const GameEvent = {
         cleared.type = GameEventType.NULL
         return cleared
     },
+    isNullEvent: (event: GameEvent): event is NullGameEvent => event.type === GameEventType.NULL,
     isCollisionEvent: (event: GameEvent): event is CollisionGameEvent => event.type === GameEventType.COLLISION,
     isBounceEvent: (event: GameEvent): event is BounceGameEvent => event.type === GameEventType.BOUNCE,
     isDamageEvent: (event: GameEvent): event is DamageGameEvent => event.type === GameEventType.DAMAGE,
+    isSpawnEvent: (event: GameEvent): event is SpawnGameEvent => event.type === GameEventType.SPAWN,
+    isDeathEvent: (event: GameEvent): event is DespawnGameEvent => event.type === GameEventType.DEATH,
+    isChildDeathEvent: (event: GameEvent): event is ChildDeathEvent => event.type === GameEventType.CHILD_DEATH,
 }
 
 export type GameEventBuffer = {
@@ -60,7 +87,7 @@ const provisionEvent = (buffer: GameEventBuffer): GameEvent => {
         }
     }
     const event = GameEvent.create()
-    buffer.publishedEvents.push(event)
+    buffer.pendingEvents.push(event)
     return event
 }
 
@@ -79,7 +106,7 @@ export const GameEventBuffer = {
         return event
     },
     addBounceEvent: (buffer: GameEventBuffer, entity: number) => {
-        const event = provisionEvent(buffer) as CollisionGameEvent
+        const event = provisionEvent(buffer) as BounceGameEvent
         event.type = GameEventType.BOUNCE
         event.entity = entity
         return event
@@ -89,6 +116,27 @@ export const GameEventBuffer = {
         event.type = GameEventType.DAMAGE
         event.entity = entity
         event.dead = dead
+        return event
+    },
+    addSpawnEvent: (buffer: GameEventBuffer, entity: number, intensity: number) => {
+        const event = provisionEvent(buffer) as SpawnGameEvent
+        event.type = GameEventType.SPAWN
+        event.entity = entity
+        event.intensity = intensity
+        return event
+    },
+    addDeathEvent: (buffer: GameEventBuffer, entity: number, intensity: number) => {
+        const event = provisionEvent(buffer) as DespawnGameEvent
+        event.type = GameEventType.DEATH
+        event.entity = entity
+        event.intensity = intensity
+        return event
+    },
+    addChildDeathEvent: (buffer: GameEventBuffer, entity: number, child: number) => {
+        const event = provisionEvent(buffer) as ChildDeathEvent
+        event.type = GameEventType.CHILD_DEATH
+        event.entity = entity
+        event.child = child
         return event
     },
 }

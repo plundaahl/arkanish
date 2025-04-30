@@ -3,6 +3,7 @@ import { BoundingBox } from "../../game-state/BoundingBox";
 import { Entity, EntityFlags, World } from "../../game-state/Entity";
 import { Prefab } from "../../game-state/Prefab";
 import { Vector2 } from "../../game-state/Vector";
+import { INTENSITIES } from "./intensities";
 
 const CENTER_W = 60
 const CENTER_L = 80
@@ -22,6 +23,7 @@ const MAX_ROTATION_SPEED = Math.PI * 0.02
 
 export const MissileFrigatePrefab: Prefab = {
     id: "MissileFrigate",
+    intensity: INTENSITIES.MissileFrigate,
     spawn(gameState, parent): Entity {
         // Frigate Body
         const body = World.spawnEntity(gameState, parent)
@@ -37,7 +39,7 @@ export const MissileFrigatePrefab: Prefab = {
         body.radius = NOSE_L
 
         body.flags |= EntityFlags.USE_INTERNAL_VELOCITY
-        body.velMI = 50
+        body.velMI = 80
         body.velRL = MAX_ROTATION_SPEED * ExtraMath.positiveOrNegative()
 
         body.flags |= EntityFlags.COLLIDER

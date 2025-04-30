@@ -86,7 +86,6 @@ export const Gui = {
         }
 
         if (clicked || tapped) {
-            console.log(JSON.stringify(ui))
             return GuiStates.CLICKED
         } else if (pressed) {
             return GuiStates.PRESSED

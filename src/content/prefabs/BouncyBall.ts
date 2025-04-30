@@ -6,9 +6,11 @@ import { BoundingBox } from "../../game-state/BoundingBox";
 import { BouncyBallScriptHandler, BouncyBallData } from "../scripts";
 import { Script } from "../../game-state/Script";
 import { ExtraMath } from "../../Math";
+import { INTENSITIES } from "./intensities";
 
 export const BouncyBallPrefab: Prefab = {
     id: "BouncyBall",
+    intensity: INTENSITIES.BouncyBall,
     spawn: (gameState: GameState, parent?: number): Entity => {
         const entity = World.spawnEntity(gameState, parent)
 

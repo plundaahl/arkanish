@@ -5,6 +5,7 @@ import { Prefab } from "../../game-state/Prefab";
 import { Script } from "../../game-state/Script";
 import { JetEmitterData, WeaverScriptHandler } from "../scripts";
 import { ExtraMath } from "../../Math";
+import { INTENSITIES } from "./intensities";
 
 const MIN_SPEED_MULTIPLE = 0.4
 const MAX_SPEED_MULTIPLE = 0.9
@@ -18,6 +19,7 @@ const MAX_VEL_R = Math.PI * 1
 
 export const WeaverPrefab: Prefab = {
     id: 'Weaver',
+    intensity: INTENSITIES.Weaver,
     spawn(gameState, parent) {
         const entity = World.spawnEntity(gameState, parent)
 

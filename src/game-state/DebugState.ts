@@ -11,6 +11,8 @@ export type DebugState = {
 
 export const DebugState = {
     create(): DebugState {
-        return { debugFlags: 0 }
+        return {
+            debugFlags: 0,
+        }
     }
 }

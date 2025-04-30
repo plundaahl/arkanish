@@ -14,6 +14,9 @@ export const PlayAreaFlagSystem = {
                     && top - entity.radius <= entity.posYG && entity.posYG <= bottom + entity.radius
                 ) {
                     entity.flags |= EntityFlags.IN_PLAY_AREA
+                    if (!(entity.flags & EntityFlags.SEEN)) {
+                        entity.flags |= EntityFlags.SEEN
+                    }
                 } else {
                     entity.flags &= ~EntityFlags.IN_PLAY_AREA
                 }

@@ -28,6 +28,8 @@ export const EntityFlags = Object.freeze({
     USE_INTERNAL_VELOCITY: entityFlag(),
     PROPAGATE_DEATH_TO_PARENT: entityFlag(),
     IN_PLAY_AREA: entityFlag(),
+    SEEN: entityFlag(),
+    KILL_IF_CHILDLESS: entityFlag(),
     parse: (flags: string[] | undefined): bigint => {
         if (!flags) {
             return 0n
@@ -71,6 +73,7 @@ export const EntityStates = Object.freeze({
     SPAWNING: 1,
     ALIVE: 2,
     DYING: 3,
+    DEAD: 4,
 })
 
 const colliderFlag = Flag.makeNumberFlagFactory()
@@ -114,6 +117,8 @@ export interface Entity {
     scoreValue: number,
     script: Script<string, Object> | undefined
     scriptData: Object | undefined
+    intensity: number,
+    childCount: number,
 }
 
 type Writeable<T> = { -readonly [P in keyof T]: T[P] }
@@ -147,6 +152,8 @@ const NULL_ENTITY: Omit<Entity, 'id' | 'colliderBbSrc' | 'colliderBbTransform'> 
     scoreValue: 0,
     script: undefined,
     scriptData: undefined,
+    intensity: 0,
+    childCount: 0,
 })
 
 const excludedKeys = [
@@ -162,6 +169,8 @@ const excludedKeys = [
     'radius',
     'colliderBbTransform',
     'invulnerableUntil',
+    'intensity',
+    'childCount',
 ] as const
 const assertExcludedKeys: readonly (keyof Entity)[] = excludedKeys
 
@@ -299,11 +308,7 @@ export const World = {
             throw new Error(`Entity index [${idx}] is out-of-bounds.  World only contains [${world.entities.length}] entities.`)
         }
         const entity = world.entities[idx]
-        if (entity.id === id
-            && (entity.state === EntityStates.ALIVE
-                || entity.state === EntityStates.DYING
-            )
-        ) {
+        if (entity.id === id && entity.state !== EntityStates.FREE) {
             return entity
         }
         return undefined
@@ -338,6 +343,10 @@ export const World = {
         entity.state = EntityStates.SPAWNING
         if (parent) {
             (entity as InternalEntity).parent = parent
+            const parentEntity = World.getEntity(world, parent)
+            if (parentEntity) {
+                parentEntity.childCount++
+            }
         }
         return entity
     },

@@ -4,7 +4,9 @@ import { GameState } from "../game-state/GameState";
 export const EventSystem = {
     run: (state: GameState) => {
         for (const event of state.publishedEvents) {
-            GameEvent.releaseEvent(event)
+            if (!GameEvent.isNullEvent(event)) {
+                GameEvent.releaseEvent(event)
+            }
         }
 
         const newlyFreed = state.publishedEvents

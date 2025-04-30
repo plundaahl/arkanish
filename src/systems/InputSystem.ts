@@ -23,7 +23,6 @@ export const InputSystem = {
 
         // Input state resets
         if (uiState.cursorState === CURSOR_IDLE && uiState.cursorElementId !== 0) {
-            console.log(JSON.stringify(uiState))
             uiState.cursorElementId = 0
         }
 

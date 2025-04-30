@@ -1,6 +1,7 @@
 import { GameState } from "../game-state/GameState";
-import { Entity, EntityStates, World } from "../game-state/Entity";
+import { Entity, EntityFlags, EntityStates, World } from "../game-state/Entity";
 import { Id } from "../game-state/Id";
+import { GameEventBuffer } from "../game-state/GameEvent";
 
 /*
 The dedicated SPAWNING state exists to avoid flicker.  We calculate movement
@@ -21,6 +22,7 @@ export const SpawnSystem = {
             const entity = state.entities[i]
             if (entity.state === EntityStates.SPAWNING) {
                 entity.state = EntityStates.ALIVE
+                GameEventBuffer.addSpawnEvent(state, entity.id, entity.intensity)
             }
         }
     },
@@ -31,17 +33,18 @@ export const SpawnSystem = {
                 continue
             }
  
+            // Collect children
             if (entity.parent !== 0) {
                 childEntities.push(entity)
             }
 
             // Remove out-of-bounds entities
-            if (entity.parent === 0 && isEntityInWorldBounds(state, entity)) {
-                World.releaseEntity(state, entity)
+            if (entity.parent === 0 && isEntityInWorldBounds(state, entity) && entity.flags & EntityFlags.SEEN) {
+                Entity.killEntity(entity)
             }
         }
 
-        // Remove entities whose parents have been freed
+        // Propagate DYING status to children
         childEntities.sort(byIdIndex)
         for (const entity of childEntities) {
             const parent = World.getEntity(state, entity.parent)
@@ -51,9 +54,23 @@ export const SpawnSystem = {
             }
         }
 
-        // Release dying entities
+        // Mark dying entities as dead and release dead entities.  This two-phase system
+        // is so that death events can be propagated to before the entity is freed.
         for (const entity of state.entities) {
             if (entity.state === EntityStates.DYING) {
+                entity.state = EntityStates.DEAD
+                GameEventBuffer.addDeathEvent(state, entity.id, entity.intensity)
+                if (entity.parent) {
+                    GameEventBuffer.addChildDeathEvent(state, entity.parent, entity.id)
+                    const parent = World.getEntity(state, entity.parent)
+                    if (parent) {
+                        parent.childCount--
+                        if (parent.childCount <= 0 && parent.flags & EntityFlags.KILL_IF_CHILDLESS) {
+                            Entity.killEntity(parent)
+                        }
+                    }
+                }
+            } else if (entity.state === EntityStates.DEAD) {
                 World.releaseEntity(state, entity)
             }
         }
