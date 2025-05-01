@@ -20,21 +20,34 @@ export const DamageSystem = {
                 && !Flag.hasBigintFlags(entity.flags, EntityFlags.INVULNERABLE)
                 && entity.hurtBy & hitBy.flags
             ) {
-                entity.hp = Math.max(entity.hp - 1, 0)
-                const killingHit = entity.hp <= 0 && Flag.hasBigintFlags(entity.flags, EntityFlags.DESTROY_AT_0_HP)
+                const hitByPlayerBullet = Boolean(hitBy.flags & EntityFlags.ROLE_PLAYER_BULLET)
+                applyDamageToEntity(gameState, entity, hitByPlayerBullet)
 
-                GameEventBuffer.addDamageEvent(gameState, entity.id, killingHit)
-                if (killingHit) {
-                    Entity.killEntity(entity)
-                    if (entity.scoreValue > 0 && hitBy.flags & EntityFlags.ROLE_PLAYER_BULLET) {
-                        gameState.score += entity.scoreValue
-                        entity.scoreValue = 0
+                let currentEntity: Entity | undefined = entity
+                while (currentEntity && currentEntity.flags & EntityFlags.PROPAGATE_DAMAGE_TO_PARENT) {
+                    currentEntity = World.getEntity(gameState, currentEntity.parent)
+                    if (currentEntity) {
+                        applyDamageToEntity(gameState, currentEntity, hitByPlayerBullet)
                     }
                 }
-                propagateEventsToParent(gameState, entity, killingHit)
             }
         }
     },
+}
+
+function applyDamageToEntity(gameState: GameState, entity: Entity, hitByPlayerBullet: boolean) {
+    entity.hp = Math.max(entity.hp - 1, 0)
+    const killingHit = entity.hp <= 0 && Flag.hasBigintFlags(entity.flags, EntityFlags.DESTROY_AT_0_HP)
+
+    GameEventBuffer.addDamageEvent(gameState, entity.id, killingHit)
+    if (killingHit) {
+        Entity.killEntity(entity)
+        if (entity.scoreValue > 0 && hitByPlayerBullet) {
+            gameState.score += entity.scoreValue
+            entity.scoreValue = 0
+        }
+    }
+    propagateEventsToParent(gameState, entity, killingHit)
 }
 
 function propagateEventsToParent(gameState: GameState, entity: Entity, deathEvent: boolean) {

@@ -2,7 +2,7 @@ import { ExtraMath } from "../../Math";
 import { Entity, EntityFlags } from "../../game-state/Entity";
 import { Prefab, PrefabParameters } from "../../game-state/Prefab";
 import { Script } from "../../game-state/Script";
-import { AsteroidScriptHandler } from "../scripts";
+import { AsteroidBasicScriptHandler } from "../scripts";
 import { regenerateAsteroidHitbox } from "../scripts/behaviours/regenerateAsteroidHitbox";
 
 const SIZE_MIN = 1
@@ -29,9 +29,11 @@ export const AsteroidBasicPrefab: Prefab<AsteroidBasicParameters> = {
         hitbox.hp = sizeRoll
         hitbox.scoreValue = Math.round((sizeRoll * SCORE_RANGE) + SCORE_MIN)
         hitbox.flags |= EntityFlags.PROPAGATE_DEATH_TO_PARENT
+        hitbox.flags |= EntityFlags.DESTROY_AT_0_HP
+        hitbox.hurtBy |= EntityFlags.ROLE_PLAYER_BULLET
 
         regenerateAsteroidHitbox(gameState, hitbox, sizeRoll)
-        Script.attach(gameState, hitbox, AsteroidScriptHandler)
+        Script.attach(gameState, hitbox, AsteroidBasicScriptHandler)
 
         return position
     },

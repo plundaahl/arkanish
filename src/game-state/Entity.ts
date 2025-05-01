@@ -27,6 +27,7 @@ export const EntityFlags = Object.freeze({
     DO_NOT_CLAMP_TO_WIDTH_ON_SPAWN: entityFlag(),
     USE_INTERNAL_VELOCITY: entityFlag(),
     PROPAGATE_DEATH_TO_PARENT: entityFlag(),
+    PROPAGATE_DAMAGE_TO_PARENT: entityFlag(),
     IN_PLAY_AREA: entityFlag(),
     SEEN: entityFlag(),
     KILL_IF_CHILDLESS: entityFlag(),
@@ -102,6 +103,9 @@ export interface Entity {
     velXL: number
     velYL: number
     velRL: number
+    velXG: number
+    velYG: number
+    velRG: number
     // Global position (relative to global coordinate space)
     posXG: number
     posYG: number
@@ -140,6 +144,9 @@ const NULL_ENTITY: Omit<Entity, 'id' | 'colliderBbSrc' | 'colliderBbTransform'> 
     velXL: 0,
     velYL: 0,
     velRL: 0,
+    velXG: 0,
+    velYG: 0,
+    velRG: 0,
     posXG: 0,
     posYG: 0,
     posZG: 0,
@@ -166,6 +173,9 @@ const excludedKeys = [
     'posYG',
     'posZG',
     'posRG',
+    'velXG',
+    'velYG',
+    'velRG',
     'radius',
     'colliderBbTransform',
     'invulnerableUntil',
@@ -359,5 +369,23 @@ export const World = {
         }
         world.noFreeEntitiesBefore = Math.min(world.noFreeEntitiesBefore, idx)
         Entity.release(ent)
+    },
+    orphanEntity: (world: World, entity: Entity): void => {
+        if (!entity.parent) {
+            return
+        }
+        const parent = World.getEntity(world, entity.parent)
+        if (!parent) {
+            return
+        }
+        parent.childCount--
+        const internalEntity = (entity as InternalEntity)
+        internalEntity.parent = 0
+        internalEntity.posXL = internalEntity.posXG
+        internalEntity.posYL = internalEntity.posYG
+        internalEntity.posRL = internalEntity.posRG
+        internalEntity.posZL = internalEntity.posZG
+        internalEntity.velXL = internalEntity.velXG
+        internalEntity.velYL = internalEntity.velYG
     },
 }

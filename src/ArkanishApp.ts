@@ -25,7 +25,8 @@ import {
     JetEmitterScriptHandler,
     MissileBayScriptHandler,
     MissileFrigateScriptHandler,
-    AsteroidScriptHandler,
+    AsteroidBasicScriptHandler,
+    AsteroidFragileChunkScriptHandler,
 } from './content/scripts'
 import {
     BlastBeamParticle,
@@ -82,7 +83,7 @@ Registry.registerScriptHandlers(
     CoinScriptHandler,
     PowerupScriptHandler,
     BulletScriptHandler,
-    AsteroidScriptHandler,
+    AsteroidBasicScriptHandler,
     BeamSpinnerScriptHandler,
     BouncyBallScriptHandler,
     PlayerScriptHandler,
@@ -91,6 +92,7 @@ Registry.registerScriptHandlers(
     WeaverScriptHandler,
     ScoreIncrementerScriptHandler,
     MissileScriptHandler,
+    AsteroidFragileChunkScriptHandler,
     MissileBayScriptHandler,
     MissileFrigateScriptHandler,
     JetEmitterScriptHandler,

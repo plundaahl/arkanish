@@ -12,6 +12,8 @@ const FULL_CIRCLE = Math.PI * 2
 
 const localVel: Vector2 = Vector2.createFromCoordinates(0, 0)
 
+const shouldCalculateTransform = (entity: Entity) => entity.state !== EntityStates.FREE && entity.state !== EntityStates.SPAWNING
+
 export const MovementSystem = {
     run: (state: GameState) => {
         const deltaT = state.frameLength
@@ -19,7 +21,7 @@ export const MovementSystem = {
         // Update local positions of all entities
         for (let i = 0; i < state.entities.length; i++) {
             const entity = state.entities[i]
-            if (entity.state !== EntityStates.ALIVE) {
+            if (!shouldCalculateTransform(entity)) {
                 continue
             }
 
@@ -44,7 +46,7 @@ export const MovementSystem = {
 
         for (let i = 0; i < state.entities.length; i++) {
             const entity = state.entities[i]
-            if (entity.state !== EntityStates.ALIVE) {
+            if (!shouldCalculateTransform(entity)) {
                 continue
             }
 
@@ -93,7 +95,7 @@ export const MovementSystem = {
         // Update transforms
         const childEntities: Entity[] = []
         for (const entity of state.entities) {
-            if (entity.state === EntityStates.ALIVE && entity.parent !== 0) {
+            if (shouldCalculateTransform(entity) && entity.parent !== 0) {
                 childEntities.push(entity)
             }
 
@@ -101,6 +103,8 @@ export const MovementSystem = {
             entity.posXG = entity.posXL
             entity.posYG = entity.posYL
             entity.posRG = entity.posRL
+            entity.velXG = entity.velXL
+            entity.velYG = entity.velYL
             for (let i = 0; i < entity.colliderBbSrc.length; i++) {
                 const src = entity.colliderBbSrc[i]
                 const dest = entity.colliderBbTransform[i] || BoundingBox.clone(src)
@@ -123,7 +127,6 @@ export const MovementSystem = {
             // Update child transforms
             Vector2.setToCoordinates(vParent, parent.posXG, parent.posYG)
             Vector2.setToCoordinates(vChild, entity.posXL, entity.posYL)
-
             Vector2.rotateBy(vChild, parent.posRG)
             Vector2.addCoordinates(vChild, parent.posXG, parent.posYG)
 
@@ -131,6 +134,14 @@ export const MovementSystem = {
             entity.posYG = Vector2.yOf(vChild)
             entity.posZG = entity.posZL + parent.posZG
             entity.posRG = entity.posRL + parent.posRG
+
+            Vector2.setToCoordinates(vParent, parent.velXG, parent.velYG)
+            Vector2.setToCoordinates(vChild, entity.velXL, entity.velYL)
+            Vector2.rotateBy(vChild, parent.posRG)
+            Vector2.addCoordinates(vChild, parent.velXG, parent.velYG)
+
+            entity.velXG = Vector2.xOf(vChild)
+            entity.velYG = Vector2.yOf(vChild)
 
             for (let i = 0; i < entity.colliderBbSrc.length; i++) {
                 const src = entity.colliderBbSrc[i]

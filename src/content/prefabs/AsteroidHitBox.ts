@@ -2,24 +2,31 @@ import { Vector2 } from "../../game-state/Vector";
 import { ExtraMath } from "../../Math";
 import { BoundingBox } from "../../game-state/BoundingBox";
 import { Entity, EntityFlags, World } from "../../game-state/Entity";
-import { Prefab } from "../../game-state/Prefab";
+import { Prefab, PrefabParameters } from "../../game-state/Prefab";
 
 const CIRCLE = Math.PI * 2
 
-export const AsteroidHitboxPrefab: Prefab = {
+export interface AsteroidHitboxParameters extends PrefabParameters {
+    minCorners: number
+    maxCorners: number
+}
+
+export const AsteroidHitboxPrefab: Prefab<AsteroidHitboxParameters> = {
     id: 'AsteroidHitbox',
-    spawn(gameState, parent): Entity {
+    spawn(gameState, parent, parameters): Entity {
+        const minCorners = parameters?.minCorners || 5
+        const maxCorners = parameters?.maxCorners || 9
+
         const hitbox = World.spawnEntity(gameState, parent)
 
         hitbox.flags |= EntityFlags.COLLIDER
-        hitbox.collidesWith = EntityFlags.ROLE_PLAYER | EntityFlags.ROLE_PLAYER_BULLET
         hitbox.flags |= EntityFlags.ROLE_OBSTACLE
-        hitbox.flags |= EntityFlags.DESTROY_AT_0_HP
-        hitbox.hurtBy |= EntityFlags.ROLE_PLAYER_BULLET
+        hitbox.collidesWith = EntityFlags.ROLE_PLAYER | EntityFlags.ROLE_PLAYER_BULLET
         hitbox.colour = 'red'
 
-        const cornerRoll = Math.round(ExtraMath.rollBetween(0, 2))
-        const numCorners = 5 + (cornerRoll * 2)
+        const numCorners = Math.round(
+            ExtraMath.rollBetween(minCorners, maxCorners) / 2
+        ) + 1
 
         const vertexes: Vector2[] = []
         for (let i = 0; i < numCorners; i++) {
