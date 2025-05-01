@@ -124,9 +124,9 @@ const stateSpawning: StateMachineScript<'AsteroidSpawner'> = {
                     { size: spawnedEntity.radius }
                 )
                 
-                spawnedEntity.posXL = position.posXL
-                spawnedEntity.posYL = position.posYL
-                spawnedEntity.posRL = position.posRL
+                spawnedEntity.posXL += position.posXL
+                spawnedEntity.posYL += position.posYL
+                spawnedEntity.posRL += position.posRL
                 
                 Entity.killEntity(position)
             }

@@ -42,6 +42,7 @@ export const WeaverPrefab: Prefab = {
                 Vector2.createFromCoordinates(10, -15),
             )
         ]
+        entity.radius = 40
 
         const speedMultiple = ExtraMath.rollBetween(MIN_SPEED_MULTIPLE, MAX_SPEED_MULTIPLE)
 
