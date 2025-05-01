@@ -25,6 +25,7 @@ import {
     JetEmitterScriptHandler,
     MissileBayScriptHandler,
     MissileFrigateScriptHandler,
+    AsteroidScriptHandler,
 } from './content/scripts'
 import {
     BlastBeamParticle,
@@ -37,7 +38,7 @@ import {
     TelegraphCircleParticle
 } from './content/particles'
 import {
-    AsteroidPrefab,
+    BlockPrefab,
     AsteroidSpawnerPrefab,
     BeamSpinnerPrefab,
     BouncyBallPrefab,
@@ -58,6 +59,10 @@ import {
     SpawnPosClampedAbovePrefab,
     SpawnPosAngledAbovePrefab,
     WeakPointPrefab,
+    AsteroidBasicPrefab,
+    MotionDriftPrefab,
+    AsteroidFragilePrefab,
+    AsteroidHitboxPrefab,
 } from './content/prefabs'
 import {
     GameplayController,
@@ -77,6 +82,7 @@ Registry.registerScriptHandlers(
     CoinScriptHandler,
     PowerupScriptHandler,
     BulletScriptHandler,
+    AsteroidScriptHandler,
     BeamSpinnerScriptHandler,
     BouncyBallScriptHandler,
     PlayerScriptHandler,
@@ -105,7 +111,9 @@ Registry.registerPrefabs(
     BouncyBallPrefab,
     CoinPrefab,
     ShieldRechargePrefab,
-    AsteroidPrefab,
+    MotionDriftPrefab,
+    AsteroidBasicPrefab,
+    BlockPrefab,
     AsteroidSpawnerPrefab,
     PlayerBulletPrefab,
     PlayerPrefab,
@@ -118,6 +126,8 @@ Registry.registerPrefabs(
     MissileBayPrefab,
     MissileFrigatePrefab,
     JetEmitterPrefab,
+    AsteroidFragilePrefab,
+    AsteroidHitboxPrefab,
     SpawnPosClampedAbovePrefab,
     SpawnPosAngledAbovePrefab,
     WeakPointPrefab,

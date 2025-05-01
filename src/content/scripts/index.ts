@@ -1,4 +1,5 @@
 export * from './AsteroidSpawnerScript'
+export * from './AsteroidScript'
 export * from './BeamSpinnerScript'
 export * from './BouncyBallScript'
 export * from './BulletScript'

@@ -16,7 +16,7 @@ const ENEMY_TABLES: SpawnTable[] = [
     {
         name: 'Asteroids',
         spawns: [
-            { prefab: 'Asteroid', intensity: 30, weight: 30 },
+            { prefab: 'Block', intensity: 30, weight: 30 },
             { prefab: 'Plank', intensity: 25, weight: 4 },
         ]
     },

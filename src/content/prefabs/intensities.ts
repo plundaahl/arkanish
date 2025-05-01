@@ -1,5 +1,5 @@
 export const INTENSITIES = {
-    Asteroid: 5,
+    Block: 5,
     BeamSpinner: 25,
     BouncyBall: 25,
     Gunship: 80,

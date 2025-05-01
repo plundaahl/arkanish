@@ -48,7 +48,7 @@ export function spawnExplosionParticle(state: GameState, entity: Entity, radius:
     particle.originX = entity.posXG
     particle.originY = entity.posYG
     const angle = Math.random() * 2 * Math.PI
-    const magntiude = (Math.random() * radius * 0.5) + (radius * 0.5)
+    const magntiude = radius * ((Math.random() * 0.8) + 0.2)
     const vec = Vector2.createFromAngle(angle, magntiude)
     particle.vecX = Vector2.xOf(vec)
     particle.vecY = Vector2.yOf(vec)

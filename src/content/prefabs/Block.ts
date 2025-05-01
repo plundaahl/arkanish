@@ -4,9 +4,9 @@ import { GameState } from "../../game-state/GameState";
 import { Prefab } from "../../game-state/Prefab";
 import { INTENSITIES } from "./intensities";
 
-export const AsteroidPrefab: Prefab = {
-    id: "Asteroid",
-    intensity: INTENSITIES.Asteroid,
+export const BlockPrefab: Prefab = {
+    id: "Block",
+    intensity: INTENSITIES.Block,
     spawn: (gameState: GameState, parent?: number): Entity => {
         const entity = World.spawnEntity(gameState, parent)
 
