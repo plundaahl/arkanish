@@ -4,9 +4,11 @@ import { RenderCommandBuffer } from "../../RenderCommand";
 import { Scene } from "../../game-state/Scene";
 import { textButton } from "../gui-components/textButton";
 import { RenderFlags, renderText } from "../../systems";
+import { DebugFlags } from "../../game-state/DebugState";
 
 const TITLE = 'Arkanish'
 const START = 'Start'
+const SANDBOX = 'Sandbox'
 
 export const MainMenuController: Controller<'MainMenuController'> = {
     id: "MainMenuController",
@@ -33,6 +35,10 @@ export const MainMenuController: Controller<'MainMenuController'> = {
 
         if (textButton(buffer, START, ui, 100, layout)) {
             Scene.transitionToScene(gameState, 'Game')
+        }
+
+        if (gameState.debugFlags & DebugFlags.DEV_MODE && textButton(buffer, SANDBOX, ui, 150, layout)) {
+            Scene.transitionToScene(gameState, 'Sandbox')
         }
     }
 }

@@ -3,6 +3,7 @@ import { Buttons, CURSOR_CLICK, CURSOR_DOWN, CURSOR_IDLE, UiState } from './ui-s
 import {
     MenuScene,
     GameScene,
+    SandboxScene,
 } from './content/scenes'
 import { Registry } from './registry'
 import {
@@ -128,6 +129,7 @@ Registry.registerControllers(
 Registry.registerScenes(
     MenuScene,
     GameScene,
+    SandboxScene,
 )
 
 function orError<T>(element: T | null, error: string, ifNull: (message: string) => void): T {

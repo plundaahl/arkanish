@@ -21,9 +21,9 @@ export function textButton(
     const elWidth = textWidth + padding + padding
     const elHeight = textHeight + padding + padding
     const left = halfW - (textWidth / 2) - padding
-    const top = layout.hPos + margin + padding
+    const top = layout.hPos + margin
 
-    layout.hPos = top + elHeight + margin
+    layout.hPos += elHeight + margin
 
     theme.button.active
 
@@ -54,8 +54,6 @@ export function textButton(
         RenderFlags.ALIGN_X_CENTER | RenderFlags.ALIGN_Y_CENTER,
         textStyle, '36px serif'
     )
-
-    layout.hPos += elHeight
 
     return state === GuiStates.CLICKED
 }

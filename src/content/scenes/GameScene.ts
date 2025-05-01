@@ -8,15 +8,7 @@ import { Gui, UiState } from '../../ui-state'
 
 const level: Level = {
     initSection: 'start',
-    // initSection: 'scratch',
     sections: {
-        scratch: {
-            contents: [
-                { when: { type: 'time', at: 0 }, then: [
-                    SpawnPrefabActionHandler.create('MissileFrigate', { posYL: -200 })
-                ]},
-            ]
-        },
         start: {
             contents: [
                 { when: { type: 'time', at: 2000 }, then: [
