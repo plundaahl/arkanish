@@ -1,5 +1,4 @@
-import { ColliderFlags, Entity, EntityFlags, World } from "../../game-state/Entity";
-import { GameState } from "../../game-state/GameState";
+import { Entity, EntityFlags, World } from "../../game-state/Entity";
 import { Prefab } from "../../game-state/Prefab";
 import { BoundingBox } from "../../game-state/BoundingBox";
 import { BulletScriptHandler } from "../scripts";

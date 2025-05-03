@@ -77,14 +77,6 @@ export const EntityStates = Object.freeze({
     DEAD: 4,
 })
 
-const colliderFlag = Flag.makeNumberFlagFactory()
-export const ColliderFlags = Object.freeze({
-    PLAYER: colliderFlag(),
-    ENEMY: colliderFlag(),
-    POWERUP: colliderFlag(),
-    PLAYER_BULLET: colliderFlag(),
-})
-
 export interface Entity {
     id: number
     state: number
@@ -189,30 +181,6 @@ export type EntitySpec = Partial<Omit<Entity, typeof excludedKeys[number]> & {
     hurtBy: Exclude<keyof typeof EntityFlags, 'parse'>[],
     collidesWith: Exclude<keyof typeof EntityFlags, 'parse'>[],
 }>
-const entitySpecKeys = (() => {
-    const keyObj: { [key in keyof Required<EntitySpec>]: 0 } = {
-        posXL: 0,
-        posYL: 0,
-        posZL: 0,
-        posRL: 0,
-        velAI: 0,
-        velMI: 0,
-        velXL: 0,
-        velYL: 0,
-        velRL: 0,
-        colliderBbSrc: 0,
-        colour: 0,
-        defaultSpawner: 0,
-        hp: 0,
-        scoreValue: 0,
-        flags: 0,
-        hurtBy: 0,
-        collidesWith: 0,
-        script: 0,
-        scriptData: 0,
-    }
-    return Object.keys(keyObj) as (keyof EntitySpec)[]
-})()
 
 export const Entity = {
     create: (idx: number): Entity => {
@@ -254,38 +222,6 @@ export const Entity = {
                     throw new Error(`Invalid key [${key}].`)
             }
         }
-    },
-    serialize: (entity: Entity): EntitySpec => {
-        const spec: EntitySpec = {}
-        for (const key of entitySpecKeys) {
-            if (entity[key] === (NULL_ENTITY as any)[key]) {
-                continue
-            }
-            switch (key) {
-                case 'hurtBy':
-                case 'collidesWith':
-                case 'flags': spec.flags = EntityFlags.serialize(entity.flags); break
-                case 'posXL':
-                case 'posYL':
-                case 'posZL':
-                case 'posRL':
-                case 'velAI':
-                case 'velMI':
-                case 'velXL':
-                case 'velYL':
-                case 'velRL':
-                case 'hp': spec[key] = entity[key]; break;
-                case 'defaultSpawner':
-                case 'colour': spec[key] = entity[key]; break;
-                case 'colliderBbSrc': spec[key] = entity[key]; break;
-                default:
-                    throw new Error(`Invalid key [${key}].`)
-            }
-        }
-        return spec
-    },
-    deserialize: (obj: unknown): Entity | undefined => {
-        throw new Error('Not yet implemented')
     },
 }
 
