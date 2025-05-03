@@ -32,7 +32,7 @@ export const GameOverController: Controller<'GameOverController'> = {
         let scoreTextB = ''
         if (score > (previousHighScore || 0)) {
             scoreTextA = `NEW HIGH SCORE! ${score}`
-            scoreTextB = `Old record: ${previousHighScore}`
+            scoreTextB = previousHighScore === undefined ? '' : `Old record: ${previousHighScore}`
         } else {
             scoreTextA = `Your score: ${score}`
             scoreTextB = `Current record: ${previousHighScore}`

@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.2.6 (2025-05-03)
+- Rework spawning system.  Difficulty will now progressively increase over time.
+- Add pause button.
+- Add 'asteroid' obstacle.
+- Add 'asteroid turret base' enemy.
+- Add high score tracking.
+- Add game over screen.
+
 ## v0.2.5 (2025-04-23)
 - Added 'missile frigate' enemies.
 - Added ability to pass parameters into prefabs.
