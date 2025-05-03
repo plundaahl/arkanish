@@ -31,6 +31,7 @@ export const EntityFlags = Object.freeze({
     IN_PLAY_AREA: entityFlag(),
     SEEN: entityFlag(),
     KILL_IF_CHILDLESS: entityFlag(),
+    INVULNERABLE_AFTER_HIT: entityFlag(),
     parse: (flags: string[] | undefined): bigint => {
         if (!flags) {
             return 0n
@@ -116,6 +117,7 @@ export interface Entity {
     intensity: number,
     childCount: number,
     variation: number,
+    lastHit: number,
 }
 
 type Writeable<T> = { -readonly [P in keyof T]: T[P] }
@@ -155,6 +157,7 @@ const NULL_ENTITY: Omit<Entity, 'id' | 'colliderBbSrc' | 'colliderBbTransform'> 
     intensity: 0,
     childCount: 0,
     variation: 0,
+    lastHit: 0,
 })
 
 const excludedKeys = [
@@ -175,6 +178,7 @@ const excludedKeys = [
     'invulnerableUntil',
     'intensity',
     'childCount',
+    'lastHit',
 ] as const
 const assertExcludedKeys: readonly (keyof Entity)[] = excludedKeys
 

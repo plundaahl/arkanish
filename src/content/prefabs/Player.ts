@@ -15,7 +15,7 @@ export const PlayerPrefab: Prefab = {
     id: "Player",
     spawn: (gameState, parent): Entity => {
         const player = World.spawnEntity(gameState, parent)
-        player.flags |= EntityFlags.ROLE_PLAYER
+        player.flags |= EntityFlags.ROLE_PLAYER | EntityFlags.INVULNERABLE_AFTER_HIT
 
         player.flags |= EntityFlags.COLLIDER
         player.colliderBbSrc = [

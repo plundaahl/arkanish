@@ -1,15 +1,13 @@
 import { GameEvent } from "../../game-state/GameEvent";
-import { Entity, EntityFlags, World } from "../../game-state/Entity";
+import { Entity, EntityFlags } from "../../game-state/Entity";
 import { GameState } from "../../game-state/GameState";
 import { ExplosionWhiteParticle } from "../../content/particles/ExplosionWhiteParticle";
-import { JetParticle } from "../particles/JetParticle";
 import { createStateMachineHandler, StateMachineData, StateMachineScript, transitionScript } from "./StateMachineScript";
 import { Prefab } from "../../game-state/Prefab";
 import { CONTROLLER_FIRE } from "../../game-state/Script";
 
 const TIME_INVULNERABLE_AFTER_HIT = 1000
 const TIME_DYING = 1500
-const MS_PER_JET_PARTICLE = 50
 const PLAYER_BLAST_RADIUS = 100
 const PLAYER_RATE_OF_FIRE = 200
 const PLAYER_SCALE = 2

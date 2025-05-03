@@ -17,7 +17,6 @@ export const DamageSystem = {
             if (entity
                 && hitBy
                 && entity.state === EntityStates.ALIVE
-                && !Flag.hasBigintFlags(entity.flags, EntityFlags.INVULNERABLE)
                 && entity.hurtBy & hitBy.flags
             ) {
                 const hitByPlayerBullet = Boolean(hitBy.flags & EntityFlags.ROLE_PLAYER_BULLET)
@@ -36,7 +35,15 @@ export const DamageSystem = {
 }
 
 function applyDamageToEntity(gameState: GameState, entity: Entity, hitByPlayerBullet: boolean) {
+    if (Flag.hasBigintFlags(entity.flags, EntityFlags.INVULNERABLE)) {
+        return
+    }
+    if (entity.flags & EntityFlags.INVULNERABLE_AFTER_HIT && entity.lastHit >= gameState.gameTime) {
+        return
+    }
+
     entity.hp = Math.max(entity.hp - 1, 0)
+    entity.lastHit = gameState.gameTime
     const killingHit = entity.hp <= 0 && Flag.hasBigintFlags(entity.flags, EntityFlags.DESTROY_AT_0_HP)
 
     GameEventBuffer.addDamageEvent(gameState, entity.id, killingHit)
