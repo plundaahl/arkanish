@@ -12,12 +12,19 @@ const TABLE_XFADE_MAX = 0.8
 const MAX_INTENSITY_MUTLIPLE = 1.5
 const BOON_CHANCE = 1 / 15
 
+/*
+TODO:
+- Make enemy weights' frequencies change by level.
+- Alter enemy velocities by level.
+*/
+
 const ENEMY_TABLES: SpawnTable[] = [
     {
         name: 'Asteroids',
         spawns: [
-            { prefab: 'AsteroidBasic', intensity: 30, weight: 30 },
-            { prefab: 'Plank', intensity: 25, weight: 4 },
+            { prefab: 'AsteroidBasic', intensity: 15, weight: 30 },
+            { prefab: 'AsteroidTurretBase', intensity: 50, weight: 5 },
+            { prefab: 'Plank', intensity: 25, weight: 2 },
         ]
     },
     {
@@ -144,5 +151,5 @@ function onEvent(gameState: GameState, _: Entity, event: GameEvent) {
 export const AsteroidSpawnerScriptHandler = createStateMachineHandler('AsteroidSpawner', stateInit)
 
 function calculateWeightTotals(table: SpawnTable) {
-    return table.spawns.map(entry => entry.weight).reduce((a, b) => a + b), 0
+    return table.spawns.map(entry => entry.weight).reduce((a, b) => a + b, 0)
 }

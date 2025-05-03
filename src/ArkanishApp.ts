@@ -27,6 +27,7 @@ import {
     MissileFrigateScriptHandler,
     AsteroidBasicScriptHandler,
     AsteroidFragileChunkScriptHandler,
+    AsteroidBaseScriptHandler,
 } from './content/scripts'
 import {
     BlastBeamParticle,
@@ -64,6 +65,7 @@ import {
     MotionDriftPrefab,
     AsteroidFragilePrefab,
     AsteroidHitboxPrefab,
+    AsteroidTurretBasePrefab,
 } from './content/prefabs'
 import {
     GameplayController,
@@ -96,6 +98,7 @@ Registry.registerScriptHandlers(
     MissileBayScriptHandler,
     MissileFrigateScriptHandler,
     JetEmitterScriptHandler,
+    AsteroidBaseScriptHandler,
 )
 Registry.registerParticleHandlers(
     BlastBeamParticle,
@@ -132,6 +135,7 @@ Registry.registerPrefabs(
     AsteroidHitboxPrefab,
     SpawnPosClampedAbovePrefab,
     SpawnPosAngledAbovePrefab,
+    AsteroidTurretBasePrefab,
     WeakPointPrefab,
 )
 Registry.registerControllers(
