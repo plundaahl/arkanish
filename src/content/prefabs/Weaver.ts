@@ -6,6 +6,7 @@ import { Script } from "../../game-state/Script";
 import { JetEmitterData, WeaverScriptHandler } from "../scripts";
 import { ExtraMath } from "../../Math";
 import { INTENSITIES } from "./intensities";
+import { mkIntensityCalcFn } from "../util";
 
 const MIN_SPEED_MULTIPLE = 0.4
 const MAX_SPEED_MULTIPLE = 0.9
@@ -13,9 +14,11 @@ const MAX_SPEED_MULTIPLE = 0.9
 const MIN_VEER = Math.PI * 0.2
 const MAX_VEER = Math.PI * 0.5
 
-const TRANSLATE_SPEED = 300
 const ACCEL_R = Math.PI * 0.4
 const MAX_VEL_R = Math.PI * 1
+
+const calculateVelocity = mkIntensityCalcFn(100, 300, 300, 400)
+const calculateAccelR = mkIntensityCalcFn(100, 300, Math.PI * 0.4, Math.PI * 0.8)
 
 export const WeaverPrefab: Prefab = {
     id: 'Weaver',
@@ -48,13 +51,13 @@ export const WeaverPrefab: Prefab = {
 
         entity.posRL = Math.PI * 0.5
         entity.posYL = -450
-        entity.velMI = TRANSLATE_SPEED * speedMultiple
+        entity.velMI = calculateVelocity(gameState.intensityBudget) * speedMultiple
         entity.flags |= EntityFlags.USE_INTERNAL_VELOCITY
 
         Script.attach(gameState, entity, WeaverScriptHandler, {
             travelDir: 0,
             maxVeer: ExtraMath.rollBetween(MIN_VEER, MAX_VEER),
-            accelR: ACCEL_R * speedMultiple,
+            accelR: calculateAccelR(gameState.intensityBudget) * speedMultiple,
             maxVelR: MAX_VEL_R * speedMultiple,
             dir: 1,
             particleTime: 0,

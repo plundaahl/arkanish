@@ -206,6 +206,7 @@ export class ArkanishApp extends HTMLElement {
         this.gameState = GameState.create(Date.now())
         if (buildInfo.version.includes('dev')) {
             this.gameState.debugFlags |= DebugFlags.DEV_MODE
+            console.log(this.gameState)
         }
         this.uiState = UiState.create()
         Scene.transitionToScene(this.gameState, 'MainMenu')

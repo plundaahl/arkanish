@@ -4,7 +4,7 @@ import { createStateMachineHandler, StateMachineData, StateMachineScript, transi
 import { ExtraMath } from "../../Math";
 import { GameState } from "../../game-state/GameState";
 import { Prefab } from "../../game-state/Prefab";
-import { BoundingBox } from "game-state/BoundingBox";
+import { mkIntensityCalcFn } from "../util";
 
 const selfVector: Vector2 = Vector2.createFromCoordinates(1, 1)
 const targetVector: Vector2 = Vector2.createFromCoordinates(1, 1)
@@ -12,13 +12,15 @@ const targetVector: Vector2 = Vector2.createFromCoordinates(1, 1)
 const TURRET_ROTATION_SPEED_MAX = Math.PI * 0.4
 const TURRET_ROTATION_SPEED_MIN = Math.PI * 0.2
 const ANGLE_THRESHOLD = Math.PI * 0.1
-const MS_PER_SHOT = 1000 * 2
 const SHOT_SPEED = 200
+
+const calculateMsPerShot = mkIntensityCalcFn(100, 300, 2000, 1200)
 
 const initState: StateMachineScript<'Turret'> = {
     type: 'Turret',
     onInit(gameState, entity) {
-        (entity.scriptData as StateMachineData).timeEnteredState = gameState.gameTime + Math.round(Math.random() * MS_PER_SHOT)
+        const msPerShot = calculateMsPerShot(gameState.intensityBudget);
+        (entity.scriptData as StateMachineData).timeEnteredState = gameState.gameTime + Math.round(Math.random() * msPerShot)
     },
     onUpdate(gameState, entity) {
         trackPlayer(gameState, entity)
@@ -33,8 +35,9 @@ const idleState: StateMachineScript<'Turret'> = {
     type: 'Turret',
     onUpdate(gameState, entity) {
         trackPlayer(gameState, entity)
+        const msPerShot = calculateMsPerShot(gameState.intensityBudget);
         const timeInState = gameState.gameTime - (entity.scriptData as StateMachineData).timeEnteredState
-        if (timeInState > MS_PER_SHOT) {
+        if (timeInState > msPerShot) {
             transitionScript(gameState, entity, fireState)
         }
     },

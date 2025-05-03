@@ -86,7 +86,9 @@ const stateSpawning: StateMachineScript<'AsteroidSpawner'> = {
     onUpdate(gameState, entity) {
         if (gameState.intensityFiltered < gameState.intensityBudget) {
             // Pick a table
-            const tableXFade = Math.sin(gameState.gameTime * TABLE_XFADE_SPEED)
+            const tableXFade = gameState.forceXfade === undefined
+                ? Math.sin(gameState.gameTime * TABLE_XFADE_SPEED)
+                : gameState.forceXfade
             const enemyTableIdx = (Math.random() * TABLE_XFADE_MAX) < tableXFade
                 ? gameState.enemyTableA
                 : gameState.enemyTableB

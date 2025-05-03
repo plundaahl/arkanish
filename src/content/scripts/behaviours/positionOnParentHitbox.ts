@@ -27,7 +27,9 @@ export function positionOnParentHitbox(turret: Entity, hitbox: Entity, sideRange
             turret.posXL = Vector2.xOf(turretVec)
             turret.posYL = Vector2.yOf(turretVec)
 
-            Vector2.rotateBy(turretVec, Math.PI * -0.5)
+            Vector2.setToVec(turretVec, nextVertex)
+            Vector2.subtract(turretVec, thisVertex)
+            Vector2.rotateBy(turretVec, Math.PI)
             turret.posRL = Vector2.angleOf(turretVec)
 
             return

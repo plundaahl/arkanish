@@ -7,6 +7,7 @@ export type DirectorState = {
     intensityBudget: number
     enemyTableA: number
     enemyTableB: number
+    forceXfade: number | undefined 
 }
 
 export const DirectorState = {
@@ -17,6 +18,7 @@ export const DirectorState = {
             intensityBudget: 100,
             enemyTableA: 0,
             enemyTableB: 0,
+            forceXfade: undefined,
         }
     }
 }
