@@ -5,6 +5,7 @@ import { Level, LevelState } from '../../game-state/Level'
 import { Prefab } from '../../game-state/Prefab'
 import { SpawnPrefabActionHandler, StartSectionActionHandler } from '../actions'
 import { Gui, UiState } from '../../ui-state'
+import { HighScoreDAO } from '../../Persistence'
 
 const level: Level = {
     initSection: 'start',
@@ -80,7 +81,7 @@ export const GameScene: Scene = {
             console.log('no player')
             gameState.playerId = 0
             gameState.playerNextShotTime = 0
-            Scene.transitionToScene(gameState, 'MainMenu')
+            Scene.transitionToScene(gameState, 'GameOver')
         }
     }
 }

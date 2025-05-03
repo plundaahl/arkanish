@@ -5,18 +5,20 @@ import { Scene } from "../../game-state/Scene";
 import { textButton } from "../gui-components/textButton";
 import { RenderFlags, renderText } from "../../systems";
 import { DebugFlags } from "../../game-state/DebugState";
+import { GameState } from "../../game-state/GameState";
 
 const TITLE = 'Arkanish'
 const START = 'Start'
 const SANDBOX = 'Sandbox'
 
+const layout = { hPos: 0 }
 export const MainMenuController: Controller<'MainMenuController'> = {
     id: "MainMenuController",
     update(gameState, ui, buffer): void {
         const height = ui.playArea.height
 
         // Title
-        const layout = { hPos: (4 * height / 12) + ui.playArea.top }
+        layout.hPos = (4 * height / 12) + ui.playArea.top
         RenderCommandBuffer.addCustomRenderCmd(
             buffer, 0, renderText,
             [TITLE], ui.playArea.width * 0.5, layout.hPos,
@@ -24,11 +26,11 @@ export const MainMenuController: Controller<'MainMenuController'> = {
             'white', '85px serif'
         )
 
-        // Version
+        // High Score
         RenderCommandBuffer.addCustomRenderCmd(
             buffer, 0, renderText,
-            [`v${buildInfo.version}`], ui.playArea.width * 0.5, layout.hPos,
-            RenderFlags.ALIGN_X_CENTER, 'white', '20px serif'
+            [calculateHighScoreText(gameState)], ui.playArea.width * 0.5, layout.hPos,
+            RenderFlags.ALIGN_X_CENTER, 'white', '22px serif'
         )
 
         layout.hPos += 40
@@ -40,5 +42,22 @@ export const MainMenuController: Controller<'MainMenuController'> = {
         if (gameState.debugFlags & DebugFlags.DEV_MODE && textButton(buffer, SANDBOX, ui, 150, layout)) {
             Scene.transitionToScene(gameState, 'Sandbox')
         }
+
+        // Version
+        layout.hPos = ui.playArea.height - 10
+        RenderCommandBuffer.addCustomRenderCmd(
+            buffer, 0, renderText,
+            [`v${buildInfo.version}`], ui.playArea.width * 0.5, layout.hPos,
+            RenderFlags.ALIGN_X_CENTER | RenderFlags.ALIGN_Y_BOTTOM,
+            'white', '20px serif'
+        )
     }
+}
+
+function calculateHighScoreText(gameState: GameState) {
+    if (!gameState.highScores.length) {
+        return ''
+    }
+    const record = gameState.highScores[0]
+    return `High Score: ${record.score}`
 }

@@ -8,6 +8,7 @@ import { ParticleState } from './Particles'
 import { PlayAreaState } from './PlayArea'
 import { SceneState } from './Scene'
 import { DirectorState } from './DirectorState'
+import { HighScoreState } from './HighScoreState'
 
 export type GameState = World
     & GameEventBuffer
@@ -19,6 +20,7 @@ export type GameState = World
     & SceneState
     & DebugState
     & DirectorState
+    & HighScoreState
     & {
     playerId: number,
     playerNextShotTime: number,
@@ -41,6 +43,7 @@ export const GameState = {
             ...SceneState.create(),
             ...DebugState.create(),
             ...DirectorState.create(),
+            ...HighScoreState.create(),
             playerId: 0,
             lastSpawnTime: time,
             numEntities: 0,

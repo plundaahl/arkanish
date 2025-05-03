@@ -12,19 +12,13 @@ const TABLE_XFADE_MAX = 0.8
 const MAX_INTENSITY_MUTLIPLE = 1.5
 const BOON_CHANCE = 1 / 15
 
-/*
-TODO:
-- Make enemy weights' frequencies change by level.
-- Alter enemy velocities by level.
-*/
-
 const ENEMY_TABLES: SpawnTable[] = [
     {
         name: 'Asteroids',
         spawns: [
-            { prefab: 'AsteroidBasic', intensity: 15, weight: 30 },
-            { prefab: 'AsteroidTurretBase', intensity: 50, weight: 5 },
-            { prefab: 'Plank', intensity: 25, weight: 2 },
+            { prefab: 'AsteroidBasic', intensity: 25, weight: 60 },
+            { prefab: 'AsteroidTurretBase', intensity: 50, weight: 6 },
+            { prefab: 'Plank', intensity: 25, weight: 4 },
         ]
     },
     {
@@ -39,7 +33,7 @@ const ENEMY_TABLES: SpawnTable[] = [
         spawns: [
             { prefab: 'Weaver', intensity: 40, weight: 80 },
             { prefab: 'Gunship', intensity: 80, weight: 13 },
-            { prefab: 'MissileFrigate', intensity: 100, weight: 7 },
+            { prefab: 'MissileFrigate', intensity: 100, weight: 13 },
         ]
     },
 ]

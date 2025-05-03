@@ -4,6 +4,7 @@ import {
     MenuScene,
     GameScene,
     SandboxScene,
+    GameOverScene,
 } from './content/scenes'
 import { Registry } from './registry'
 import {
@@ -68,6 +69,7 @@ import {
     AsteroidTurretBasePrefab,
 } from './content/prefabs'
 import {
+    GameOverController,
     GameplayController,
     MainMenuController,
 } from './content/controllers'
@@ -76,6 +78,7 @@ import { Scene } from './game-state/Scene'
 import { Engine } from './Engine'
 import { RenderCommandBuffer } from './RenderCommand'
 import { DebugFlags } from './game-state/DebugState'
+import { HighScoreDAO } from './Persistence'
 
 Registry.registerActions(
     SpawnPrefabActionHandler,
@@ -141,11 +144,13 @@ Registry.registerPrefabs(
 Registry.registerControllers(
     GameplayController,
     MainMenuController,
+    GameOverController,
 )
 Registry.registerScenes(
     MenuScene,
     GameScene,
     SandboxScene,
+    GameOverScene,
 )
 
 function orError<T>(element: T | null, error: string, ifNull: (message: string) => void): T {
@@ -204,6 +209,8 @@ export class ArkanishApp extends HTMLElement {
         this.uiBuffer = RenderCommandBuffer.create()
         this.gameObjBuffer = RenderCommandBuffer.create()
         this.gameState = GameState.create(Date.now())
+        this.gameState.highScores = HighScoreDAO.loadHighScores()
+
         if (buildInfo.version.includes('dev')) {
             this.gameState.debugFlags |= DebugFlags.DEV_MODE
             console.log(this.gameState)
@@ -211,6 +218,8 @@ export class ArkanishApp extends HTMLElement {
         this.uiState = UiState.create()
         Scene.transitionToScene(this.gameState, 'MainMenu')
         this.running = true;
+
+        console.log(this.gameState.highScores)
 
         // Start the render loop 
         this.handleResize()
