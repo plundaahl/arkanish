@@ -3,8 +3,8 @@ import { Entity, EntityFlags, World } from "../../game-state/Entity";
 import { GameState } from "../../game-state/GameState";
 import { Prefab, PrefabParameters } from "../../game-state/Prefab";
 
-const VEL_MIN = 80
-const VEL_MAX = 150
+const VEL_MIN = 160
+const VEL_MAX = 300
 const ANGLE_CENTER = Math.PI * 0.5
 const ANGLE_OFFSET_MAX = Math.PI * 0.08
 

@@ -6,7 +6,7 @@ import { AsteroidBasicScriptHandler } from "../scripts";
 import { regenerateAsteroidHitbox } from "../scripts/behaviours/regenerateAsteroidHitbox";
 
 const SIZE_MIN = 1
-const SIZE_MAX = 10
+const SIZE_MAX = 7
 const SCORE_MIN = 10
 const SCORE_MAX = 60
 const SCORE_RANGE = (SCORE_MAX - SCORE_MIN) / (SIZE_MAX - SIZE_MIN)

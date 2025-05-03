@@ -14,8 +14,8 @@ export interface AsteroidHitboxParameters extends PrefabParameters {
 export const AsteroidHitboxPrefab: Prefab<AsteroidHitboxParameters> = {
     id: 'AsteroidHitbox',
     spawn(gameState, parent, parameters): Entity {
-        const minCorners = parameters?.minCorners || 5
-        const maxCorners = parameters?.maxCorners || 9
+        const minCorners = parameters?.minCorners || 4
+        const maxCorners = parameters?.maxCorners || 8
 
         const hitbox = World.spawnEntity(gameState, parent)
 
@@ -24,15 +24,17 @@ export const AsteroidHitboxPrefab: Prefab<AsteroidHitboxParameters> = {
         hitbox.collidesWith = EntityFlags.ROLE_PLAYER | EntityFlags.ROLE_PLAYER_BULLET
         hitbox.colour = 'red'
 
-        const numCorners = Math.round(
+        const numCorners = (Math.round(
             ExtraMath.rollBetween(minCorners, maxCorners) / 2
-        ) + 1
+        ) * 2) + 1
 
         const vertexes: Vector2[] = []
         for (let i = 0; i < numCorners; i++) {
             vertexes.push(Vector2.createFromAngle(CIRCLE * (i + 1) / numCorners, 20))
         }
         hitbox.colliderBbSrc = [BoundingBox.createConvexPolyBb(...vertexes)]
+
+        hitbox.variation = Math.floor(Math.random() * 255)
 
         return hitbox
     },

@@ -16,21 +16,21 @@ const ENEMY_TABLES: SpawnTable[] = [
     {
         name: 'Asteroids',
         spawns: [
-            { prefab: 'Block', intensity: 30, weight: 30 },
+            { prefab: 'AsteroidBasic', intensity: 30, weight: 30 },
             { prefab: 'Plank', intensity: 25, weight: 4 },
         ]
     },
     {
         name: 'Minefield',
         spawns: [
-            { prefab: 'BeamSpinner', intensity: 40, weight: 10 },
+            { prefab: 'BeamSpinner', intensity: 50, weight: 10 },
             { prefab: 'BouncyBall', intensity: 30, weight: 5 },
         ]
     },
     {
         name: 'Armada',
         spawns: [
-            { prefab: 'Weaver', intensity: 50, weight: 80 },
+            { prefab: 'Weaver', intensity: 40, weight: 80 },
             { prefab: 'Gunship', intensity: 80, weight: 13 },
             { prefab: 'MissileFrigate', intensity: 100, weight: 7 },
         ]

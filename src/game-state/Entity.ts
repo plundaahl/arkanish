@@ -115,6 +115,7 @@ export interface Entity {
     scriptData: Object | undefined
     intensity: number,
     childCount: number,
+    variation: number,
 }
 
 type Writeable<T> = { -readonly [P in keyof T]: T[P] }
@@ -153,6 +154,7 @@ const NULL_ENTITY: Omit<Entity, 'id' | 'colliderBbSrc' | 'colliderBbTransform'> 
     scriptData: undefined,
     intensity: 0,
     childCount: 0,
+    variation: 0,
 })
 
 const excludedKeys = [

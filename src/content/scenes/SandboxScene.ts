@@ -12,7 +12,7 @@ const level: Level = {
         scratch: {
             contents: [
                 { when: { type: 'time', at: 0 }, then: [
-                    SpawnPrefabActionHandler.create('AsteroidFragile', { posYL: -200 })
+                    SpawnPrefabActionHandler.create('AsteroidBasic', { posYL: -200 })
                 ]},
             ]
         },
